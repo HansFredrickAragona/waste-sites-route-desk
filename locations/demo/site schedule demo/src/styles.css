@@ -607,12 +607,15 @@ input:focus-visible, textarea:focus-visible { outline: 3px solid #87bea4; outlin
 .dashboard-coverage-count { margin: 7px 0 0; color: #859188; font-size: 8px; }
 .dashboard-daily-panel { margin-top: 16px; padding: 19px 20px 12px; border: 1px solid #e0e8e1; border-radius: 14px; background: #fff; box-shadow: 0 6px 20px rgba(29, 55, 35, .035); }
 .dashboard-daily-table-wrap { width: 100%; overflow-x: auto; }
-.dashboard-daily-table { width: 100%; min-width: 520px; border-collapse: collapse; color: #516257; font-size: 10px; }
+.dashboard-daily-table { width: 100%; min-width: 790px; border-collapse: collapse; color: #516257; font-size: 10px; }
 .dashboard-daily-table thead th { padding: 9px 12px; border-bottom: 1px solid #e5ebe5; color: #8a968e; font-size: 8px; font-weight: 800; letter-spacing: .06em; text-align: right; text-transform: uppercase; white-space: nowrap; }
 .dashboard-daily-table thead th:first-child { text-align: left; }
 .dashboard-daily-table thead th:nth-child(2) { text-align: left; }
 .dashboard-daily-table tbody th, .dashboard-daily-table tbody td { padding: 10px 12px; border-bottom: 1px solid #edf1ed; text-align: right; }
 .dashboard-daily-table tbody tr:last-child th, .dashboard-daily-table tbody tr:last-child td { border-bottom: 0; }
+.dashboard-daily-row { cursor: pointer; transition: background-color .15s ease; }
+.dashboard-daily-row:hover, .dashboard-daily-row:focus-visible { background: #f4f8f3; }
+.dashboard-daily-row:focus-visible { outline: 2px solid #79a987; outline-offset: -2px; }
 .dashboard-daily-table tbody th { color: #43594a; font-size: 10px; font-weight: 750; text-align: left; }
 .dashboard-daily-sites { display: flex; align-items: center; gap: 10px; text-align: left; }
 .dashboard-daily-sites strong { min-width: 27px; color: #315d42; font-size: 10px; font-weight: 800; text-align: right; }

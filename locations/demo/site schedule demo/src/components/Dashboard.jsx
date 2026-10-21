@@ -68,7 +68,13 @@ function getDashboardStats(scheduleModel, mapFeatures) {
   const barangayLabels = new Set();
   const scheduledAreaGroups = new Map();
   const areaGroupsByCell = new Map();
-  const dailyStats = new Map(DAYS.map((day) => [day, { areas: new Map(), sites: new Set() }]));
+  const dailyStats = new Map(DAYS.map((day) => [day, {
+    areas: new Map(),
+    sites: new Set(),
+    drivers: new Map(),
+    trucks: new Map(),
+    barangays: new Map(),
+  }]));
   const canonicalBarangays = new Map(
     (scheduleModel.barangays ?? []).map((name) => [normalizeName(name), {
       name,
@@ -80,6 +86,24 @@ function getDashboardStats(scheduleModel, mapFeatures) {
 
   scheduleModel.drivers.forEach((driver) => {
     Object.entries(driver.days ?? {}).forEach(([day, entries]) => {
+      const daily = dailyStats.get(day);
+      if (daily && entries.length > 0) {
+        const trucks = [...new Map((driver.truck ?? [])
+          .filter(Boolean)
+          .map((truck) => [normalizeName(truck), truck.trim()])).values()];
+        daily.drivers.set(driver.id, {
+          key: driver.id,
+          name: driver.name,
+          type: driver.type || "Driver",
+          trucks,
+        });
+        trucks.forEach((truck) => {
+          const truckKey = normalizeName(truck);
+          const savedTruck = daily.trucks.get(truckKey) ?? { key: truckKey, name: truck, drivers: new Set() };
+          savedTruck.drivers.add(driver.name);
+          daily.trucks.set(truckKey, savedTruck);
+        });
+      }
       const areas = entries.flatMap((entry) => entry.areas ?? []).filter((area) =>
         !isQrtAreaName(area.areaName || area.sourceAreaName || area.barangay || area.dayAreaName),
       );
@@ -175,13 +199,61 @@ function getDashboardStats(scheduleModel, mapFeatures) {
           if (area.barangay) canonicalBarangays.get(barangay)?.areas.add(label);
           uniqueAreas.set(areaKey, savedArea);
 
-          const daily = dailyStats.get(day);
           if (daily) {
             const dailyArea = daily.areas.get(areaKey) ?? { hasSites: false };
             dailyArea.hasSites ||= activeSites.length > 0;
             daily.areas.set(areaKey, dailyArea);
             activeSites.forEach((site) => {
               daily.sites.add(`${site.latitude.toFixed(6)},${site.longitude.toFixed(6)}`);
+            });
+
+            const areaNames = dashboardAreaNames(area);
+            const addBarangay = (name) => {
+              const barangayName = typeof name === "string" ? name.trim() : "";
+              const barangayKey = normalizeName(barangayName);
+              if (!barangayKey) return null;
+              const savedBarangay = daily.barangays.get(barangayKey) ?? {
+                key: barangayKey,
+                name: barangayName,
+                areas: new Set(),
+                sites: new Map(),
+              };
+              areaNames.forEach((areaName) => savedBarangay.areas.add(areaName));
+              daily.barangays.set(barangayKey, savedBarangay);
+              return savedBarangay;
+            };
+
+            if ((area.sites ?? []).length === 0) {
+              [...(area.mapBarangays ?? []), area.barangay].forEach(addBarangay);
+            }
+            (area.sites ?? []).forEach((site) => {
+              let siteBarangayNames = [
+                ...(site.mapBarangays ?? []),
+                ...(site.sourceBarangays ?? []),
+                site.hasExplicitBarangay ? site.barangay : "",
+              ].filter(Boolean);
+              if (siteBarangayNames.length === 0) {
+                siteBarangayNames = [...(area.mapBarangays ?? []), area.barangay].filter(Boolean);
+              }
+              const siteKey = site.hasCoordinates
+                ? `${site.latitude.toFixed(6)},${site.longitude.toFixed(6)}`
+                : `unmapped::${normalizeName(siteLabel(site)) || site.id}`;
+              const siteName = siteLabel(site);
+              siteBarangayNames.forEach((name) => {
+                const barangay = addBarangay(name);
+                if (!barangay) return;
+                const savedSite = barangay.sites.get(siteKey) ?? {
+                  key: siteKey,
+                  name: siteName,
+                  status: site.pinStatus || (site.catalogStatus === "removed" ? "Removed from map" : "Scheduled"),
+                  areas: new Set(),
+                  drivers: new Set(),
+                  coordinates: site.hasCoordinates ? [site.latitude, site.longitude] : null,
+                };
+                areaNames.forEach((areaName) => savedSite.areas.add(areaName));
+                savedSite.drivers.add(driver.name);
+                barangay.sites.set(siteKey, savedSite);
+              });
             });
           }
 
@@ -254,6 +326,23 @@ function getDashboardStats(scheduleModel, mapFeatures) {
       sites: daily.sites.size,
       areasWithoutSites: [...daily.areas.values()].filter((area) => !area.hasSites).length,
       totalAreas: daily.areas.size,
+      trucks: daily.trucks.size,
+      drivers: daily.drivers.size,
+      barangays: daily.barangays.size,
+      driverDetails: [...daily.drivers.values()].sort((a, b) => a.name.localeCompare(b.name)),
+      truckDetails: [...daily.trucks.values()].map((truck) => ({
+        ...truck,
+        drivers: [...truck.drivers].sort((a, b) => a.localeCompare(b)),
+      })).sort((a, b) => a.name.localeCompare(b.name)),
+      barangayDetails: [...daily.barangays.values()].map((barangay) => ({
+        name: barangay.name,
+        areas: [...barangay.areas].sort((a, b) => a.localeCompare(b)),
+        sites: [...barangay.sites.values()].map((site) => ({
+          ...site,
+          areas: [...site.areas].sort((a, b) => a.localeCompare(b)),
+          drivers: [...site.drivers].sort((a, b) => a.localeCompare(b)),
+        })).sort((a, b) => a.name.localeCompare(b.name)),
+      })).sort((a, b) => a.name.localeCompare(b.name)),
     };
   });
   const undefinedLineCountsByArea = new Map();
@@ -389,7 +478,7 @@ function CoverageMeter({ label, value, total, tone, description, unit }) {
   );
 }
 
-function DailySummary({ dailySummary }) {
+function DailySummary({ dailySummary, onOpenDay }) {
   const maximumSites = Math.max(1, ...dailySummary.map((item) => item.sites));
 
   return (
@@ -399,7 +488,7 @@ function DailySummary({ dailySummary }) {
           <p className="eyebrow">Daily totals</p>
           <h2 id="daily-summary-title">Weekly collection summary</h2>
         </div>
-        <span className="dashboard-coverage-tag">From the selected JSON schedule</span>
+        <span className="dashboard-coverage-tag">Select a day to view its drivers, trucks, barangays, and sites</span>
       </div>
       <div className="dashboard-daily-table-wrap">
         <table className="dashboard-daily-table">
@@ -409,24 +498,48 @@ function DailySummary({ dailySummary }) {
               <th scope="col">Mapped sites</th>
               <th scope="col">Areas without sites</th>
               <th scope="col">Total areas</th>
+              <th scope="col">Trucks</th>
+              <th scope="col">Drivers</th>
+              <th scope="col">Barangays</th>
             </tr>
           </thead>
           <tbody>
-            {dailySummary.map((item) => (
-              <tr key={item.day}>
-                <th scope="row">{item.day}</th>
-                <td>
-                  <div className="dashboard-daily-sites">
-                    <strong>{formatted(item.sites)}</strong>
-                    <span className="dashboard-daily-bar" aria-hidden="true">
-                      <span style={{ width: `${(item.sites / maximumSites) * 100}%` }} />
-                    </span>
-                  </div>
-                </td>
-                <td>{formatted(item.areasWithoutSites)}</td>
-                <td>{formatted(item.totalAreas)}</td>
-              </tr>
-            ))}
+            {dailySummary.map((item) => {
+              const openDay = () => onOpenDay(item);
+              return (
+                <tr
+                  key={item.day}
+                  className="dashboard-daily-row"
+                  tabIndex={0}
+                  role="button"
+                  aria-haspopup="dialog"
+                  aria-controls="dashboard-day-dialog"
+                  aria-label={`Open ${item.day} details: ${formatted(item.trucks)} trucks, ${formatted(item.drivers)} drivers, ${formatted(item.barangays)} barangays`}
+                  onClick={openDay}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      openDay();
+                    }
+                  }}
+                >
+                  <th scope="row">{item.day}</th>
+                  <td>
+                    <div className="dashboard-daily-sites">
+                      <strong>{formatted(item.sites)}</strong>
+                      <span className="dashboard-daily-bar" aria-hidden="true">
+                        <span style={{ width: `${(item.sites / maximumSites) * 100}%` }} />
+                      </span>
+                    </div>
+                  </td>
+                  <td>{formatted(item.areasWithoutSites)}</td>
+                  <td>{formatted(item.totalAreas)}</td>
+                  <td>{formatted(item.trucks)}</td>
+                  <td>{formatted(item.drivers)}</td>
+                  <td>{formatted(item.barangays)}</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -449,7 +562,7 @@ function BarangayBreakdown({ barangays, query }) {
     query,
     barangay.name,
     ...barangay.areas,
-    ...barangay.sites.flatMap((site) => [site.name, site.status]),
+    ...barangay.sites.flatMap((site) => [site.name, site.status, ...(site.areas ?? []), ...(site.drivers ?? [])]),
   ));
 
   if (visibleBarangays.length === 0) return <EmptyBreakdown>No barangays match this search.</EmptyBreakdown>;
@@ -469,7 +582,15 @@ function BarangayBreakdown({ barangays, query }) {
                 {barangay.sites.map((site) => (
                   <li key={site.key}>
                     <strong>{site.name}</strong>
-                    <span>{site.status}{site.occurrences.length > 0 ? ` · ${site.occurrences.length} schedule occurrence${site.occurrences.length === 1 ? "" : "s"}` : ""}</span>
+                    <span>
+                      {site.status}
+                      {site.areas?.length > 0 ? ` · ${site.areas.join(" / ")}` : ""}
+                      {site.drivers?.length > 0
+                        ? ` · ${site.drivers.join(", ")}`
+                        : site.occurrences?.length > 0
+                          ? ` · ${site.occurrences.length} schedule occurrence${site.occurrences.length === 1 ? "" : "s"}`
+                          : ""}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -707,9 +828,131 @@ function DashboardDetailDialog({ metric, stats, onClose }) {
   );
 }
 
+function DailyDetailDialog({ day, onClose }) {
+  const dialogRef = useRef(null);
+  const [query, setQuery] = useState("");
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (day && dialog && !dialog.open) dialog.showModal();
+    if (!day && dialog?.open) dialog.close();
+  }, [day?.day]);
+
+  useEffect(() => setQuery(""), [day?.day]);
+
+  function closeWhenBackdropIsClicked(event) {
+    const dialog = event.currentTarget;
+    const bounds = dialog.getBoundingClientRect();
+    const clickIsOutsideCard = event.clientX < bounds.left || event.clientX > bounds.right ||
+      event.clientY < bounds.top || event.clientY > bounds.bottom;
+    if (event.target === dialog || clickIsOutsideCard) onClose();
+  }
+
+  const drivers = (day?.driverDetails ?? []).filter((driver) => matchesQuery(
+    query,
+    driver.name,
+    driver.type,
+    ...driver.trucks,
+  ));
+  const trucks = (day?.truckDetails ?? []).filter((truck) => matchesQuery(query, truck.name, ...truck.drivers));
+
+  return (
+    <dialog
+      ref={dialogRef}
+      id="dashboard-day-dialog"
+      className="data-notes-dialog dashboard-detail-dialog"
+      aria-labelledby="dashboard-day-title"
+      onClose={() => { if (day) onClose(); }}
+      onCancel={(event) => { event.preventDefault(); onClose(); }}
+      onClick={closeWhenBackdropIsClicked}
+    >
+      {day && (
+        <div className="data-notes-dialog-inner">
+          <header className="data-notes-dialog-header">
+            <div className="data-notes-dialog-title-lockup">
+              <span className="dashboard-metric-icon-wrap dashboard-detail-icon--green"><MetricIcon name="drivers" /></span>
+              <div>
+                <p className="eyebrow">Daily schedule details</p>
+                <h2 id="dashboard-day-title">{day.day}</h2>
+              </div>
+              <span className="notes-count">{formatted(day.drivers)} drivers</span>
+            </div>
+            <button className="data-notes-close" type="button" aria-label="Close daily details" onClick={onClose}>×</button>
+          </header>
+          <div className="dashboard-detail-content">
+            <div className="dashboard-detail-toolbar">
+              <p>{formatted(day.trucks)} trucks · {formatted(day.barangays)} barangays · {formatted(day.sites)} mapped sites</p>
+              <label>
+                <span>Search daily details</span>
+                <input
+                  type="search"
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  placeholder="Type a driver, truck, barangay, or site"
+                />
+              </label>
+            </div>
+            <div className="dashboard-detail-sections">
+              <section>
+                <div className="dashboard-detail-section-heading">
+                  <h3>Drivers involved</h3>
+                  <span>{formatted(day.drivers)}</span>
+                </div>
+                {drivers.length > 0 ? (
+                  <div className="dashboard-detail-card-list">
+                    {drivers.map((driver) => (
+                      <article className="dashboard-detail-card" key={driver.key}>
+                        <div className="dashboard-detail-card-heading">
+                          <h3>{driver.name}</h3>
+                          <span>{driver.type}</span>
+                        </div>
+                        <p className="dashboard-detail-secondary">
+                          Truck{driver.trucks.length === 1 ? "" : "s"}: {driver.trucks.length > 0 ? driver.trucks.join(", ") : "No truck listed"}
+                        </p>
+                      </article>
+                    ))}
+                  </div>
+                ) : <EmptyBreakdown>{day.drivers === 0 ? "No drivers are scheduled for this day." : "No drivers match this search."}</EmptyBreakdown>}
+              </section>
+              <section>
+                <div className="dashboard-detail-section-heading">
+                  <h3>Trucks involved</h3>
+                  <span>{formatted(day.trucks)}</span>
+                </div>
+                {trucks.length > 0 ? (
+                  <div className="dashboard-detail-card-list">
+                    {trucks.map((truck) => (
+                      <article className="dashboard-detail-card" key={truck.key}>
+                        <div className="dashboard-detail-card-heading">
+                          <h3>{truck.name}</h3>
+                          <span>{formatted(truck.drivers.length)} {truck.drivers.length === 1 ? "driver" : "drivers"}</span>
+                        </div>
+                        <p className="dashboard-detail-secondary">Drivers: {truck.drivers.join(" · ")}</p>
+                      </article>
+                    ))}
+                  </div>
+                ) : <EmptyBreakdown>{day.trucks === 0 ? "No trucks are listed for this day." : "No trucks match this search."}</EmptyBreakdown>}
+              </section>
+              <section>
+                <div className="dashboard-detail-section-heading">
+                  <h3>Barangays and collection sites</h3>
+                  <span>{formatted(day.barangays)}</span>
+                </div>
+                <BarangayBreakdown barangays={day.barangayDetails} query={query} />
+              </section>
+            </div>
+          </div>
+        </div>
+      )}
+    </dialog>
+  );
+}
+
 export default function Dashboard({ scheduleModel, mapFeatures, scheduleName }) {
   const stats = getDashboardStats(scheduleModel, mapFeatures);
   const [activeMetricKey, setActiveMetricKey] = useState(null);
+  const [activeDayName, setActiveDayName] = useState(null);
+  const activeDay = stats.dailySummary.find((item) => item.day === activeDayName) ?? null;
   const metrics = [
     {
       key: "areas-without-sites",
@@ -819,12 +1062,13 @@ export default function Dashboard({ scheduleModel, mapFeatures, scheduleName }) 
           />
         </div>
       </section>
-      <DailySummary dailySummary={stats.dailySummary} />
+      <DailySummary dailySummary={stats.dailySummary} onOpenDay={(day) => setActiveDayName(day.day)} />
       <DashboardDetailDialog
         metric={activeMetric}
         stats={stats}
         onClose={() => setActiveMetricKey(null)}
       />
+      <DailyDetailDialog day={activeDay} onClose={() => setActiveDayName(null)} />
     </section>
   );
 }
