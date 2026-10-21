@@ -817,7 +817,7 @@ function App() {
       <header className="sticky-header">
         <div className="app-header">
           <div className="brand-lockup">
-            <div className="brand-mark" aria-hidden="true"><span /><span /><span /></div>
+            <div className="brand-mark" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M10 18s5.5-5.1 5.5-9.3a5.5 5.5 0 1 0-11 0C4.5 12.9 10 18 10 18Z" /><circle cx="10" cy="8.5" r="1.8" /></svg></div>
             <div><p className="brand-kicker">Baguio City · Collection-site review</p><p className="brand-name">Barangay sites</p></div>
           </div>
           <div className="global-actions">

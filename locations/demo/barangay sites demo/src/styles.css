@@ -46,16 +46,10 @@ button:focus-visible, select:focus-visible, a:focus-visible, summary:focus-visib
   height: 38px;
   border-radius: 13px;
   background: var(--green);
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  gap: 3px;
-  padding: 10px 9px;
+  display: grid;
+  place-items: center;
 }
-.brand-mark span { width: 4px; border-radius: 4px 4px 1px 1px; background: #e9f5ea; }
-.brand-mark span:nth-child(1) { height: 9px; }
-.brand-mark span:nth-child(2) { height: 15px; }
-.brand-mark span:nth-child(3) { height: 11px; }
+.brand-mark svg { width: 21px; height: 21px; fill: none; stroke: #e9f5ea; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 .brand-kicker, .brand-name { margin: 0; }
 .brand-kicker { color: #77847c; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; font-weight: 700; }
 .brand-name { font: 700 16px "Manrope", sans-serif; margin-top: 2px; }
