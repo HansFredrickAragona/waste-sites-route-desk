@@ -1,0 +1,5495 @@
+[
+  {
+    "driver": "BLANTE CHRISTOPHER",
+    "schedule": [
+      {
+        "day": "Monday",
+        "area": [
+          {
+            "barangay": "Slaughter House Area (Santo NiÃ±o Slaughter)",
+            "sites": [
+              "Site 1"
+            ],
+            "pick up time": "Monday 4:00AM - 6:00AM"
+          },
+          {
+            "barangay": "Padre Burgos",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5",
+              "Site 6",
+              "Site 7"
+            ],
+            "pick up time": "Sunday 8:00PM - Monday 4:00AM"
+          },
+          {
+            "barangay": "Andres Bonifacio (Lower Bokawkan)",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4"
+            ],
+            "pick up time": "Monday 5:00AM - 7:00 AM"
+          },
+          {
+            "barangay": "incld. BPI Compd.",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Tuesday",
+        "area": [
+          {
+            "barangay": "Brookspoint",
+            "sites": [
+              "Site 1"
+            ],
+            "pick up time": "Tuesday 5:00-7:00AM"
+          },
+          {
+            "barangay": "Sanitary Camp, North",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3"
+            ],
+            "pick up time": "Monday 6:00PM - Tuesday 2:30AM"
+          },
+          {
+            "barangay": "Purok 1 North Sanitary Camp",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Wednesday",
+        "area": [
+          {
+            "barangay": "Bakbakan (Joaquin Smith NHS) to City Limit",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Thursday",
+        "area": [
+          {
+            "barangay": "Spring Hills, Kadaclan, Cudirao Rd. (in front of Baptist School)",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Friday",
+        "area": [
+          {
+            "barangay": "Happy Hollow",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5",
+              "Site 6",
+              "Site 7"
+            ],
+            "pick up time": "Friday"
+          },
+          {
+            "barangay": "Outlook Drive",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5"
+            ],
+            "pick up time": "Thursday and Friday"
+          },
+          {
+            "barangay": "Magsaysay Drive (Tesda)",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      }
+    ]
+  },
+  {
+    "driver": "BUYA JIKIRI",
+    "schedule": [
+      {
+        "day": "Monday",
+        "area": [
+          {
+            "barangay": "Guisad Sorong",
+            "sites": [
+              "Site 1",
+              "Site 2"
+            ],
+            "pick up time": "Monday 4:00AM - 6:00AM"
+          },
+          {
+            "barangay": "Cresencia Village",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5"
+            ],
+            "pick up time": "Sunday 5:00PM - 8:00AM Wednesday 5:00PM - 8:00AM"
+          },
+          {
+            "barangay": "Andres Bonifacio (Lower Bokawkan)",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4"
+            ],
+            "pick up time": "Monday 5:00AM - 7:00 AM"
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Tuesday",
+        "area": [
+          {
+            "barangay": "New Lucban",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5",
+              "Site 6",
+              "Site 7"
+            ],
+            "pick up time": "Tuesday 4:00AM - 6:00AM; Tuesday 4:00AM - 8:00AM; Tuesday 5:00AM - 7:00AM"
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Wednesday",
+        "area": [
+          {
+            "barangay": "Celestial to Belshang, Suello Junction, Pacday Junction",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Thursday",
+        "area": [
+          {
+            "barangay": "Loakan Proper",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5",
+              "Site 6",
+              "Site 7",
+              "Site 8",
+              "Site 9",
+              "Site 10",
+              "Site 11",
+              "Site 12",
+              "Site 13",
+              "Site 14",
+              "Site 15"
+            ],
+            "pick up time": "Thursday"
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Friday",
+        "area": [
+          {
+            "barangay": "Ciudad Grande-Phase 1/2, Tetep-an Village",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      }
+    ]
+  },
+  {
+    "driver": "CAPALARAN ARTURO",
+    "schedule": [
+      {
+        "day": "Monday",
+        "area": [
+          {
+            "barangay": "Legarda-Burnham-Kisad",
+            "sites": [
+              "Main Site1",
+              "Main Site2",
+              "Main Site3",
+              "Sub sites1",
+              "Sub sites2",
+              "Sub sites3",
+              "Sub sites4",
+              "Sub sites5",
+              "Sub sites6",
+              "Sub sites7",
+              "Sub sites8",
+              "Sub sites9",
+              "Sub sites10",
+              "Sub sites11",
+              "Sub sites12",
+              "Sub sites13",
+              "Sub sites14",
+              "Sub sites15",
+              "Sub sites16",
+              "Sub sites17",
+              "Sub sites18",
+              "Sub sites19",
+              "Sub sites20",
+              "Sub sites21",
+              "Sub sites22",
+              "Sub sites23",
+              "Sub sites24",
+              "Sub sites25",
+              "Sub sites26",
+              "Sub sites27",
+              "Sub sites28",
+              "Sub sites29",
+              "Sub sites30",
+              "Sub sites31",
+              "Sub sites32"
+            ],
+            "pick up time": "Everyday"
+          },
+          {
+            "barangay": "Naguilian road",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Paraan",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Avelino Fairview",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Tuesday",
+        "area": [
+          {
+            "barangay": "Legarda-Burnham-Kisad",
+            "sites": [
+              "Main Site1",
+              "Main Site2",
+              "Main Site3",
+              "Sub sites1",
+              "Sub sites2",
+              "Sub sites3",
+              "Sub sites4",
+              "Sub sites5",
+              "Sub sites6",
+              "Sub sites7",
+              "Sub sites8",
+              "Sub sites9",
+              "Sub sites10",
+              "Sub sites11",
+              "Sub sites12",
+              "Sub sites13",
+              "Sub sites14",
+              "Sub sites15",
+              "Sub sites16",
+              "Sub sites17",
+              "Sub sites18",
+              "Sub sites19",
+              "Sub sites20",
+              "Sub sites21",
+              "Sub sites22",
+              "Sub sites23",
+              "Sub sites24",
+              "Sub sites25",
+              "Sub sites26",
+              "Sub sites27",
+              "Sub sites28",
+              "Sub sites29",
+              "Sub sites30",
+              "Sub sites31",
+              "Sub sites32"
+            ],
+            "pick up time": "Everyday"
+          },
+          {
+            "barangay": "Teodora Alonzo",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5"
+            ],
+            "pick up time": "Tuesday 4:00AM - 6:00AM"
+          },
+          {
+            "barangay": "Naguilian road",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Cuneta and Good Sheperd",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Wednesday",
+        "area": [
+          {
+            "barangay": "Legarda-Burnham-Kisad",
+            "sites": [
+              "Main Site1",
+              "Main Site2",
+              "Main Site3",
+              "Sub sites1",
+              "Sub sites2",
+              "Sub sites3",
+              "Sub sites4",
+              "Sub sites5",
+              "Sub sites6",
+              "Sub sites7",
+              "Sub sites8",
+              "Sub sites9",
+              "Sub sites10",
+              "Sub sites11",
+              "Sub sites12",
+              "Sub sites13",
+              "Sub sites14",
+              "Sub sites15",
+              "Sub sites16",
+              "Sub sites17",
+              "Sub sites18",
+              "Sub sites19",
+              "Sub sites20",
+              "Sub sites21",
+              "Sub sites22",
+              "Sub sites23",
+              "Sub sites24",
+              "Sub sites25",
+              "Sub sites26",
+              "Sub sites27",
+              "Sub sites28",
+              "Sub sites29",
+              "Sub sites30",
+              "Sub sites31",
+              "Sub sites32"
+            ],
+            "pick up time": "Everyday"
+          },
+          {
+            "barangay": "Lourdes Subdivision Extension",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3"
+            ],
+            "pick up time": "Tuesday 3:00PM - 4:00PM"
+          },
+          {
+            "barangay": "Naguilian",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Thursday",
+        "area": [
+          {
+            "barangay": "Honeymoon (Honeymoon-Holy Ghost)",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3"
+            ],
+            "pick up time": "Thursday 4:00AM - 7:00AM"
+          },
+          {
+            "barangay": "Holy Ghost Extension",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4"
+            ],
+            "pick up time": "Wednesday"
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Friday",
+        "area": [
+          {
+            "barangay": "Country Club Village",
+            "sites": [
+              "Site 1",
+              "Site 2"
+            ],
+            "pick up time": "Friday"
+          },
+          {
+            "barangay": "Lucnab",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5",
+              "Site 6",
+              "Site 7",
+              "Site 8"
+            ],
+            "pick up time": "Friday"
+          }
+        ],
+        "time": "3am-12nn"
+      }
+    ]
+  },
+  {
+    "driver": "CARRANZA DOMINADOR",
+    "schedule": [
+      {
+        "day": "Monday",
+        "area": [
+          {
+            "barangay": "Quezon Hill, Upper",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3"
+            ],
+            "pick up time": "Monday 4:00AM - 6:00AM"
+          },
+          {
+            "barangay": "Middle Quezon Hill Subdivision (Quezon Hill Middle)",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5"
+            ],
+            "pick up time": "Monday (Anytime)"
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Tuesday",
+        "area": [
+          {
+            "barangay": "Bayan Park West (Bayan Park, Leonila Hill)",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5",
+              "Site 6",
+              "Site 7",
+              "Site 8",
+              "Site 9"
+            ],
+            "pick up time": "Tuesday 4:00AM - 7:00AM"
+          },
+          {
+            "barangay": "Bayan Park East",
+            "sites": [
+              "Site 1",
+              "Site 2"
+            ],
+            "pick up time": "Tuesday 4:00AM - 6:00AM"
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Wednesday",
+        "area": [
+          {
+            "barangay": "Rock Quarry, Middle",
+            "sites": [
+              "Site 1"
+            ],
+            "pick up time": "Tuesday 5:00PM - 8:00PM Wednesday 6:00AM - 8:00AM"
+          },
+          {
+            "barangay": "Rock Quarry, Lower",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4"
+            ],
+            "pick up time": "Tuesday 5:00PM - 8:00PM Wednesday 6:00AM - 8:00AM"
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Thursday",
+        "area": [
+          {
+            "barangay": "Crystal Cave Waiting Shed Intersection up to Turning Point,",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Friday",
+        "area": [
+          {
+            "barangay": "Purok 27, 28 Upper San Carlos Hts.",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      }
+    ]
+  },
+  {
+    "driver": "CATENZA ALBERT",
+    "schedule": [
+      {
+        "day": "Tuesday",
+        "area": [
+          {
+            "barangay": "Camp 7",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5",
+              "Site 6",
+              "Site 7",
+              "Site 8",
+              "Site 9",
+              "Site 10",
+              "Site 11",
+              "Site 12",
+              "Site 13",
+              "Site 14",
+              "Site 15",
+              "Site 16",
+              "Site 17",
+              "Site 18",
+              "Site 19",
+              "Site 20"
+            ],
+            "pick up time": "Tuesday"
+          },
+          {
+            "barangay": "Pias",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Youngland",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Wednesday",
+        "area": [
+          {
+            "barangay": "Magsaysay, Lower",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3"
+            ],
+            "pick up time": "5:00AM - 7:AM"
+          },
+          {
+            "barangay": "RIC 2 Bokawkan to Magsaysay City Limit",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "SLU",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Lower Bonifacio",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Thursday",
+        "area": [
+          {
+            "barangay": "Magsaysay, Lower",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3"
+            ],
+            "pick up time": "5:00AM - 7:AM"
+          },
+          {
+            "barangay": "RIC 2 Bokawkan to Magsaysay City Limit",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "SLU",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Lower Bonifacio",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "CLARO M. RECTO st.",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Friday",
+        "area": [
+          {
+            "barangay": "Kayang-Hilltop",
+            "sites": [
+              "Site 1"
+            ],
+            "pick up time": "Everyday; Everyday 6:00AM - 10:00AM & 5:00PM - 10:00PM"
+          },
+          {
+            "barangay": "Rizal Monument Area",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3"
+            ],
+            "pick up time": "Everyday 4:00PM"
+          },
+          {
+            "barangay": "Market 1 Magsaysay",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Abanao",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Baguio Central School",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Lower Mabini Calderon",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Upper Session rd.",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "North Drive",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Km.0",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Saturday",
+        "area": [
+          {
+            "barangay": "Kayang-Hilltop",
+            "sites": [
+              "Site 1"
+            ],
+            "pick up time": "Everyday; Everyday 6:00AM - 10:00AM & 5:00PM - 10:00PM"
+          },
+          {
+            "barangay": "Rizal Monument Area",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3"
+            ],
+            "pick up time": "Everyday 4:00PM"
+          },
+          {
+            "barangay": "Market 1 Magsaysay",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Abanao",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Baguio Central School",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Lower Mabini Calderon",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Upper Session rd.",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "North Drive",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Km.0",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      }
+    ]
+  },
+  {
+    "driver": "COLLANTES ALEXANDER",
+    "schedule": [
+      {
+        "day": "Monday",
+        "area": [
+          {
+            "barangay": "Dizon Subdivision",
+            "sites": [
+              "Site 1",
+              "Site 2"
+            ],
+            "pick up time": "Monday 9:00AM Onwards"
+          },
+          {
+            "barangay": "Camdas Subdivision",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5"
+            ],
+            "pick up time": "Wednesday 6:00PM onwards Sunday 6:00 PM onwards"
+          },
+          {
+            "barangay": "Quirino Hill, Lower",
+            "sites": [
+              "Site 1",
+              "Site 2"
+            ],
+            "pick up time": "Monday 4:00AM - 6:00AM"
+          },
+          {
+            "barangay": "Happy Homes (Happy Homes-Lucban)",
+            "sites": [
+              "Site1",
+              "Site2",
+              "Site3"
+            ],
+            "pick up time": "MWF 6:00PM - 8:00 PM"
+          },
+          {
+            "barangay": "Pines Hospital",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Tuesday",
+        "area": [
+          {
+            "barangay": "Mines View Park",
+            "sites": [
+              "Site 1"
+            ],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Gibraltar",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5",
+              "Site 6",
+              "Site 7",
+              "Site 8",
+              "Site 9",
+              "Site 10",
+              "Site 11",
+              "Site 12"
+            ],
+            "pick up time": "Tuesday"
+          },
+          {
+            "barangay": "Pucsusan",
+            "sites": [
+              "Site 1"
+            ],
+            "pick up time": "Tuesday"
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Wednesday",
+        "area": [
+          {
+            "barangay": "Balsigan",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4"
+            ],
+            "pick up time": "Tuesday"
+          },
+          {
+            "barangay": "Pinget",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5"
+            ],
+            "pick up time": "Wednesday 4:00AM - 8:00AM"
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Thursday",
+        "area": [
+          {
+            "barangay": "Imelda Village",
+            "sites": [
+              "Site1",
+              "Site2",
+              "Site3"
+            ],
+            "pick up time": "Thursday 4:00AM - 6:00AM"
+          },
+          {
+            "barangay": "Manuel A. Roxas",
+            "sites": [
+              "Site 1",
+              "Site 2"
+            ],
+            "pick up time": "Wednesday 4:00AM - 6:00AM"
+          },
+          {
+            "barangay": "Sumulong",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Friday",
+        "area": [
+          {
+            "barangay": "St. Patrick Rd., Upper/Lower Cypress, UP Village, Balenben",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      }
+    ]
+  },
+  {
+    "driver": "DACANAY ARNEL",
+    "schedule": [
+      {
+        "day": "Monday",
+        "area": [
+          {
+            "barangay": "Session Road Area",
+            "sites": [
+              "Site 1",
+              "Site 2"
+            ],
+            "pick up time": "Everyday"
+          },
+          {
+            "barangay": "General Luna, Lower",
+            "sites": [
+              "Site 1"
+            ],
+            "pick up time": "Everyday"
+          },
+          {
+            "barangay": "Diego Silang",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Lower Mabini",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Gov. Pack",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Assumption",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Calderon",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Lakandula",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Centermall",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3pm-12nn"
+      },
+      {
+        "day": "Thursday",
+        "area": [
+          {
+            "barangay": "Session Road Area",
+            "sites": [
+              "Site 1",
+              "Site 2"
+            ],
+            "pick up time": "Everyday"
+          },
+          {
+            "barangay": "General Luna, Lower",
+            "sites": [
+              "Site 1"
+            ],
+            "pick up time": "Everyday"
+          },
+          {
+            "barangay": "Diego Silang",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Lower Mabini",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Gov. Pack",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Assumption",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Calderon",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Lakandula",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Centermall",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3pm-12nn"
+      },
+      {
+        "day": "Friday",
+        "area": [
+          {
+            "barangay": "Session Road Area",
+            "sites": [
+              "Site 1",
+              "Site 2"
+            ],
+            "pick up time": "Everyday"
+          },
+          {
+            "barangay": "General Luna, Lower",
+            "sites": [
+              "Site 1"
+            ],
+            "pick up time": "Everyday"
+          },
+          {
+            "barangay": "Diego Silang",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Lower Mabini",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Gov. Pack",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Assumption",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Calderon",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Lakandula",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Centermall",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3pm-12nn"
+      },
+      {
+        "day": "Saturday",
+        "area": [
+          {
+            "barangay": "Session Road Area",
+            "sites": [
+              "Site 1",
+              "Site 2"
+            ],
+            "pick up time": "Everyday"
+          },
+          {
+            "barangay": "General Luna, Lower",
+            "sites": [
+              "Site 1"
+            ],
+            "pick up time": "Everyday"
+          },
+          {
+            "barangay": "Diego Silang",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Lower Mabini",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Gov. Pack",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Assumption",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Calderon",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Lakandula",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Centermall",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3pm-12nn"
+      },
+      {
+        "day": "Sunday",
+        "area": [
+          {
+            "barangay": "Session Road Area",
+            "sites": [
+              "Site 1",
+              "Site 2"
+            ],
+            "pick up time": "Everyday"
+          },
+          {
+            "barangay": "General Luna, Lower",
+            "sites": [
+              "Site 1"
+            ],
+            "pick up time": "Everyday"
+          },
+          {
+            "barangay": "Diego Silang",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Lower Mabini",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Gov. Pack",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Assumption",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Calderon",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Lakandula",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Centermall",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3pm-12nn"
+      }
+    ]
+  },
+  {
+    "driver": "DACWAG ERIC",
+    "schedule": [
+      {
+        "day": "Tuesday",
+        "area": [
+          {
+            "barangay": "Camp 7",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5",
+              "Site 6",
+              "Site 7",
+              "Site 8",
+              "Site 9",
+              "Site 10",
+              "Site 11",
+              "Site 12",
+              "Site 13",
+              "Site 14",
+              "Site 15",
+              "Site 16",
+              "Site 17",
+              "Site 18",
+              "Site 19",
+              "Site 20"
+            ],
+            "pick up time": "Tuesday"
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Wednesday",
+        "area": [
+          {
+            "barangay": "Imelda R. Marcos (La Salle)",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5",
+              "Site 6"
+            ],
+            "pick up time": "Wednesday"
+          },
+          {
+            "barangay": "Phil-Am",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4"
+            ],
+            "pick up time": "Tuesday 6:00PM - 10:00PM"
+          },
+          {
+            "barangay": "Santo Rosario",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3"
+            ],
+            "pick up time": "Wednesday"
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Thursday",
+        "area": [
+          {
+            "barangay": "Balacbac, Lexber Subdivision",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Friday",
+        "area": [
+          {
+            "barangay": "Legarda-Burnham-Kisad",
+            "sites": [
+              "Main Site1",
+              "Main Site2",
+              "Main Site3",
+              "Sub sites1",
+              "Sub sites2",
+              "Sub sites3",
+              "Sub sites4",
+              "Sub sites5",
+              "Sub sites6",
+              "Sub sites7",
+              "Sub sites8",
+              "Sub sites9",
+              "Sub sites10",
+              "Sub sites11",
+              "Sub sites12",
+              "Sub sites13",
+              "Sub sites14",
+              "Sub sites15",
+              "Sub sites16",
+              "Sub sites17",
+              "Sub sites18",
+              "Sub sites19",
+              "Sub sites20",
+              "Sub sites21",
+              "Sub sites22",
+              "Sub sites23",
+              "Sub sites24",
+              "Sub sites25",
+              "Sub sites26",
+              "Sub sites27",
+              "Sub sites28",
+              "Sub sites29",
+              "Sub sites30",
+              "Sub sites31",
+              "Sub sites32"
+            ],
+            "pick up time": "Everyday"
+          },
+          {
+            "barangay": "Naguilian",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Saturday",
+        "area": [
+          {
+            "barangay": "Legarda-Burnham-Kisad",
+            "sites": [
+              "Main Site1",
+              "Main Site2",
+              "Main Site3",
+              "Sub sites1",
+              "Sub sites2",
+              "Sub sites3",
+              "Sub sites4",
+              "Sub sites5",
+              "Sub sites6",
+              "Sub sites7",
+              "Sub sites8",
+              "Sub sites9",
+              "Sub sites10",
+              "Sub sites11",
+              "Sub sites12",
+              "Sub sites13",
+              "Sub sites14",
+              "Sub sites15",
+              "Sub sites16",
+              "Sub sites17",
+              "Sub sites18",
+              "Sub sites19",
+              "Sub sites20",
+              "Sub sites21",
+              "Sub sites22",
+              "Sub sites23",
+              "Sub sites24",
+              "Sub sites25",
+              "Sub sites26",
+              "Sub sites27",
+              "Sub sites28",
+              "Sub sites29",
+              "Sub sites30",
+              "Sub sites31",
+              "Sub sites32"
+            ],
+            "pick up time": "Everyday"
+          },
+          {
+            "barangay": "Naguilian",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      }
+    ]
+  },
+  {
+    "driver": "DESIERTO CESAR",
+    "schedule": [
+      {
+        "day": "Wednesday",
+        "area": [
+          {
+            "barangay": "Session Road Area",
+            "sites": [
+              "Site 1",
+              "Site 2"
+            ],
+            "pick up time": "Everyday"
+          },
+          {
+            "barangay": "General Luna, Lower",
+            "sites": [
+              "Site 1"
+            ],
+            "pick up time": "Everyday"
+          },
+          {
+            "barangay": "Diego Silang",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Lower Mabini",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Gov. Pack",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Assumption",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Calderon",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Lakandula",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Centermall",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3pm-12mn"
+      },
+      {
+        "day": "Thursday",
+        "area": [
+          {
+            "barangay": "Food Waste Collection, IEC/QRT (2pm-11pm)",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "2pm-11pm"
+      },
+      {
+        "day": "Friday",
+        "area": [
+          {
+            "barangay": "Food Waste Collection, IEC/QRT (2pm-11pm)",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "2pm-11pm"
+      },
+      {
+        "day": "Saturday",
+        "area": [
+          {
+            "barangay": "Food Waste Collection, IEC/QRT (2pm-11pm)",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "2pm-11pm"
+      },
+      {
+        "day": "Sunday",
+        "area": [
+          {
+            "barangay": "Food Waste Collection, IEC/QRT (2pm-11pm)",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "2pm-11pm"
+      }
+    ]
+  },
+  {
+    "driver": "ENDEKEN EDDIE",
+    "schedule": [
+      {
+        "day": "Monday",
+        "area": [
+          {
+            "barangay": "IEC/QRT (8am-5pm)",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "8am-5pm"
+      },
+      {
+        "day": "Tuesday",
+        "area": [
+          {
+            "barangay": "IEC/QRT (8am-5pm)",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "8am-5pm"
+      },
+      {
+        "day": "Wednesday",
+        "area": [
+          {
+            "barangay": "IEC/QRT (8am-5pm)",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "8am-5pm"
+      },
+      {
+        "day": "Saturday",
+        "area": [
+          {
+            "barangay": "Legarda-Burnham-Kisad",
+            "sites": [
+              "Main Site1",
+              "Main Site2",
+              "Main Site3",
+              "Sub sites1",
+              "Sub sites2",
+              "Sub sites3",
+              "Sub sites4",
+              "Sub sites5",
+              "Sub sites6",
+              "Sub sites7",
+              "Sub sites8",
+              "Sub sites9",
+              "Sub sites10",
+              "Sub sites11",
+              "Sub sites12",
+              "Sub sites13",
+              "Sub sites14",
+              "Sub sites15",
+              "Sub sites16",
+              "Sub sites17",
+              "Sub sites18",
+              "Sub sites19",
+              "Sub sites20",
+              "Sub sites21",
+              "Sub sites22",
+              "Sub sites23",
+              "Sub sites24",
+              "Sub sites25",
+              "Sub sites26",
+              "Sub sites27",
+              "Sub sites28",
+              "Sub sites29",
+              "Sub sites30",
+              "Sub sites31",
+              "Sub sites32"
+            ],
+            "pick up time": "Everyday"
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Sunday",
+        "area": [
+          {
+            "barangay": "Legarda-Burnham-Kisad",
+            "sites": [
+              "Main Site1",
+              "Main Site2",
+              "Main Site3",
+              "Sub sites1",
+              "Sub sites2",
+              "Sub sites3",
+              "Sub sites4",
+              "Sub sites5",
+              "Sub sites6",
+              "Sub sites7",
+              "Sub sites8",
+              "Sub sites9",
+              "Sub sites10",
+              "Sub sites11",
+              "Sub sites12",
+              "Sub sites13",
+              "Sub sites14",
+              "Sub sites15",
+              "Sub sites16",
+              "Sub sites17",
+              "Sub sites18",
+              "Sub sites19",
+              "Sub sites20",
+              "Sub sites21",
+              "Sub sites22",
+              "Sub sites23",
+              "Sub sites24",
+              "Sub sites25",
+              "Sub sites26",
+              "Sub sites27",
+              "Sub sites28",
+              "Sub sites29",
+              "Sub sites30",
+              "Sub sites31",
+              "Sub sites32"
+            ],
+            "pick up time": "Everyday"
+          },
+          {
+            "barangay": "Naguilian",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      }
+    ]
+  },
+  {
+    "driver": "ESTONANTO BERNARD",
+    "schedule": [
+      {
+        "day": "Monday",
+        "area": [
+          {
+            "barangay": "Military Cut-off",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5",
+              "Site 6",
+              "Site 7",
+              "Site 8",
+              "Site 9",
+              "Site 10",
+              "Site 11",
+              "Site 12",
+              "Site 13",
+              "Site 14",
+              "Site 15"
+            ],
+            "pick up time": ""
+          },
+          {
+            "barangay": "BGH Compound",
+            "sites": [
+              "Site  1",
+              "Site 2"
+            ],
+            "pick up time": "Friday 4:00AM - 6:00AM"
+          },
+          {
+            "barangay": "Cabinet Hill-Teacher's Camp",
+            "sites": [
+              "Site 1",
+              "Site 2"
+            ],
+            "pick up time": "Tuesday"
+          },
+          {
+            "barangay": "Pacdal",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5",
+              "Site 6",
+              "Site 7",
+              "Site 8",
+              "Site 9",
+              "Site 10",
+              "Site 11",
+              "Site 12",
+              "Site 13",
+              "Site 14",
+              "Site 15",
+              "Site 16",
+              "Site 17",
+              "Site 18"
+            ],
+            "pick up time": "Thursday 4:00AM - 5:00AM"
+          },
+          {
+            "barangay": "Salud Mitra",
+            "sites": [
+              "Site 1"
+            ],
+            "pick up time": "Monday"
+          },
+          {
+            "barangay": "Leonard Wood rd.",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "YMCA",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Tuesday",
+        "area": [
+          {
+            "barangay": "Military Cut-off",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5",
+              "Site 6",
+              "Site 7",
+              "Site 8",
+              "Site 9",
+              "Site 10",
+              "Site 11",
+              "Site 12",
+              "Site 13",
+              "Site 14",
+              "Site 15"
+            ],
+            "pick up time": ""
+          },
+          {
+            "barangay": "BGH Compound",
+            "sites": [
+              "Site  1",
+              "Site 2"
+            ],
+            "pick up time": "Friday 4:00AM - 6:00AM"
+          },
+          {
+            "barangay": "Cabinet Hill-Teacher's Camp",
+            "sites": [
+              "Site 1",
+              "Site 2"
+            ],
+            "pick up time": "Tuesday"
+          },
+          {
+            "barangay": "Pacdal",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5",
+              "Site 6",
+              "Site 7",
+              "Site 8",
+              "Site 9",
+              "Site 10",
+              "Site 11",
+              "Site 12",
+              "Site 13",
+              "Site 14",
+              "Site 15",
+              "Site 16",
+              "Site 17",
+              "Site 18"
+            ],
+            "pick up time": "Thursday 4:00AM - 5:00AM"
+          },
+          {
+            "barangay": "Leonard Wood rd.",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "YMCA",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Wednesday",
+        "area": [
+          {
+            "barangay": "Military Cut-off",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5",
+              "Site 6",
+              "Site 7",
+              "Site 8",
+              "Site 9",
+              "Site 10",
+              "Site 11",
+              "Site 12",
+              "Site 13",
+              "Site 14",
+              "Site 15"
+            ],
+            "pick up time": ""
+          },
+          {
+            "barangay": "BGH Compound",
+            "sites": [
+              "Site  1",
+              "Site 2"
+            ],
+            "pick up time": "Friday 4:00AM - 6:00AM"
+          },
+          {
+            "barangay": "Cabinet Hill-Teacher's Camp",
+            "sites": [
+              "Site 1",
+              "Site 2"
+            ],
+            "pick up time": "Tuesday"
+          },
+          {
+            "barangay": "Pacdal",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5",
+              "Site 6",
+              "Site 7",
+              "Site 8",
+              "Site 9",
+              "Site 10",
+              "Site 11",
+              "Site 12",
+              "Site 13",
+              "Site 14",
+              "Site 15",
+              "Site 16",
+              "Site 17",
+              "Site 18"
+            ],
+            "pick up time": "Thursday 4:00AM - 5:00AM"
+          },
+          {
+            "barangay": "Leonard Wood rd.",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "YMCA",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Thursday",
+        "area": [
+          {
+            "barangay": "Military Cut-off",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5",
+              "Site 6",
+              "Site 7",
+              "Site 8",
+              "Site 9",
+              "Site 10",
+              "Site 11",
+              "Site 12",
+              "Site 13",
+              "Site 14",
+              "Site 15"
+            ],
+            "pick up time": ""
+          },
+          {
+            "barangay": "BGH Compound",
+            "sites": [
+              "Site  1",
+              "Site 2"
+            ],
+            "pick up time": "Friday 4:00AM - 6:00AM"
+          },
+          {
+            "barangay": "Cabinet Hill-Teacher's Camp",
+            "sites": [
+              "Site 1",
+              "Site 2"
+            ],
+            "pick up time": "Tuesday"
+          },
+          {
+            "barangay": "Pacdal",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5",
+              "Site 6",
+              "Site 7",
+              "Site 8",
+              "Site 9",
+              "Site 10",
+              "Site 11",
+              "Site 12",
+              "Site 13",
+              "Site 14",
+              "Site 15",
+              "Site 16",
+              "Site 17",
+              "Site 18"
+            ],
+            "pick up time": "Thursday 4:00AM - 5:00AM"
+          },
+          {
+            "barangay": "Leonard Wood rd.",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "YMCA",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Ma. Basa",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Regidor st.",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Friday",
+        "area": [
+          {
+            "barangay": "Military Cut-off",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5",
+              "Site 6",
+              "Site 7",
+              "Site 8",
+              "Site 9",
+              "Site 10",
+              "Site 11",
+              "Site 12",
+              "Site 13",
+              "Site 14",
+              "Site 15"
+            ],
+            "pick up time": ""
+          },
+          {
+            "barangay": "BGH Compound",
+            "sites": [
+              "Site  1",
+              "Site 2"
+            ],
+            "pick up time": "Friday 4:00AM - 6:00AM"
+          },
+          {
+            "barangay": "Cabinet Hill-Teacher's Camp",
+            "sites": [
+              "Site 1",
+              "Site 2"
+            ],
+            "pick up time": "Tuesday"
+          },
+          {
+            "barangay": "Pacdal",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5",
+              "Site 6",
+              "Site 7",
+              "Site 8",
+              "Site 9",
+              "Site 10",
+              "Site 11",
+              "Site 12",
+              "Site 13",
+              "Site 14",
+              "Site 15",
+              "Site 16",
+              "Site 17",
+              "Site 18"
+            ],
+            "pick up time": "Thursday 4:00AM - 5:00AM"
+          },
+          {
+            "barangay": "Leonard Wood rd.",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "YMCA",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      }
+    ]
+  },
+  {
+    "driver": "FERNANDO JOVY",
+    "schedule": [
+      {
+        "day": "Monday",
+        "area": [
+          {
+            "barangay": "Magsaysay, Lower",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3"
+            ],
+            "pick up time": "5:00AM - 7:AM"
+          },
+          {
+            "barangay": "RIC 2 Bokawkan to Magsaysay City Limit",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "SLU",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Lower Bonifacio",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Tuesday",
+        "area": [
+          {
+            "barangay": "Magsaysay, Lower",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3"
+            ],
+            "pick up time": "5:00AM - 7:AM"
+          },
+          {
+            "barangay": "RIC 2 Bokawkan to Magsaysay City Limit",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "SLU",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Lower Bonifacio",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Friday",
+        "area": [
+          {
+            "barangay": "Magsaysay, Lower",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3"
+            ],
+            "pick up time": "5:00AM - 7:AM"
+          },
+          {
+            "barangay": "RIC 2 Bokawkan to Magsaysay City Limit",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "SLU",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Lower Bonifacio",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Saturday",
+        "area": [
+          {
+            "barangay": "Magsaysay, Lower",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3"
+            ],
+            "pick up time": "5:00AM - 7:AM"
+          },
+          {
+            "barangay": "RIC 2 Bokawkan to Magsaysay City Limit",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "SLU",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Lower Bonifacio",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Upper Bonifacio",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Sunday",
+        "area": [
+          {
+            "barangay": "Magsaysay, Lower",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3"
+            ],
+            "pick up time": "5:00AM - 7:AM"
+          },
+          {
+            "barangay": "RIC 2 Bokawkan to Magsaysay City Limit",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "SLU",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Lower Bonifacio",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Upper Bonifacio",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      }
+    ]
+  },
+  {
+    "driver": "GOYALA SALVADOR",
+    "schedule": [
+      {
+        "day": "Monday",
+        "area": [
+          {
+            "barangay": "Pinget",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5"
+            ],
+            "pick up time": "Wednesday 4:00AM - 8:00AM"
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Tuesday",
+        "area": [
+          {
+            "barangay": "Poliwes",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3"
+            ],
+            "pick up time": "Tuesday"
+          },
+          {
+            "barangay": "Agpaoa Rd.",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Youngland to Lions Head, City Limit",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Wednesday",
+        "area": [
+          {
+            "barangay": "Rock Quarry, Upper",
+            "sites": [
+              "Site 1"
+            ],
+            "pick up time": "Tuesday 5:00PM - 8:00PM Wednesday 6:00AM - 8:00AM"
+          },
+          {
+            "barangay": "Palma-Urbano (CariÃ±o-Palma)",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4"
+            ],
+            "pick up time": "Wednesday 4:00AM - 6:00AM"
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Thursday",
+        "area": [
+          {
+            "barangay": "Greenwater Village",
+            "sites": [
+              "Site 1",
+              "Site 2"
+            ],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Crystal Dale Subdivision",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Sto. Niño",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Bengao",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Friday",
+        "area": [
+          {
+            "barangay": "Bakakeng North",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5",
+              "Site 6",
+              "Site 7",
+              "Site 8",
+              "Site 9",
+              "Site 10",
+              "Site 11"
+            ],
+            "pick up time": "Thursday 4:00PM - 2:00AM"
+          },
+          {
+            "barangay": "Eagle Crest-Phase 1/2",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Bouganvilla St.",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Saturday",
+        "area": [],
+        "time": "OFF"
+      },
+      {
+        "day": "Sunday",
+        "area": [],
+        "time": "OFF"
+      }
+    ]
+  },
+  {
+    "driver": "GUBATAN JIMMY",
+    "schedule": [
+      {
+        "day": "Monday",
+        "area": [
+          {
+            "barangay": "Modern Site, East",
+            "sites": [
+              "Site 1",
+              "Site 2"
+            ],
+            "pick up time": "Monday 5:00AM - 7:00AM"
+          },
+          {
+            "barangay": "Modern Site, West",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4"
+            ],
+            "pick up time": "Monday 5:00AM - 7:00AM"
+          },
+          {
+            "barangay": "Guevarra St.",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Upper Malvar St.",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Tuesday",
+        "area": [
+          {
+            "barangay": "Ambiong",
+            "sites": [
+              "Site 1",
+              "Site 2"
+            ],
+            "pick up time": "Tuesday 4:00 AM - 6:00 AM"
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Wednesday",
+        "area": [
+          {
+            "barangay": "Gabriela Silang",
+            "sites": [
+              "Site 1",
+              "Site 2"
+            ],
+            "pick up time": "Wednesday"
+          },
+          {
+            "barangay": "Dagsian, Lower",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4 (Shared Site)",
+              "Site 5 (Shared Site)"
+            ],
+            "pick up time": "Wednesday"
+          },
+          {
+            "barangay": "Hillside",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5 (Shared Site)"
+            ],
+            "pick up time": "Wednesday"
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Thursday",
+        "area": [
+          {
+            "barangay": "Loakan Proper",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5",
+              "Site 6",
+              "Site 7",
+              "Site 8",
+              "Site 9",
+              "Site 10",
+              "Site 11",
+              "Site 12",
+              "Site 13",
+              "Site 14",
+              "Site 15"
+            ],
+            "pick up time": "Thursday"
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Friday",
+        "area": [
+          {
+            "barangay": "Irisan",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5",
+              "Site 6",
+              "Site 7",
+              "Site 8",
+              "Site 9",
+              "Site 10",
+              "Site 11",
+              "Site 12",
+              "Site 13",
+              "Site 14",
+              "Site 15",
+              "Site 16",
+              "Site 17",
+              "Site 18",
+              "Site 19",
+              "Site 20",
+              "Site 21",
+              "Site 22",
+              "Site 23",
+              "Site 24",
+              "Site 25",
+              "Site 26",
+              "Site 27",
+              "Site 28",
+              "Site 29",
+              "Site 30",
+              "Site 31",
+              "Site 32",
+              "Site 33",
+              "Site 34",
+              "Site 35",
+              "Site 36",
+              "Site 37",
+              "Site 38",
+              "Site 39",
+              "Site 40",
+              "Site 41",
+              "Site 42",
+              "Site 43",
+              "Site 44",
+              "Site 45",
+              "Site 46",
+              "Site 47",
+              "Site 48",
+              "Site 49",
+              "Site 50",
+              "Site 51",
+              "Site 52",
+              "Site 53",
+              "Site 54",
+              "Site 55",
+              "Site 56",
+              "Site 57",
+              "Site 58",
+              "Site 59",
+              "Site 60",
+              "Site 61",
+              "Site 62",
+              "Site 63",
+              "Site 64",
+              "Site 65",
+              "Site 66",
+              "Site 67",
+              "Site 68"
+            ],
+            "pick up time": "Thursday and Friday"
+          }
+        ],
+        "time": "3am-12nn"
+      }
+    ]
+  },
+  {
+    "driver": "HUGO MELVIN",
+    "schedule": [
+      {
+        "day": "Monday",
+        "area": [
+          {
+            "barangay": "Guisad Central",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4"
+            ],
+            "pick up time": "Monday 4:00AM - 6:00AM"
+          },
+          {
+            "barangay": "Easter",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Pucay St.",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Richwood Square",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Manzanillo Subdivision",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Tuesday",
+        "area": [
+          {
+            "barangay": "Sanitary Camp, North",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3"
+            ],
+            "pick up time": "Monday 6:00PM - Tuesday 2:30AM"
+          },
+          {
+            "barangay": "Sanitary Camp, South",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4"
+            ],
+            "pick up time": "Monday 6:00PM - 12:00 Midnight"
+          },
+          {
+            "barangay": "Lower Malvar/Quisumbing",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Wednesday",
+        "area": [
+          {
+            "barangay": "San Luis Village",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5",
+              "Site 6",
+              "Site 7",
+              "Site 8"
+            ],
+            "pick up time": "Wednesday; Friday anytime"
+          },
+          {
+            "barangay": "San Roque Village",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4"
+            ],
+            "pick up time": "Wednesday (Anytime)"
+          },
+          {
+            "barangay": "Shangrila Village",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Recoletos",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Thursday",
+        "area": [
+          {
+            "barangay": "Fort del Pilar",
+            "sites": [
+              "Site 1",
+              "Site 2"
+            ],
+            "pick up time": "Thursday"
+          },
+          {
+            "barangay": "Loakan Proper",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5",
+              "Site 6",
+              "Site 7",
+              "Site 8",
+              "Site 9",
+              "Site 10",
+              "Site 11",
+              "Site 12",
+              "Site 13",
+              "Site 14",
+              "Site 15"
+            ],
+            "pick up time": "Thursday"
+          },
+          {
+            "barangay": "Pyramid",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Friday",
+        "area": [
+          {
+            "barangay": "Bakakeng Central",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5",
+              "Site 6",
+              "Site 7",
+              "Site 8",
+              "Site 9",
+              "Site 10",
+              "Site 11",
+              "Site 12",
+              "Site 13",
+              "Site 14",
+              "Site 15",
+              "Site 16",
+              "Site 17",
+              "Site 18",
+              "Site 19",
+              "Site 20",
+              "Site 21",
+              "Site 22",
+              "Site 23",
+              "Site 24",
+              "Site 25",
+              "Site 26",
+              "Site 27",
+              "Site 28",
+              "Site 29",
+              "Site 30",
+              "Site 31",
+              "Site 32"
+            ],
+            "pick up time": "Thursday"
+          },
+          {
+            "barangay": "Bakakeng North",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5",
+              "Site 6",
+              "Site 7",
+              "Site 8",
+              "Site 9",
+              "Site 10",
+              "Site 11"
+            ],
+            "pick up time": "Thursday 4:00PM - 2:00AM"
+          },
+          {
+            "barangay": "SLU-SVP Housing Village",
+            "sites": [
+              "No site"
+            ],
+            "pick up time": "Friday 5:00AM"
+          },
+          {
+            "barangay": "Richview Square",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      }
+    ]
+  },
+  {
+    "driver": "INGOSAN EDWIN",
+    "schedule": [
+      {
+        "day": "Monday",
+        "area": [
+          {
+            "barangay": "Fairview Village",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5",
+              "Site 6"
+            ],
+            "pick up time": "Monday 5:00AM - 7:00 AM"
+          },
+          {
+            "barangay": "Sunny side - Tacay Rd.",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Tuesday",
+        "area": [
+          {
+            "barangay": "Aurora Hill, South Central",
+            "sites": [
+              "Site 1"
+            ],
+            "pick up time": "Tuesday 4:00 AM - 6:00 AM"
+          },
+          {
+            "barangay": "Bayan Park Village",
+            "sites": [
+              "Site 1",
+              "Site 2"
+            ],
+            "pick up time": "Tuesday 4:00AM - 6:00AM"
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Wednesday",
+        "area": [
+          {
+            "barangay": "General Emilio F. Aguinaldo (Quirinoâ€‘Magsaysay, Lower)",
+            "sites": [
+              "Site 1",
+              "Site 2"
+            ],
+            "pick up time": "Tuesday 6:00PM - 8:00PM"
+          },
+          {
+            "barangay": "Quirino-Magsaysay, Upper (Upper QM)",
+            "sites": [
+              "Site 2",
+              "Site 3",
+              "Site 4"
+            ],
+            "pick up time": "Tuesday 6:00PM - 8:00PM"
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Thursday",
+        "area": [
+          {
+            "barangay": "Kitma, Chapis, Justice/Pucay Village, Moldex Box, Hollywood",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Friday",
+        "area": [
+          {
+            "barangay": "Quirino Higway,PLDT-Naguilian Rd.",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      }
+    ]
+  },
+  {
+    "driver": "MAGDARAOG ERWIN",
+    "schedule": [
+      {
+        "day": "Monday",
+        "area": [
+          {
+            "barangay": "Victoria Village",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3"
+            ],
+            "pick up time": "Monday 4:00AM - 6:00AM"
+          },
+          {
+            "barangay": "Quezon Hill Proper",
+            "sites": [
+              "Site 1",
+              "Site 2"
+            ],
+            "pick up time": "Monday 4:00AM - 6:00AM"
+          },
+          {
+            "barangay": "Road 1 to 3",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Mercury/ Silver/ Copper/ Ponce St.",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Tuesday",
+        "area": [
+          {
+            "barangay": "Alfonso Tabora",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4"
+            ],
+            "pick up time": "Tuesday 5:00AM - 7:00AM"
+          },
+          {
+            "barangay": "Trancoville",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5",
+              "Site 6",
+              "Site 7"
+            ],
+            "pick up time": "Monday 4:00AM - 6:00AM; Tuesday 4:00AM - 6:00AM"
+          },
+          {
+            "barangay": "New Lucban",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5",
+              "Site 6",
+              "Site 7"
+            ],
+            "pick up time": "Tuesday 4:00AM - 6:00AM; Tuesday 4:00AM - 8:00AM; Tuesday 5:00AM - 7:00AM"
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Wednesday",
+        "area": [
+          {
+            "barangay": "Dominican Hill-Mirador",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5",
+              "Site 6"
+            ],
+            "pick up time": "Tuesday 9:00PM"
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Saturday",
+        "area": [
+          {
+            "barangay": "Military Cut-off",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5",
+              "Site 6",
+              "Site 7",
+              "Site 8",
+              "Site 9",
+              "Site 10",
+              "Site 11",
+              "Site 12",
+              "Site 13",
+              "Site 14",
+              "Site 15"
+            ],
+            "pick up time": ""
+          },
+          {
+            "barangay": "BGH Compound",
+            "sites": [
+              "Site  1",
+              "Site 2"
+            ],
+            "pick up time": "Friday 4:00AM - 6:00AM"
+          },
+          {
+            "barangay": "Cabinet Hill-Teacher's Camp",
+            "sites": [
+              "Site 1",
+              "Site 2"
+            ],
+            "pick up time": "Tuesday"
+          },
+          {
+            "barangay": "Pacdal",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5",
+              "Site 6",
+              "Site 7",
+              "Site 8",
+              "Site 9",
+              "Site 10",
+              "Site 11",
+              "Site 12",
+              "Site 13",
+              "Site 14",
+              "Site 15",
+              "Site 16",
+              "Site 17",
+              "Site 18"
+            ],
+            "pick up time": "Thursday 4:00AM - 5:00AM"
+          },
+          {
+            "barangay": "Leonard Wood rd.",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "YMCA",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Sunday",
+        "area": [
+          {
+            "barangay": "Military Cut-off",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5",
+              "Site 6",
+              "Site 7",
+              "Site 8",
+              "Site 9",
+              "Site 10",
+              "Site 11",
+              "Site 12",
+              "Site 13",
+              "Site 14",
+              "Site 15"
+            ],
+            "pick up time": ""
+          },
+          {
+            "barangay": "BGH Compound",
+            "sites": [
+              "Site  1",
+              "Site 2"
+            ],
+            "pick up time": "Friday 4:00AM - 6:00AM"
+          },
+          {
+            "barangay": "Cabinet Hill-Teacher's Camp",
+            "sites": [
+              "Site 1",
+              "Site 2"
+            ],
+            "pick up time": "Tuesday"
+          },
+          {
+            "barangay": "Pacdal",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5",
+              "Site 6",
+              "Site 7",
+              "Site 8",
+              "Site 9",
+              "Site 10",
+              "Site 11",
+              "Site 12",
+              "Site 13",
+              "Site 14",
+              "Site 15",
+              "Site 16",
+              "Site 17",
+              "Site 18"
+            ],
+            "pick up time": "Thursday 4:00AM - 5:00AM"
+          },
+          {
+            "barangay": "Leonard Wood rd.",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "YMCA",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      }
+    ]
+  },
+  {
+    "driver": "ONDONG RANDY",
+    "schedule": [
+      {
+        "day": "Monday",
+        "area": [
+          {
+            "barangay": "Upper Magsaysay",
+            "sites": [
+              "Site 3"
+            ],
+            "pick up time": "Everyday"
+          },
+          {
+            "barangay": "Market 2 Hangar",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Maharlika Abanao",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Empire",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Veniz Hotel",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3pm-12nn"
+      },
+      {
+        "day": "Tuesday",
+        "area": [
+          {
+            "barangay": "Upper Magsaysay",
+            "sites": [
+              "Site 3"
+            ],
+            "pick up time": "Everyday"
+          },
+          {
+            "barangay": "Market 2 Hangar",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Maharlika Abanao",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Empire",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Veniz Hotel",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3pm-12nn"
+      },
+      {
+        "day": "Wednesday",
+        "area": [
+          {
+            "barangay": "Upper Magsaysay",
+            "sites": [
+              "Site 3"
+            ],
+            "pick up time": "Everyday"
+          },
+          {
+            "barangay": "Market 2 Hangar",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Maharlika Abanao",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Empire",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Veniz Hotel",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3pm-12nn"
+      },
+      {
+        "day": "Thursday",
+        "area": [
+          {
+            "barangay": "Upper Magsaysay",
+            "sites": [
+              "Site 3"
+            ],
+            "pick up time": "Everyday"
+          },
+          {
+            "barangay": "Market 2 Hangar",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Maharlika Abanao",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Empire",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Veniz Hotel",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3pm-12nn"
+      },
+      {
+        "day": "Sunday",
+        "area": [
+          {
+            "barangay": "Upper Magsaysay",
+            "sites": [
+              "Site 3"
+            ],
+            "pick up time": "Everyday"
+          },
+          {
+            "barangay": "Market 2 Hangar",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Maharlika Abanao",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Empire",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Veniz Hotel",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3pm-12nn"
+      }
+    ]
+  },
+  {
+    "driver": "ORIBIO DANIEL",
+    "schedule": [
+      {
+        "day": "Monday",
+        "area": [
+          {
+            "barangay": "Legarda-Burnham-Kisad",
+            "sites": [
+              "Main Site1",
+              "Main Site2",
+              "Main Site3",
+              "Sub sites1",
+              "Sub sites2",
+              "Sub sites3",
+              "Sub sites4",
+              "Sub sites5",
+              "Sub sites6",
+              "Sub sites7",
+              "Sub sites8",
+              "Sub sites9",
+              "Sub sites10",
+              "Sub sites11",
+              "Sub sites12",
+              "Sub sites13",
+              "Sub sites14",
+              "Sub sites15",
+              "Sub sites16",
+              "Sub sites17",
+              "Sub sites18",
+              "Sub sites19",
+              "Sub sites20",
+              "Sub sites21",
+              "Sub sites22",
+              "Sub sites23",
+              "Sub sites24",
+              "Sub sites25",
+              "Sub sites26",
+              "Sub sites27",
+              "Sub sites28",
+              "Sub sites29",
+              "Sub sites30",
+              "Sub sites31",
+              "Sub sites32"
+            ],
+            "pick up time": "Everyday"
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Tuesday",
+        "area": [
+          {
+            "barangay": "Legarda-Burnham-Kisad",
+            "sites": [
+              "Main Site1",
+              "Main Site2",
+              "Main Site3",
+              "Sub sites1",
+              "Sub sites2",
+              "Sub sites3",
+              "Sub sites4",
+              "Sub sites5",
+              "Sub sites6",
+              "Sub sites7",
+              "Sub sites8",
+              "Sub sites9",
+              "Sub sites10",
+              "Sub sites11",
+              "Sub sites12",
+              "Sub sites13",
+              "Sub sites14",
+              "Sub sites15",
+              "Sub sites16",
+              "Sub sites17",
+              "Sub sites18",
+              "Sub sites19",
+              "Sub sites20",
+              "Sub sites21",
+              "Sub sites22",
+              "Sub sites23",
+              "Sub sites24",
+              "Sub sites25",
+              "Sub sites26",
+              "Sub sites27",
+              "Sub sites28",
+              "Sub sites29",
+              "Sub sites30",
+              "Sub sites31",
+              "Sub sites32"
+            ],
+            "pick up time": "Everyday"
+          },
+          {
+            "barangay": "Rimando Bridge to Aurora Hill (Rimando road)",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Wednesday",
+        "area": [
+          {
+            "barangay": "Legarda-Burnham-Kisad",
+            "sites": [
+              "Main Site1",
+              "Main Site2",
+              "Main Site3",
+              "Sub sites1",
+              "Sub sites2",
+              "Sub sites3",
+              "Sub sites4",
+              "Sub sites5",
+              "Sub sites6",
+              "Sub sites7",
+              "Sub sites8",
+              "Sub sites9",
+              "Sub sites10",
+              "Sub sites11",
+              "Sub sites12",
+              "Sub sites13",
+              "Sub sites14",
+              "Sub sites15",
+              "Sub sites16",
+              "Sub sites17",
+              "Sub sites18",
+              "Sub sites19",
+              "Sub sites20",
+              "Sub sites21",
+              "Sub sites22",
+              "Sub sites23",
+              "Sub sites24",
+              "Sub sites25",
+              "Sub sites26",
+              "Sub sites27",
+              "Sub sites28",
+              "Sub sites29",
+              "Sub sites30",
+              "Sub sites31",
+              "Sub sites32"
+            ],
+            "pick up time": "Everyday"
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Thursday",
+        "area": [
+          {
+            "barangay": "Legarda-Burnham-Kisad",
+            "sites": [
+              "Main Site1",
+              "Main Site2",
+              "Main Site3",
+              "Sub sites1",
+              "Sub sites2",
+              "Sub sites3",
+              "Sub sites4",
+              "Sub sites5",
+              "Sub sites6",
+              "Sub sites7",
+              "Sub sites8",
+              "Sub sites9",
+              "Sub sites10",
+              "Sub sites11",
+              "Sub sites12",
+              "Sub sites13",
+              "Sub sites14",
+              "Sub sites15",
+              "Sub sites16",
+              "Sub sites17",
+              "Sub sites18",
+              "Sub sites19",
+              "Sub sites20",
+              "Sub sites21",
+              "Sub sites22",
+              "Sub sites23",
+              "Sub sites24",
+              "Sub sites25",
+              "Sub sites26",
+              "Sub sites27",
+              "Sub sites28",
+              "Sub sites29",
+              "Sub sites30",
+              "Sub sites31",
+              "Sub sites32"
+            ],
+            "pick up time": "Everyday"
+          },
+          {
+            "barangay": "Naguillan",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Suello Village",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Sta. Lucia",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Friday",
+        "area": [
+          {
+            "barangay": "Legarda-Burnham-Kisad",
+            "sites": [
+              "Main Site1",
+              "Main Site2",
+              "Main Site3",
+              "Sub sites1",
+              "Sub sites2",
+              "Sub sites3",
+              "Sub sites4",
+              "Sub sites5",
+              "Sub sites6",
+              "Sub sites7",
+              "Sub sites8",
+              "Sub sites9",
+              "Sub sites10",
+              "Sub sites11",
+              "Sub sites12",
+              "Sub sites13",
+              "Sub sites14",
+              "Sub sites15",
+              "Sub sites16",
+              "Sub sites17",
+              "Sub sites18",
+              "Sub sites19",
+              "Sub sites20",
+              "Sub sites21",
+              "Sub sites22",
+              "Sub sites23",
+              "Sub sites24",
+              "Sub sites25",
+              "Sub sites26",
+              "Sub sites27",
+              "Sub sites28",
+              "Sub sites29",
+              "Sub sites30",
+              "Sub sites31",
+              "Sub sites32"
+            ],
+            "pick up time": "Everyday"
+          }
+        ],
+        "time": "3am-12nn"
+      }
+    ]
+  },
+  {
+    "driver": "ORRO MARVIN",
+    "schedule": [
+      {
+        "day": "Tuesday",
+        "area": [
+          {
+            "barangay": "Legarda-Burnham-Kisad",
+            "sites": [
+              "Main Site1",
+              "Main Site2",
+              "Main Site3",
+              "Sub sites1",
+              "Sub sites2",
+              "Sub sites3",
+              "Sub sites4",
+              "Sub sites5",
+              "Sub sites6",
+              "Sub sites7",
+              "Sub sites8",
+              "Sub sites9",
+              "Sub sites10",
+              "Sub sites11",
+              "Sub sites12",
+              "Sub sites13",
+              "Sub sites14",
+              "Sub sites15",
+              "Sub sites16",
+              "Sub sites17",
+              "Sub sites18",
+              "Sub sites19",
+              "Sub sites20",
+              "Sub sites21",
+              "Sub sites22",
+              "Sub sites23",
+              "Sub sites24",
+              "Sub sites25",
+              "Sub sites26",
+              "Sub sites27",
+              "Sub sites28",
+              "Sub sites29",
+              "Sub sites30",
+              "Sub sites31",
+              "Sub sites32"
+            ],
+            "pick up time": "Everyday"
+          },
+          {
+            "barangay": "Market 3 Dian Huat",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Otek st.",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3pm-12nn"
+      },
+      {
+        "day": "Wednesday",
+        "area": [
+          {
+            "barangay": "Legarda-Burnham-Kisad",
+            "sites": [
+              "Main Site1",
+              "Main Site2",
+              "Main Site3",
+              "Sub sites1",
+              "Sub sites2",
+              "Sub sites3",
+              "Sub sites4",
+              "Sub sites5",
+              "Sub sites6",
+              "Sub sites7",
+              "Sub sites8",
+              "Sub sites9",
+              "Sub sites10",
+              "Sub sites11",
+              "Sub sites12",
+              "Sub sites13",
+              "Sub sites14",
+              "Sub sites15",
+              "Sub sites16",
+              "Sub sites17",
+              "Sub sites18",
+              "Sub sites19",
+              "Sub sites20",
+              "Sub sites21",
+              "Sub sites22",
+              "Sub sites23",
+              "Sub sites24",
+              "Sub sites25",
+              "Sub sites26",
+              "Sub sites27",
+              "Sub sites28",
+              "Sub sites29",
+              "Sub sites30",
+              "Sub sites31",
+              "Sub sites32"
+            ],
+            "pick up time": "Everyday"
+          },
+          {
+            "barangay": "Market 3 Dian Huat",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Otek st.",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3pm-12nn"
+      },
+      {
+        "day": "Thursday",
+        "area": [
+          {
+            "barangay": "Legarda-Burnham-Kisad",
+            "sites": [
+              "Main Site1",
+              "Main Site2",
+              "Main Site3",
+              "Sub sites1",
+              "Sub sites2",
+              "Sub sites3",
+              "Sub sites4",
+              "Sub sites5",
+              "Sub sites6",
+              "Sub sites7",
+              "Sub sites8",
+              "Sub sites9",
+              "Sub sites10",
+              "Sub sites11",
+              "Sub sites12",
+              "Sub sites13",
+              "Sub sites14",
+              "Sub sites15",
+              "Sub sites16",
+              "Sub sites17",
+              "Sub sites18",
+              "Sub sites19",
+              "Sub sites20",
+              "Sub sites21",
+              "Sub sites22",
+              "Sub sites23",
+              "Sub sites24",
+              "Sub sites25",
+              "Sub sites26",
+              "Sub sites27",
+              "Sub sites28",
+              "Sub sites29",
+              "Sub sites30",
+              "Sub sites31",
+              "Sub sites32"
+            ],
+            "pick up time": "Everyday"
+          },
+          {
+            "barangay": "Market 3 Dian Huat",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Otek st.",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3pm-12nn"
+      },
+      {
+        "day": "Friday",
+        "area": [
+          {
+            "barangay": "Legarda-Burnham-Kisad",
+            "sites": [
+              "Main Site1",
+              "Main Site2",
+              "Main Site3",
+              "Sub sites1",
+              "Sub sites2",
+              "Sub sites3",
+              "Sub sites4",
+              "Sub sites5",
+              "Sub sites6",
+              "Sub sites7",
+              "Sub sites8",
+              "Sub sites9",
+              "Sub sites10",
+              "Sub sites11",
+              "Sub sites12",
+              "Sub sites13",
+              "Sub sites14",
+              "Sub sites15",
+              "Sub sites16",
+              "Sub sites17",
+              "Sub sites18",
+              "Sub sites19",
+              "Sub sites20",
+              "Sub sites21",
+              "Sub sites22",
+              "Sub sites23",
+              "Sub sites24",
+              "Sub sites25",
+              "Sub sites26",
+              "Sub sites27",
+              "Sub sites28",
+              "Sub sites29",
+              "Sub sites30",
+              "Sub sites31",
+              "Sub sites32"
+            ],
+            "pick up time": "Everyday"
+          },
+          {
+            "barangay": "Market 3 Dian Huat",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Otek st.",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3pm-12nn"
+      },
+      {
+        "day": "Saturday",
+        "area": [
+          {
+            "barangay": "Legarda-Burnham-Kisad",
+            "sites": [
+              "Main Site1",
+              "Main Site2",
+              "Main Site3",
+              "Sub sites1",
+              "Sub sites2",
+              "Sub sites3",
+              "Sub sites4",
+              "Sub sites5",
+              "Sub sites6",
+              "Sub sites7",
+              "Sub sites8",
+              "Sub sites9",
+              "Sub sites10",
+              "Sub sites11",
+              "Sub sites12",
+              "Sub sites13",
+              "Sub sites14",
+              "Sub sites15",
+              "Sub sites16",
+              "Sub sites17",
+              "Sub sites18",
+              "Sub sites19",
+              "Sub sites20",
+              "Sub sites21",
+              "Sub sites22",
+              "Sub sites23",
+              "Sub sites24",
+              "Sub sites25",
+              "Sub sites26",
+              "Sub sites27",
+              "Sub sites28",
+              "Sub sites29",
+              "Sub sites30",
+              "Sub sites31",
+              "Sub sites32"
+            ],
+            "pick up time": "Everyday"
+          },
+          {
+            "barangay": "Market 3 Dian Huat",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Otek st.",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Montinola st.",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3pm-12nn"
+      }
+    ]
+  },
+  {
+    "driver": "PATONG DINO",
+    "schedule": [
+      {
+        "day": "Monday",
+        "area": [
+          {
+            "barangay": "Brookside",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4"
+            ],
+            "pick up time": "Monday 5:00AM - 7:00AM"
+          },
+          {
+            "barangay": "Modern Site, East",
+            "sites": [
+              "Site 1",
+              "Site 2"
+            ],
+            "pick up time": "Monday 5:00AM - 7:00AM"
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Tuesday",
+        "area": [
+          {
+            "barangay": "Cabinet Hill-Teacher's Camp",
+            "sites": [
+              "Site 1",
+              "Site 2"
+            ],
+            "pick up time": "Tuesday"
+          },
+          {
+            "barangay": "South Drive",
+            "sites": [
+              "Site 1",
+              "Site 2"
+            ],
+            "pick up time": "Tuesday"
+          },
+          {
+            "barangay": "Greenwater Village",
+            "sites": [
+              "Site 1",
+              "Site 2"
+            ],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Wednesday",
+        "area": [
+          {
+            "barangay": "Legarda-Burnham-Kisad",
+            "sites": [
+              "Main Site1",
+              "Main Site2",
+              "Main Site3",
+              "Sub sites1",
+              "Sub sites2",
+              "Sub sites3",
+              "Sub sites4",
+              "Sub sites5",
+              "Sub sites6",
+              "Sub sites7",
+              "Sub sites8",
+              "Sub sites9",
+              "Sub sites10",
+              "Sub sites11",
+              "Sub sites12",
+              "Sub sites13",
+              "Sub sites14",
+              "Sub sites15",
+              "Sub sites16",
+              "Sub sites17",
+              "Sub sites18",
+              "Sub sites19",
+              "Sub sites20",
+              "Sub sites21",
+              "Sub sites22",
+              "Sub sites23",
+              "Sub sites24",
+              "Sub sites25",
+              "Sub sites26",
+              "Sub sites27",
+              "Sub sites28",
+              "Sub sites29",
+              "Sub sites30",
+              "Sub sites31",
+              "Sub sites32"
+            ],
+            "pick up time": "Everyday"
+          },
+          {
+            "barangay": "Ferdinand (Happy Homes-Campo Sioco)",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3"
+            ],
+            "pick up time": "Wednesday Morning"
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Thursday",
+        "area": [
+          {
+            "barangay": "Santo Tomas Proper",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5",
+              "Site 6",
+              "Site 7",
+              "Site 8",
+              "Site 9",
+              "Site 10"
+            ],
+            "pick up time": "Thursday 5:00AM-6:00AM"
+          },
+          {
+            "barangay": "Dontogan",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5",
+              "Site 6",
+              "Site 7",
+              "Site 8"
+            ],
+            "pick up time": "Thursday 4:00AM-6:00AM"
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Friday",
+        "area": [
+          {
+            "barangay": "Purok 15-Agro, ADD Rd., Purok 6/7 (Boundary)-Harvester",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      }
+    ]
+  },
+  {
+    "driver": "PIAOAN EDWARD",
+    "schedule": [
+      {
+        "day": "Monday",
+        "area": [
+          {
+            "barangay": "Kayang-Hilltop",
+            "sites": [
+              "Site 1"
+            ],
+            "pick up time": "Everyday; Everyday 6:00AM - 10:00AM & 5:00PM - 10:00PM"
+          },
+          {
+            "barangay": "Rizal Monument Area",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3"
+            ],
+            "pick up time": "Everyday 4:00PM"
+          },
+          {
+            "barangay": "Market 1 Magsaysay",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Abanao",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Baguio Central School",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Lower Mabini Calderon",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Upper Session rd.",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "North Drive",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Km.0",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Tuesday",
+        "area": [
+          {
+            "barangay": "Kayang-Hilltop",
+            "sites": [
+              "Site 1"
+            ],
+            "pick up time": "Everyday; Everyday 6:00AM - 10:00AM & 5:00PM - 10:00PM"
+          },
+          {
+            "barangay": "Rizal Monument Area",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3"
+            ],
+            "pick up time": "Everyday 4:00PM"
+          },
+          {
+            "barangay": "Market 1 Magsaysay",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Abanao",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Baguio Central School",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Lower Mabini Calderon",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Upper Session rd.",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "North Drive",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Km.0",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Wednesday",
+        "area": [
+          {
+            "barangay": "Kayang-Hilltop",
+            "sites": [
+              "Site 1"
+            ],
+            "pick up time": "Everyday; Everyday 6:00AM - 10:00AM & 5:00PM - 10:00PM"
+          },
+          {
+            "barangay": "Rizal Monument Area",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3"
+            ],
+            "pick up time": "Everyday 4:00PM"
+          },
+          {
+            "barangay": "Market 1 Magsaysay",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Abanao",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Baguio Central School",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Lower Mabini Calderon",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Upper Session rd.",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "North Drive",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Km.0",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Thursday",
+        "area": [
+          {
+            "barangay": "Kayang-Hilltop",
+            "sites": [
+              "Site 1"
+            ],
+            "pick up time": "Everyday; Everyday 6:00AM - 10:00AM & 5:00PM - 10:00PM"
+          },
+          {
+            "barangay": "Rizal Monument Area",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3"
+            ],
+            "pick up time": "Everyday 4:00PM"
+          },
+          {
+            "barangay": "Market 1 Magsaysay",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Abanao",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Baguio Central School",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Lower Mabini Calderon",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Upper Session rd.",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "North Drive",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Km.0",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Friday",
+        "area": [],
+        "time": "OFF"
+      },
+      {
+        "day": "Saturday",
+        "area": [],
+        "time": "OFF"
+      },
+      {
+        "day": "Sunday",
+        "area": [
+          {
+            "barangay": "Kayang-Hilltop",
+            "sites": [
+              "Site 1"
+            ],
+            "pick up time": "Everyday; Everyday 6:00AM - 10:00AM & 5:00PM - 10:00PM"
+          },
+          {
+            "barangay": "Rizal Monument Area",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3"
+            ],
+            "pick up time": "Everyday 4:00PM"
+          },
+          {
+            "barangay": "Market 1 Magsaysay",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Abanao",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Baguio Central School",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Lower Mabini Calderon",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Upper Session rd.",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "North Drive",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Km.0",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      }
+    ]
+  },
+  {
+    "driver": "PUGOY JIMMY",
+    "schedule": [
+      {
+        "day": "Monday",
+        "area": [
+          {
+            "barangay": "Market Subdivision, Upper",
+            "sites": [
+              "Site 1"
+            ],
+            "pick up time": "Wednesday 6:00AM"
+          },
+          {
+            "barangay": "Camp Allen",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5"
+            ],
+            "pick up time": "Monday 5:00AM - 7:00 AM"
+          },
+          {
+            "barangay": "Kayang Extension",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3"
+            ],
+            "pick up time": "Monday 4:00AM - 6:00AM"
+          },
+          {
+            "barangay": "Campo Filipino",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4"
+            ],
+            "pick up time": "Monday 5:00AM - 7:00 AM"
+          },
+          {
+            "barangay": "Campo Filipino to Petron Ferguson rd.",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Tuesday",
+        "area": [
+          {
+            "barangay": "San Vicente",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5",
+              "Site 6",
+              "Site 7"
+            ],
+            "pick up time": "Tuesday"
+          },
+          {
+            "barangay": "Sarok",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Woodsville",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Wednesday",
+        "area": [
+          {
+            "barangay": "Purok 6 Asin, Munoz Drive, Smith drive (3am-12nn)",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Thursday",
+        "area": [
+          {
+            "barangay": "Saint Joseph Village",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5",
+              "Site 6",
+              "Site 7"
+            ],
+            "pick up time": "Thursday 5:00AM - 7:00AM"
+          },
+          {
+            "barangay": "Siapno Rd.",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Amsing",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Liteng",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Friday",
+        "area": [
+          {
+            "barangay": "Legarda-Burnham-Kisad",
+            "sites": [
+              "Main Site1",
+              "Main Site2",
+              "Main Site3",
+              "Sub sites1",
+              "Sub sites2",
+              "Sub sites3",
+              "Sub sites4",
+              "Sub sites5",
+              "Sub sites6",
+              "Sub sites7",
+              "Sub sites8",
+              "Sub sites9",
+              "Sub sites10",
+              "Sub sites11",
+              "Sub sites12",
+              "Sub sites13",
+              "Sub sites14",
+              "Sub sites15",
+              "Sub sites16",
+              "Sub sites17",
+              "Sub sites18",
+              "Sub sites19",
+              "Sub sites20",
+              "Sub sites21",
+              "Sub sites22",
+              "Sub sites23",
+              "Sub sites24",
+              "Sub sites25",
+              "Sub sites26",
+              "Sub sites27",
+              "Sub sites28",
+              "Sub sites29",
+              "Sub sites30",
+              "Sub sites31",
+              "Sub sites32"
+            ],
+            "pick up time": "Everyday"
+          },
+          {
+            "barangay": "Irisan",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5",
+              "Site 6",
+              "Site 7",
+              "Site 8",
+              "Site 9",
+              "Site 10",
+              "Site 11",
+              "Site 12",
+              "Site 13",
+              "Site 14",
+              "Site 15",
+              "Site 16",
+              "Site 17",
+              "Site 18",
+              "Site 19",
+              "Site 20",
+              "Site 21",
+              "Site 22",
+              "Site 23",
+              "Site 24",
+              "Site 25",
+              "Site 26",
+              "Site 27",
+              "Site 28",
+              "Site 29",
+              "Site 30",
+              "Site 31",
+              "Site 32",
+              "Site 33",
+              "Site 34",
+              "Site 35",
+              "Site 36",
+              "Site 37",
+              "Site 38",
+              "Site 39",
+              "Site 40",
+              "Site 41",
+              "Site 42",
+              "Site 43",
+              "Site 44",
+              "Site 45",
+              "Site 46",
+              "Site 47",
+              "Site 48",
+              "Site 49",
+              "Site 50",
+              "Site 51",
+              "Site 52",
+              "Site 53",
+              "Site 54",
+              "Site 55",
+              "Site 56",
+              "Site 57",
+              "Site 58",
+              "Site 59",
+              "Site 60",
+              "Site 61",
+              "Site 62",
+              "Site 63",
+              "Site 64",
+              "Site 65",
+              "Site 66",
+              "Site 67",
+              "Site 68"
+            ],
+            "pick up time": "Thursday and Friday"
+          },
+          {
+            "barangay": "Naguillan",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "PHILSCI",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      }
+    ]
+  },
+  {
+    "driver": "PUGOY VICTORINO JR",
+    "schedule": [
+      {
+        "day": "Monday",
+        "area": [
+          {
+            "barangay": "IEC/QRT, Food Waste Collection (8am-5pm)",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "8am-5pm"
+      },
+      {
+        "day": "Tuesday",
+        "area": [
+          {
+            "barangay": "IEC/QRT, Food Waste Collection (8am-5pm)",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "8am-5pm"
+      },
+      {
+        "day": "Wednesday",
+        "area": [
+          {
+            "barangay": "IEC/QRT, Food Waste Collection (8am-5pm)",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "8am-5pm"
+      },
+      {
+        "day": "Thursday",
+        "area": [
+          {
+            "barangay": "IEC/QRT, Food Waste Collection (8am-5pm)",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "8am-5pm"
+      },
+      {
+        "day": "Friday",
+        "area": [
+          {
+            "barangay": "IEC/QRT, Food Waste Collection (8am-5pm)",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "8am-5pm"
+      }
+    ]
+  },
+  {
+    "driver": "QUIRAR ELPIDIO JR",
+    "schedule": [
+      {
+        "day": "Monday",
+        "area": [
+          {
+            "barangay": "Pinsao Proper",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5",
+              "Site 6"
+            ],
+            "pick up time": "Monday 4:00AM - 6:00AM"
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Tuesday",
+        "area": [
+          {
+            "barangay": "Gibraltar",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5",
+              "Site 6",
+              "Site 7",
+              "Site 8",
+              "Site 9",
+              "Site 10",
+              "Site 11",
+              "Site 12"
+            ],
+            "pick up time": "Tuesday"
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Wednesday",
+        "area": [
+          {
+            "barangay": "Pinget",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5"
+            ],
+            "pick up time": "Wednesday 4:00AM - 8:00AM"
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Thursday",
+        "area": [
+          {
+            "barangay": "St Peter's /Teachers Village/ Marcos Highway cor. Suello-Tuba Highway Boundary",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Friday",
+        "area": [
+          {
+            "barangay": "Lualhati",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5"
+            ],
+            "pick up time": "Friday"
+          },
+          {
+            "barangay": "Minesview/J. Felipe St.",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      }
+    ]
+  },
+  {
+    "driver": "RABAC ROLANDO JR",
+    "schedule": [
+      {
+        "day": "Monday",
+        "area": [
+          {
+            "barangay": "Pinsao Pilot Project",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3"
+            ],
+            "pick up time": "Monday 4:00AM - 8:00AM"
+          },
+          {
+            "barangay": "Pinsao Proper",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5",
+              "Site 6"
+            ],
+            "pick up time": "Monday 4:00AM - 6:00AM"
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Tuesday",
+        "area": [
+          {
+            "barangay": "Camp 7",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5",
+              "Site 6",
+              "Site 7",
+              "Site 8",
+              "Site 9",
+              "Site 10",
+              "Site 11",
+              "Site 12",
+              "Site 13",
+              "Site 14",
+              "Site 15",
+              "Site 16",
+              "Site 17",
+              "Site 18",
+              "Site 19",
+              "Site 20"
+            ],
+            "pick up time": "Tuesday"
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Wednesday",
+        "area": [
+          {
+            "barangay": "City Camp Proper",
+            "sites": [
+              "Site 1"
+            ],
+            "pick up time": "Tuesday 4:00PM - 9:00PM"
+          },
+          {
+            "barangay": "City Camp Central",
+            "sites": [
+              "Site 1"
+            ],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Thursday",
+        "area": [
+          {
+            "barangay": "APTS. Ambuklao Rd., Doclas Cerio Village, Summerville (Ambuklao rd.)",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Friday",
+        "area": [
+          {
+            "barangay": "Bakakeng North",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5",
+              "Site 6",
+              "Site 7",
+              "Site 8",
+              "Site 9",
+              "Site 10",
+              "Site 11"
+            ],
+            "pick up time": "Thursday 4:00PM - 2:00AM"
+          },
+          {
+            "barangay": "Camp 7",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5",
+              "Site 6",
+              "Site 7",
+              "Site 8",
+              "Site 9",
+              "Site 10",
+              "Site 11",
+              "Site 12",
+              "Site 13",
+              "Site 14",
+              "Site 15",
+              "Site 16",
+              "Site 17",
+              "Site 18",
+              "Site 19",
+              "Site 20"
+            ],
+            "pick up time": "Tuesday"
+          },
+          {
+            "barangay": "Summer Ville (Bakakeng)",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      }
+    ]
+  },
+  {
+    "driver": "SABARO JIMMY",
+    "schedule": [
+      {
+        "day": "Monday",
+        "area": [
+          {
+            "barangay": "Quirino Hill, Middle",
+            "sites": [
+              "Site 1",
+              "Site 2"
+            ],
+            "pick up time": "Tuesday 6:00PM - 8:00PM"
+          },
+          {
+            "barangay": "Quirino Hill, East",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3"
+            ],
+            "pick up time": "Monday 4:00AM - 6:00AM"
+          },
+          {
+            "barangay": "Quirino Hill, West",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3"
+            ],
+            "pick up time": "Monday 4:00AM - 6:00AM"
+          },
+          {
+            "barangay": "Quirino Hill (Upper/Mid, East/West)",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Tuesday",
+        "area": [
+          {
+            "barangay": "Engineers' Hill",
+            "sites": [
+              "Site 1",
+              "Site 2"
+            ],
+            "pick up time": "Tuesday"
+          },
+          {
+            "barangay": "Bal-Marcoville (Marcoville)",
+            "sites": [
+              "Site 1"
+            ],
+            "pick up time": "Tuesday 4:00 AM - 6:00 AM"
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Wednesday",
+        "area": [
+          {
+            "barangay": "Santa Escolastica",
+            "sites": [
+              "Site 1",
+              "Site 2"
+            ],
+            "pick up time": "Tuesday 5:00AM"
+          },
+          {
+            "barangay": "Dagsian, Upper",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3"
+            ],
+            "pick up time": "Wednesday"
+          },
+          {
+            "barangay": "Scout Barrio",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Sub Site 1",
+              "Sub Site 2",
+              "Sub Site 3"
+            ],
+            "pick up time": "Wednesday 5:00AM - 7:00AM"
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Thursday",
+        "area": [
+          {
+            "barangay": "Kias",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3"
+            ],
+            "pick up time": "Thursday"
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Friday",
+        "area": [
+          {
+            "barangay": "San Carlos, Idogan Village, Sariling Sikap",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      }
+    ]
+  },
+  {
+    "driver": "SAWANING FRANKLIN",
+    "schedule": [
+      {
+        "day": "Monday",
+        "area": [
+          {
+            "barangay": "Legarda-Burnham-Kisad",
+            "sites": [
+              "Main Site1",
+              "Main Site2",
+              "Main Site3",
+              "Sub sites1",
+              "Sub sites2",
+              "Sub sites3",
+              "Sub sites4",
+              "Sub sites5",
+              "Sub sites6",
+              "Sub sites7",
+              "Sub sites8",
+              "Sub sites9",
+              "Sub sites10",
+              "Sub sites11",
+              "Sub sites12",
+              "Sub sites13",
+              "Sub sites14",
+              "Sub sites15",
+              "Sub sites16",
+              "Sub sites17",
+              "Sub sites18",
+              "Sub sites19",
+              "Sub sites20",
+              "Sub sites21",
+              "Sub sites22",
+              "Sub sites23",
+              "Sub sites24",
+              "Sub sites25",
+              "Sub sites26",
+              "Sub sites27",
+              "Sub sites28",
+              "Sub sites29",
+              "Sub sites30",
+              "Sub sites31",
+              "Sub sites32"
+            ],
+            "pick up time": "Everyday"
+          },
+          {
+            "barangay": "Market 3 Dian Huat",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Otek st.",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3pm-12nn"
+      },
+      {
+        "day": "Tuesday",
+        "area": [
+          {
+            "barangay": "Session Road Area",
+            "sites": [
+              "Site 1",
+              "Site 2"
+            ],
+            "pick up time": "Everyday"
+          },
+          {
+            "barangay": "General Luna, Lower",
+            "sites": [
+              "Site 1"
+            ],
+            "pick up time": "Everyday"
+          },
+          {
+            "barangay": "Diego Silang",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Lower Mabini",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Gov. Pack",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Assumption",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Calderon",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Lakandula",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Centermall",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3pm-12nn"
+      },
+      {
+        "day": "Friday",
+        "area": [
+          {
+            "barangay": "Upper Magsaysay",
+            "sites": [
+              "Site 3"
+            ],
+            "pick up time": "Everyday"
+          },
+          {
+            "barangay": "Market 2 Hangar",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Maharlika Abanao",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Empire",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Veniz Hotel",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3pm-12nn"
+      },
+      {
+        "day": "Saturday",
+        "area": [
+          {
+            "barangay": "Upper Magsaysay",
+            "sites": [
+              "Site 3"
+            ],
+            "pick up time": "Everyday"
+          },
+          {
+            "barangay": "Market 2 Hangar",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Maharlika Abanao",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Empire",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Veniz Hotel",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3pm-12nn"
+      },
+      {
+        "day": "Sunday",
+        "area": [
+          {
+            "barangay": "Legarda-Burnham-Kisad",
+            "sites": [
+              "Main Site1",
+              "Main Site2",
+              "Main Site3",
+              "Sub sites1",
+              "Sub sites2",
+              "Sub sites3",
+              "Sub sites4",
+              "Sub sites5",
+              "Sub sites6",
+              "Sub sites7",
+              "Sub sites8",
+              "Sub sites9",
+              "Sub sites10",
+              "Sub sites11",
+              "Sub sites12",
+              "Sub sites13",
+              "Sub sites14",
+              "Sub sites15",
+              "Sub sites16",
+              "Sub sites17",
+              "Sub sites18",
+              "Sub sites19",
+              "Sub sites20",
+              "Sub sites21",
+              "Sub sites22",
+              "Sub sites23",
+              "Sub sites24",
+              "Sub sites25",
+              "Sub sites26",
+              "Sub sites27",
+              "Sub sites28",
+              "Sub sites29",
+              "Sub sites30",
+              "Sub sites31",
+              "Sub sites32"
+            ],
+            "pick up time": "Everyday"
+          },
+          {
+            "barangay": "San Antonio Village",
+            "sites": [
+              "Site 1"
+            ],
+            "pick up time": "Monday 4:00AM - 6:00AM"
+          },
+          {
+            "barangay": "Market 3 Dian Huat",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Otek st.",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3pm-12nn"
+      }
+    ]
+  },
+  {
+    "driver": "ULLANI EDDIE",
+    "schedule": [
+      {
+        "day": "Monday",
+        "area": [
+          {
+            "barangay": "Padre Burgos",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5",
+              "Site 6",
+              "Site 7"
+            ],
+            "pick up time": "Sunday 8:00PM - Monday 4:00AM"
+          },
+          {
+            "barangay": "P. Zamora",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Tuesday",
+        "area": [
+          {
+            "barangay": "Camp 8",
+            "sites": [
+              "Site 1",
+              "Site 2"
+            ],
+            "pick up time": "Tuesday Morning"
+          },
+          {
+            "barangay": "Santa Escolastica",
+            "sites": [
+              "Site 1",
+              "Site 2"
+            ],
+            "pick up time": "Tuesday 5:00AM"
+          },
+          {
+            "barangay": "Milton-Highway",
+            "sites": [],
+            "pick up time": ""
+          },
+          {
+            "barangay": "Genesis",
+            "sites": [],
+            "pick up time": ""
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Wednesday",
+        "area": [
+          {
+            "barangay": "Lourdes Subdivision, Proper",
+            "sites": [
+              "Site 1",
+              "Site 2"
+            ],
+            "pick up time": "Wednesday 1:00PM - 3:00APM; Wednesday 5:00AM - 6:00AM"
+          },
+          {
+            "barangay": "Lourdes Subdivision, Lower",
+            "sites": [
+              "Site 1"
+            ],
+            "pick up time": "Tuesday 3:00PM - 4:00PM"
+          },
+          {
+            "barangay": "MRR-Queen of Peace",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4"
+            ],
+            "pick up time": "Wednesday 4:00AM - 6:00AM"
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Thursday",
+        "area": [
+          {
+            "barangay": "Atok Trail",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5"
+            ],
+            "pick up time": "Thursday"
+          },
+          {
+            "barangay": "Apugan-Loakan",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5"
+            ],
+            "pick up time": "Thursday"
+          }
+        ],
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Friday",
+        "area": [
+          {
+            "barangay": "Irisan",
+            "sites": [
+              "Site 1",
+              "Site 2",
+              "Site 3",
+              "Site 4",
+              "Site 5",
+              "Site 6",
+              "Site 7",
+              "Site 8",
+              "Site 9",
+              "Site 10",
+              "Site 11",
+              "Site 12",
+              "Site 13",
+              "Site 14",
+              "Site 15",
+              "Site 16",
+              "Site 17",
+              "Site 18",
+              "Site 19",
+              "Site 20",
+              "Site 21",
+              "Site 22",
+              "Site 23",
+              "Site 24",
+              "Site 25",
+              "Site 26",
+              "Site 27",
+              "Site 28",
+              "Site 29",
+              "Site 30",
+              "Site 31",
+              "Site 32",
+              "Site 33",
+              "Site 34",
+              "Site 35",
+              "Site 36",
+              "Site 37",
+              "Site 38",
+              "Site 39",
+              "Site 40",
+              "Site 41",
+              "Site 42",
+              "Site 43",
+              "Site 44",
+              "Site 45",
+              "Site 46",
+              "Site 47",
+              "Site 48",
+              "Site 49",
+              "Site 50",
+              "Site 51",
+              "Site 52",
+              "Site 53",
+              "Site 54",
+              "Site 55",
+              "Site 56",
+              "Site 57",
+              "Site 58",
+              "Site 59",
+              "Site 60",
+              "Site 61",
+              "Site 62",
+              "Site 63",
+              "Site 64",
+              "Site 65",
+              "Site 66",
+              "Site 67",
+              "Site 68"
+            ],
+            "pick up time": "Thursday and Friday"
+          }
+        ],
+        "time": "3am-12nn"
+      }
+    ]
+  }
+]

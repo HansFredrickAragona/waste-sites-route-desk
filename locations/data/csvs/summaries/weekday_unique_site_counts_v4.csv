@@ -1,0 +1,11 @@
+Metric,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday
+Total unique mapped sites scheduled,189,192,170,186,164,87,88
+Unique sites listed exactly twice,22,26,41,8,17,3,3
+Unique sites listed 3 or more times,5,1,7,1,3,1,1
+Extra site listings removed by deduplication,32,28,55,10,23,5,5
+Residual sites (inferred; non-food-waste routes),189,192,170,186,164,87,88
+Mapped food-waste sites,0,0,0,0,0,0,0
+Food-waste schedule entries without coordinates,1,1,1,2,2,1,1
+Site entries excluded for missing coordinates,38,39,33,47,52,22,21
+Remarks,22 of 189 unique mapped sites are listed exactly twice; 5 are listed 3 or more times. 1 food-waste schedule entry/entries have no mapped sites; 38 site entries have no coordinates.,26 of 192 unique mapped sites are listed exactly twice; 1 are listed 3 or more times. 1 food-waste schedule entry/entries have no mapped sites; 39 site entries have no coordinates.,41 of 170 unique mapped sites are listed exactly twice; 7 are listed 3 or more times. 1 food-waste schedule entry/entries have no mapped sites; 33 site entries have no coordinates.,8 of 186 unique mapped sites are listed exactly twice; 1 are listed 3 or more times. 2 food-waste schedule entry/entries have no mapped sites; 47 site entries have no coordinates.,17 of 164 unique mapped sites are listed exactly twice; 3 are listed 3 or more times. 2 food-waste schedule entry/entries have no mapped sites; 52 site entries have no coordinates.,3 of 87 unique mapped sites are listed exactly twice; 1 are listed 3 or more times. 1 food-waste schedule entry/entries have no mapped sites; 22 site entries have no coordinates.,3 of 88 unique mapped sites are listed exactly twice; 1 are listed 3 or more times. 1 food-waste schedule entry/entries have no mapped sites; 21 site entries have no coordinates.
+Method,"Sites are deduplicated by coordinate rounded to 6 decimal places. Counts describe scheduled locations, not completed pickups. Null-coordinate firingline and blank fallback entries are excluded from mapped-site totals. Residual classification is inferred from routes not labeled Food Waste; v4 has no explicit waste-type field.",,,,,,

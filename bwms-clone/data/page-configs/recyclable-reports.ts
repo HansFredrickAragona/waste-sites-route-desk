@@ -1,0 +1,8 @@
+import { cols, field, type PageDefinition } from '../pageTypes';
+
+export const recyclableReports: PageDefinition = {
+  path:'/recyclables/recyclable-reports', section:'Collection Reports', title:'Manage Junkshop Reports', heading:'Junkshop Management Reports', description:'View and manage Recyclable Collection Reports', addLabel:'Add New Record', exportLabel:'Export Report', dateFilter:true,
+  columns:cols([['date','Date Created'],['plate','Plate Number'],['material','Material Type'],['gross','Gross Weight (kg)'],['tare','Tare Weight (kg)'],['net','Net Weight (kg)'],['company','Junkshop Name'],['updated','Last Updated']]),
+  fields:[field('date','Collection Date','date'),field('plate','Vehicle Plate Number','select',true,['REC 2001','REC 2002']),field('material','Material Type','select',true,['Cardboard','Aluminum','Plastic','Glass','Paper']),field('gross','Gross Weight (kg)','number'),field('tare','Tare Weight (kg)','number'),field('company','Junkshop','select',true,['Mountain Recyclables','Baguio Eco Traders'])],
+  records:[{id:1,date:'Oct 7, 2026',plate:'REC 2001',material:'Cardboard',gross:'84 kg',tare:'42 kg',net:'42 kg',company:'Mountain Recyclables',updated:'Oct 7, 2026'},{id:2,date:'Sep 27, 2026',plate:'REC 2002',material:'Aluminum',gross:'132 kg',tare:'88 kg',net:'44 kg',company:'Baguio Eco Traders',updated:'Sep 27, 2026'},{id:3,date:'Sep 25, 2026',plate:'REC 2001',material:'Plastic',gross:'96 kg',tare:'54 kg',net:'42 kg',company:'Mountain Recyclables',updated:'Sep 25, 2026'},{id:4,date:'Sep 24, 2026',plate:'REC 2002',material:'Glass',gross:'110 kg',tare:'70 kg',net:'40 kg',company:'Baguio Eco Traders',updated:'Sep 24, 2026'}],
+};

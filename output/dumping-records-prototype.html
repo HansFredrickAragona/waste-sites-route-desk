@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>City Waste Reports — Dumping Records</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #151619;
+      --panel: #18191d;
+      --line: #2a2c32;
+      --line-strong: #3a3d45;
+      --text: #f0f1f4;
+      --muted: #a6a9b2;
+      --green: #20a45b;
+      --green-soft: #143422;
+      --blue: #5292ff;
+      --blue-soft: #1b2638;
+      --amber: #ffbd1c;
+      --amber-soft: #382b11;
+      --red: #ff656b;
+      --red-soft: #351d20;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.45 Inter, "Segoe UI", Arial, sans-serif; }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    .page { width: min(100%, 1900px); margin: 0 auto; padding: 26px 24px 32px; }
+    .topbar { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; }
+    h1 { margin: 0; font-size: clamp(24px, 2vw, 32px); line-height: 1.15; letter-spacing: -.025em; }
+    .subtitle { margin: 5px 0 0; color: var(--muted); font-size: 16px; }
+    .top-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+    .button { min-height: 38px; border: 1px solid var(--line-strong); border-radius: 4px; padding: 8px 13px; color: var(--text); background: #202126; display: inline-flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; }
+    .button:hover { filter: brightness(1.12); }
+    .button-green { background: #168748; border-color: #168748; color: #06190d; }
+    .button-amber { background: var(--amber); border-color: var(--amber); color: #17130a; }
+    .button-link { color: var(--blue); background: transparent; border-color: transparent; }
+    .button-small { min-height: 31px; padding: 5px 10px; font-size: 13px; }
+    .button-danger { color: var(--red); border-color: #5a3035; background: var(--red-soft); }
+    .flow { margin: 19px 0 21px; display: flex; align-items: center; gap: 11px; flex-wrap: wrap; color: #d5d7dd; font-size: 14px; }
+    .flow-label { color: #8e929c; font-size: 11px; font-weight: 700; letter-spacing: .1em; margin-right: 4px; }
+    .flow-step { white-space: nowrap; }
+    .flow-arrow { color: #737782; }
+    .panel { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--panel); }
+    .toolbar { display: flex; align-items: center; gap: 10px; padding: 18px 22px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+    .search { position: relative; width: min(300px, 100%); }
+    .search input { width: 100%; padding-left: 38px; }
+    .search-icon { position: absolute; left: 13px; top: 8px; color: #9296a0; font-size: 19px; pointer-events: none; }
+    input, select { height: 38px; color: var(--text); border: 1px solid var(--line-strong); border-radius: 4px; background: #191a1f; padding: 7px 11px; outline: none; }
+    input:focus, select:focus, button:focus-visible { border-color: var(--blue); outline: 2px solid #4f8df755; outline-offset: 1px; }
+    .date-filter { display: flex; align-items: center; gap: 8px; height: 38px; border: 1px solid var(--line-strong); border-radius: 4px; padding: 0 10px; color: var(--text); background: #191a1f; }
+    .date-filter span { white-space: nowrap; color: #d9dbe0; }
+    .date-filter input { height: 34px; padding: 3px; border: 0; background: transparent; color-scheme: dark; }
+    .source-filter { min-width: 230px; }
+    .toolbar-spacer { flex: 1; }
+    .table-meta { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 22px; color: var(--muted); font-size: 13px; border-bottom: 1px solid #23252a; }
+    .table-meta strong { color: #dfe1e6; font-weight: 500; }
+    .table-scroll { width: 100%; overflow-x: auto; }
+    table { width: 100%; min-width: 1840px; border-collapse: collapse; table-layout: fixed; }
+    col.actions { width: 175px; } col.status { width: 160px; } col.plate { width: 135px; }
+    col.weight { width: 125px; } col.time { width: 190px; } col.source { width: 280px; }
+    col.driver { width: 190px; } col.updated { width: 220px; }
+    thead th { color: #f3f4f6; font-weight: 650; text-align: left; padding: 19px 13px; border-bottom: 1px solid var(--line-strong); line-height: 1.2; }
+    tbody td { padding: 17px 13px; border-bottom: 1px solid #292b31; color: #c0c4ce; vertical-align: middle; }
+    tbody tr:last-child td { border-bottom: 0; }
+    tbody tr:hover { background: #1d1f24; }
+    .actions { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .plate-text { color: #f1f2f5; font-weight: 650; letter-spacing: .015em; }
+    .weight-text { white-space: nowrap; color: #dfe2e8; }
+    .empty-value { color: #727680; }
+    .time-text { color: #b6c2d8; font-size: 13px; white-space: nowrap; }
+    .source-text { display: block; color: #b9c5dd; line-height: 1.38; overflow-wrap: anywhere; }
+    .driver-text { color: #c8cbd2; }
+    .updated-text { color: #aeb2bc; font-size: 13px; white-space: nowrap; }
+    .status { display: inline-block; border-radius: 4px; padding: 5px 9px; font-size: 13px; white-space: nowrap; }
+    .status-awaiting { color: #64a0ff; background: var(--blue-soft); }
+    .status-dumping { color: #ffc951; background: var(--amber-soft); }
+    .status-ready { color: #72d99c; background: var(--green-soft); }
+    .status-complete { color: #58dd8b; background: #183527; }
+    .empty-row { text-align: center; padding: 44px 18px !important; color: var(--muted); }
+    .prototype-note { padding: 11px 22px; border-top: 1px solid var(--line); color: #858a96; font-size: 12px; }
+    dialog { width: min(680px, calc(100% - 28px)); max-height: calc(100vh - 32px); padding: 0; color: var(--text); background: #1a1b20; border: 1px solid #40434c; border-radius: 9px; box-shadow: 0 24px 80px #0009; }
+    dialog::backdrop { background: #050609b8; }
+    .dialog-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; padding: 20px 22px 15px; border-bottom: 1px solid var(--line); }
+    .dialog-head h2 { margin: 0; font-size: 21px; }
+    .dialog-head p { margin: 5px 0 0; color: var(--muted); font-size: 13px; }
+    .close-button { border: 0; background: transparent; color: #aeb2bc; font-size: 24px; line-height: 1; padding: 0 2px; }
+    .form-body { padding: 19px 22px 10px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px 14px; }
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field-wide { grid-column: 1 / -1; }
+    .field label { color: #d8dae0; font-size: 13px; font-weight: 600; }
+    .field input { width: 100%; }
+    .form-hint { margin: 16px 0 5px; color: #a0a5af; font-size: 13px; }
+    .form-hint strong { color: #dfe1e7; }
+    .dialog-actions { display: flex; justify-content: flex-end; gap: 9px; padding: 15px 22px 20px; }
+    .activity-list { list-style: none; margin: 0; padding: 4px 22px 18px; max-height: 50vh; overflow-y: auto; }
+    .activity-list li { padding: 13px 0; border-bottom: 1px solid var(--line); }
+    .activity-list time { display: block; margin-bottom: 3px; color: #8e94a0; font-size: 12px; }
+    .activity-list span { color: #daddE4; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+    @media (max-width: 760px) {
+      .page { padding: 18px 12px 24px; }
+      .topbar { flex-direction: column; gap: 16px; }
+      .top-actions { justify-content: flex-start; }
+      .toolbar { padding: 14px; align-items: stretch; }
+      .search { width: 100%; }
+      .date-filter, .source-filter { flex: 1 1 100%; }
+      .toolbar-spacer { display: none; }
+      .table-meta { align-items: flex-start; flex-direction: column; padding: 12px 14px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .field-wide { grid-column: auto; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="topbar">
+      <div>
+        <h1>City Waste Reports</h1>
+        <p class="subtitle">Track each truck from arrival through dumping and departure</p>
+      </div>
+      <div class="top-actions">
+        <button class="button button-link" id="exportButton" type="button" aria-label="Export report">⇩ <span>Export Report</span></button>
+        <button class="button button-amber" id="newRecordButton" type="button">＋ Record Arrival</button>
+      </div>
+    </header>
+
+    <div class="flow" aria-label="Dumping record process">
+      <span class="flow-label">Trip flow</span>
+      <span class="flow-step">Arrival</span><span class="flow-arrow" aria-hidden="true">→</span>
+      <span class="flow-step">Gross weigh-in</span><span class="flow-arrow" aria-hidden="true">→</span>
+      <span class="flow-step">Dump</span><span class="flow-arrow" aria-hidden="true">→</span>
+      <span class="flow-step">Tare weigh-out</span><span class="flow-arrow" aria-hidden="true">→</span>
+      <span class="flow-step">Departure for next trip</span>
+    </div>
+
+    <section class="panel" aria-label="Dumping trip records">
+      <div class="toolbar">
+        <label class="search">
+          <span class="sr-only">Search records</span>
+          <span class="search-icon" aria-hidden="true">⌕</span>
+          <input id="searchInput" type="search" placeholder="Search plate, driver, or site…" autocomplete="off">
+        </label>
+        <label class="date-filter"><span>▦ Filter by date</span><input id="dateFilter" type="date" aria-label="Filter by arrival date"></label>
+        <label><span class="sr-only">Filter by source</span><select class="source-filter" id="sourceFilter"><option value="">Filter by Source</option></select></label>
+        <span class="toolbar-spacer"></span>
+        <button class="button button-link" id="activityButton" type="button">⌁ <span>View Activity Logs</span></button>
+      </div>
+      <div class="table-meta">
+        <span id="recordCount"><strong>Sample records</strong></span>
+        <span>Net = Gross − Tare · Source can include multiple collection sites</span>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <colgroup>
+            <col class="actions"><col class="status"><col class="plate">
+            <col class="weight"><col class="weight"><col class="weight">
+            <col class="time"><col class="time"><col class="source"><col class="driver"><col class="updated">
+          </colgroup>
+          <thead><tr>
+            <th scope="col">Actions</th><th scope="col">Status</th><th scope="col">Plate No.</th>
+            <th scope="col">Gross (kg)</th><th scope="col">Tare (kg)</th><th scope="col">Net (kg)</th>
+            <th scope="col">Departure</th><th scope="col">Arrival</th><th scope="col">Source</th>
+            <th scope="col">Driver</th><th scope="col">Last Updated</th>
+          </tr></thead>
+          <tbody id="recordsBody"></tbody>
+        </table>
+      </div>
+      <div class="prototype-note">Sample records · Updates are saved in this browser for this prototype.</div>
+    </section>
+  </main>
+
+  <dialog id="recordDialog" aria-labelledby="recordDialogTitle">
+    <form id="recordForm">
+      <div class="dialog-head">
+        <div><h2 id="recordDialogTitle">Record truck arrival</h2><p id="recordDialogSubtitle">Start a new dumping trip record.</p></div>
+        <button class="close-button" type="button" data-close="recordDialog" aria-label="Close">×</button>
+      </div>
+      <div class="form-body">
+        <input id="recordId" type="hidden">
+        <div class="form-grid">
+          <div class="field"><label for="plateInput">Plate No.</label><input id="plateInput" name="plate" required maxlength="24" placeholder="e.g. ABC-1234"></div>
+          <div class="field"><label for="driverInput">Driver</label><input id="driverInput" name="driver" required maxlength="100" placeholder="Driver name"></div>
+          <div class="field field-wide"><label for="sourceInput">Source site(s)</label><input id="sourceInput" name="source" required placeholder="Enter one or more sites, separated by commas"></div>
+          <div class="field"><label for="arrivalInput">Arrival</label><input id="arrivalInput" name="arrival" type="datetime-local" required></div>
+          <div class="field"><label for="departureInput">Departure</label><input id="departureInput" name="departure" type="datetime-local"></div>
+          <div class="field"><label for="grossInput">Gross (kg) · loaded truck</label><input id="grossInput" name="gross" type="number" min="0" step="0.01" placeholder="Enter after weigh-in"></div>
+          <div class="field"><label for="tareInput">Tare (kg) · after dumping</label><input id="tareInput" name="tare" type="number" min="0" step="0.01" placeholder="Enter after unloading"></div>
+        </div>
+        <p class="form-hint"><strong>Net is calculated automatically:</strong> Gross − Tare. Status follows the trip stage, and Last Updated refreshes whenever the record is saved.</p>
+      </div>
+      <div class="dialog-actions">
+        <button class="button" type="button" data-close="recordDialog">Cancel</button>
+        <button class="button button-green" id="saveRecordButton" type="submit">Save record</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="activityDialog" aria-labelledby="activityDialogTitle">
+    <div class="dialog-head">
+      <div><h2 id="activityDialogTitle">Activity Logs</h2><p>Recent changes to dumping trip records</p></div>
+      <button class="close-button" type="button" data-close="activityDialog" aria-label="Close">×</button>
+    </div>
+    <ol class="activity-list" id="activityList"></ol>
+  </dialog>
+
+  <script>
+    const storageKey = 'baguio-dumping-records-prototype-v1';
+    const sampleRecords = [
+      { id: 'sample-1', plate: 'ABC-1203', gross: null, tare: null, arrival: '2026-10-08T08:12', departure: '', sourceSites: ['Site 03', 'Site 07'], driver: 'Demo Driver A', lastUpdated: '2026-10-08T08:12' },
+      { id: 'sample-2', plate: 'BAG-4216', gross: 12480, tare: null, arrival: '2026-10-08T07:45', departure: '', sourceSites: ['Site 02', 'Site 11'], driver: 'Demo Driver B', lastUpdated: '2026-10-08T08:02' },
+      { id: 'sample-3', plate: 'CXY-7812', gross: 11920, tare: 4860, arrival: '2026-10-08T06:58', departure: '', sourceSites: ['Site 04'], driver: 'Demo Driver C', lastUpdated: '2026-10-08T07:31' },
+      { id: 'sample-4', plate: 'DEMO-004', gross: 11880, tare: 4720, arrival: '2026-10-08T06:02', departure: '2026-10-08T06:40', sourceSites: ['Site 05', 'Site 06'], driver: 'Demo Driver D', lastUpdated: '2026-10-08T06:40' }
+    ];
+    let records = sampleRecords;
+    try {
+      const saved = JSON.parse(localStorage.getItem(storageKey) || 'null');
+      if (Array.isArray(saved)) records = saved;
+    } catch { /* Keep the sample rows when local storage is unavailable. */ }
+    let activities = [
+      { time: '2026-10-08T08:12', message: 'ABC-1203 arrived from Site 03 and Site 07.' },
+      { time: '2026-10-08T08:02', message: 'BAG-4216 gross weight recorded; dumping in progress.' },
+      { time: '2026-10-08T07:31', message: 'CXY-7812 tare recorded; ready for departure.' }
+    ];
+
+    const body = document.getElementById('recordsBody');
+    const searchInput = document.getElementById('searchInput');
+    const dateFilter = document.getElementById('dateFilter');
+    const sourceFilter = document.getElementById('sourceFilter');
+    const recordDialog = document.getElementById('recordDialog');
+    const activityDialog = document.getElementById('activityDialog');
+    const form = document.getElementById('recordForm');
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch]);
+    }
+    function nowInManila() {
+      const parts = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Asia/Manila', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(new Date());
+      return parts.replace(' ', 'T');
+    }
+    function formatDateTime(value) {
+      if (!value) return '<span class="empty-value">—</span>';
+      const parsed = new Date(`${value}:00+08:00`);
+      if (Number.isNaN(parsed.getTime())) return escapeHtml(value);
+      return new Intl.DateTimeFormat('en-PH', { timeZone: 'Asia/Manila', month: 'short', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(parsed);
+    }
+    function formatLogTime(value) {
+      if (!value) return '';
+      const parsed = new Date(`${value}:00+08:00`);
+      if (Number.isNaN(parsed.getTime())) return escapeHtml(value);
+      return new Intl.DateTimeFormat('en-PH', { timeZone: 'Asia/Manila', month: 'short', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(parsed);
+    }
+    function weight(value) {
+      if (value === null || value === undefined || value === '') return '<span class="empty-value">—</span>';
+      return `<span class="weight-text">${new Intl.NumberFormat('en-PH', { maximumFractionDigits: 2 }).format(Number(value))} kg</span>`;
+    }
+    function net(record) {
+      if (record.gross === null || record.gross === undefined || record.tare === null || record.tare === undefined) return null;
+      return Number(record.gross) - Number(record.tare);
+    }
+    function stage(record) {
+      if (record.departure) return { label: 'Complete', css: 'complete' };
+      if (record.tare !== null && record.tare !== undefined) return { label: 'Ready to depart', css: 'ready' };
+      if (record.gross !== null && record.gross !== undefined) return { label: 'Dumping', css: 'dumping' };
+      return { label: 'Awaiting weigh-in', css: 'awaiting' };
+    }
+    function saveLocal() {
+      try { localStorage.setItem(storageKey, JSON.stringify(records)); } catch { /* The page still works for this session. */ }
+    }
+    function refreshSourceOptions() {
+      const previous = sourceFilter.value;
+      const values = [...new Set(records.flatMap(record => record.sourceSites || []))].sort((a, b) => a.localeCompare(b));
+      sourceFilter.innerHTML = '<option value="">Filter by Source</option>' + values.map(site => `<option value="${escapeHtml(site)}">${escapeHtml(site)}</option>`).join('');
+      if (values.includes(previous)) sourceFilter.value = previous;
+    }
+    function render() {
+      refreshSourceOptions();
+      const query = searchInput.value.trim().toLowerCase();
+      const date = dateFilter.value;
+      const source = sourceFilter.value;
+      const visible = records.filter(record => {
+        const haystack = [record.plate, record.driver, ...(record.sourceSites || []), stage(record).label].join(' ').toLowerCase();
+        return (!query || haystack.includes(query)) && (!date || (record.arrival || '').startsWith(date)) && (!source || (record.sourceSites || []).includes(source));
+      });
+      document.getElementById('recordCount').innerHTML = `<strong>${visible.length} of ${records.length} sample records</strong>`;
+      if (!visible.length) {
+        body.innerHTML = '<tr><td class="empty-row" colspan="11">No dumping records match these filters.</td></tr>';
+        return;
+      }
+      body.innerHTML = visible.map(record => {
+        const state = stage(record);
+        const sites = (record.sourceSites || []).map(escapeHtml).join(' · ');
+        const netValue = net(record);
+        const markDeparted = state.label === 'Ready to depart' ? `<button class="button button-green button-small" type="button" data-action="depart" data-id="${escapeHtml(record.id)}">Depart</button>` : '';
+        return `<tr>
+          <td><div class="actions"><button class="button button-small" type="button" data-action="edit" data-id="${escapeHtml(record.id)}">Edit</button>${markDeparted}</div></td>
+          <td><span class="status status-${state.css}">${state.label}</span></td>
+          <td><span class="plate-text">${escapeHtml(record.plate)}</span></td>
+          <td>${weight(record.gross)}</td><td>${weight(record.tare)}</td><td>${weight(netValue)}</td>
+          <td><span class="time-text">${formatDateTime(record.departure)}</span></td>
+          <td><span class="time-text">${formatDateTime(record.arrival)}</span></td>
+          <td><span class="source-text">${sites || '<span class="empty-value">—</span>'}</span></td>
+          <td><span class="driver-text">${escapeHtml(record.driver)}</span></td>
+          <td><span class="updated-text">${formatDateTime(record.lastUpdated)}</span></td>
+        </tr>`;
+      }).join('');
+    }
+    function addActivity(message) {
+      activities.unshift({ time: nowInManila(), message });
+      activities = activities.slice(0, 30);
+    }
+    function openRecord(record = null) {
+      form.reset();
+      document.getElementById('recordId').value = record?.id || '';
+      document.getElementById('recordDialogTitle').textContent = record ? 'Update dump record' : 'Record truck arrival';
+      document.getElementById('recordDialogSubtitle').textContent = record ? 'Save the latest weigh-in, dump and departure details.' : 'Start a new trip record. Add weights as each stage is completed.';
+      document.getElementById('saveRecordButton').textContent = record ? 'Save update' : 'Save arrival';
+      document.getElementById('plateInput').value = record?.plate || '';
+      document.getElementById('driverInput').value = record?.driver || '';
+      document.getElementById('sourceInput').value = (record?.sourceSites || []).join(', ');
+      document.getElementById('arrivalInput').value = record?.arrival || nowInManila();
+      document.getElementById('departureInput').value = record?.departure || '';
+      document.getElementById('grossInput').value = record?.gross ?? '';
+      document.getElementById('tareInput').value = record?.tare ?? '';
+      recordDialog.showModal();
+    }
+    document.getElementById('newRecordButton').addEventListener('click', () => openRecord());
+    document.getElementById('activityButton').addEventListener('click', () => {
+      document.getElementById('activityList').innerHTML = activities.map(item => `<li><time>${formatLogTime(item.time)}</time><span>${escapeHtml(item.message)}</span></li>`).join('') || '<li>No activity yet.</li>';
+      activityDialog.showModal();
+    });
+    document.getElementById('exportButton').addEventListener('click', () => {
+      const columns = ['Status', 'Plate No.', 'Gross (kg)', 'Tare (kg)', 'Net (kg)', 'Departure', 'Arrival', 'Source', 'Driver', 'Last Updated'];
+      const csvEscape = value => `"${String(value ?? '').replace(/"/g, '""')}"`;
+      const rows = records.map(record => [stage(record).label, record.plate, record.gross ?? '', record.tare ?? '', net(record) ?? '', record.departure, record.arrival, (record.sourceSites || []).join('; '), record.driver, record.lastUpdated]);
+      const csv = [columns, ...rows].map(row => row.map(csvEscape).join(',')).join('\r\n');
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+      link.download = 'dumping-trip-records.csv';
+      link.click();
+      URL.revokeObjectURL(link.href);
+    });
+    searchInput.addEventListener('input', render);
+    dateFilter.addEventListener('change', render);
+    sourceFilter.addEventListener('change', render);
+    body.addEventListener('click', event => {
+      const button = event.target.closest('button[data-action]');
+      if (!button) return;
+      const record = records.find(item => item.id === button.dataset.id);
+      if (!record) return;
+      if (button.dataset.action === 'edit') openRecord(record);
+      if (button.dataset.action === 'depart') {
+        record.departure = nowInManila();
+        record.lastUpdated = nowInManila();
+        addActivity(`${record.plate} departed for the next trip.`);
+        saveLocal();
+        render();
+      }
+    });
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      const id = document.getElementById('recordId').value;
+      const plate = document.getElementById('plateInput').value.trim();
+      const driver = document.getElementById('driverInput').value.trim();
+      const sourceSites = document.getElementById('sourceInput').value.split(',').map(site => site.trim()).filter(Boolean);
+      const arrival = document.getElementById('arrivalInput').value;
+      const departure = document.getElementById('departureInput').value;
+      const grossRaw = document.getElementById('grossInput').value;
+      const tareRaw = document.getElementById('tareInput').value;
+      const gross = grossRaw === '' ? null : Number(grossRaw);
+      const tare = tareRaw === '' ? null : Number(tareRaw);
+      if (tare !== null && gross === null) { alert('Enter the gross weight before the tare weight.'); return; }
+      if (gross !== null && tare !== null && tare > gross) { alert('Tare weight cannot exceed gross weight.'); return; }
+      if (departure && tare === null) { alert('Record the tare weight before departure.'); return; }
+      const existingIndex = records.findIndex(item => item.id === id);
+      const next = { id: id || `trip-${Date.now()}`, plate, driver, sourceSites, arrival, departure, gross, tare, lastUpdated: nowInManila() };
+      if (existingIndex >= 0) {
+        records[existingIndex] = next;
+        addActivity(`${plate} trip record updated: ${stage(next).label.toLowerCase()}.`);
+      } else {
+        records.unshift(next);
+        addActivity(`${plate} arrived from ${sourceSites.join(', ')}.`);
+      }
+      saveLocal();
+      recordDialog.close();
+      render();
+    });
+    document.querySelectorAll('[data-close]').forEach(button => button.addEventListener('click', () => document.getElementById(button.dataset.close).close()));
+    render();
+  </script>
+</body>
+</html>
