@@ -1,12 +1,12 @@
 {
-  "name": "baguio-driver-schedule-demo",
+  "name": "baguio-location-demos",
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --host 127.0.0.1",
-    "build": "vite build",
-    "preview": "vite preview --host 127.0.0.1",
-    "data:refresh": "node scripts/build-site-index.mjs"
+    "dev:site-schedule": "npm run dev --prefix \"site schedule demo\"",
+    "dev:barangay-sites": "npm run dev --prefix \"barangay sites demo\"",
+    "build:site-schedule": "npm run build --prefix \"site schedule demo\"",
+    "build:barangay-sites": "npm run build --prefix \"barangay sites demo\""
   },
   "dependencies": {
     "leaflet": "^1.9.4",

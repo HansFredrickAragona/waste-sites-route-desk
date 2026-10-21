@@ -4,4 +4,4 @@
 - `maps/` contains the SWMD map JSON used by the data preparation scripts.
 - `examples/` contains the `driver_format.json` example.
 
-The prototype serves its own copies of v3, v4, and v5 from `demo/public/data/schedules/` and its SWMD site index from `demo/public/data/maps/`. The v4 and v5 generators write both source and prototype copies.
+The schedule demo serves its own copies of v3, v4, and v5 from `demo/site schedule demo/public/data/schedules/` and its SWMD site index from `demo/site schedule demo/public/data/maps/`. The v4 and v5 generators write both source and prototype copies.

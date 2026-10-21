@@ -73,7 +73,13 @@ export default function WeeklySchedule({
                 <tr key={driver.id}>
                   <th className="driver-cell" scope="row">
                     <span className="driver-number">{String(driverIndex + 1).padStart(2, "0")}</span>
-                    <span>{driver.name}</span>
+                    <span className="driver-cell-name">{driver.name}</span>
+                    {(driver.type || driver.truck?.length > 0) && (
+                      <span className="driver-cell-meta">
+                        {driver.type && <span>{driver.type}</span>}
+                        {driver.truck?.length > 0 && <span>Truck: {driver.truck.join(", ")}</span>}
+                      </span>
+                    )}
                   </th>
                   {DAYS.map((day) => {
                     const areas = getAreasForCell(driver, day);

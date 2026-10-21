@@ -12,6 +12,11 @@ export function isUnmappedAreaSegment(segment) {
   return !Array.isArray(segment?.coordinates) || segment.coordinates.length < 2;
 }
 
+function isUndefinedFiringLineSite(site) {
+  return normalizedLabel(site?.siteName ?? site?.site_name).replace(/\s+/g, "") === "firingline"
+    && !site?.hasCoordinates;
+}
+
 function summarizeLocationStatus(areas) {
   const firstArea = areas[0];
   if (isQrtAreaName(firstArea?.areaName || firstArea?.sourceAreaName || firstArea?.barangay)) {
@@ -27,7 +32,9 @@ function summarizeLocationStatus(areas) {
     };
   }
 
-  const sites = areas.flatMap((area) => Array.isArray(area.sites) ? area.sites : []);
+  const sites = areas
+    .flatMap((area) => Array.isArray(area.sites) ? area.sites : [])
+    .filter((site) => !isUndefinedFiringLineSite(site));
   const mappedSiteCount = sites.filter(
     (site) => site.hasCoordinates && site.catalogStatus !== "removed",
   ).length;
@@ -41,11 +48,7 @@ function summarizeLocationStatus(areas) {
   const emptyAreaCount = areas.filter(
     (area) => !Array.isArray(area.sites) || area.sites.length === 0,
   ).length;
-  const unmappedSegmentCount = areas.reduce(
-    (count, area) => count + (area.unmappedSegments ?? []).filter(isUnmappedAreaSegment).length, 0,
-  );
-
-  const hasUnmappedSites = missingCoordinateCount > 0 || removedSiteCount > 0 || emptyAreaCount > 0 || unmappedSegmentCount > 0;
+  const hasUnmappedSites = missingCoordinateCount > 0 || removedSiteCount > 0 || emptyAreaCount > 0;
   const mixed = mappedSiteCount > 0 && hasUnmappedSites;
   const warningParts = [];
 
@@ -61,9 +64,6 @@ function summarizeLocationStatus(areas) {
   if (emptyAreaCount > 0) {
     warningParts.push(`${emptyAreaCount} area record${emptyAreaCount === 1 ? "" : "s"} have no site records`);
   }
-  if (unmappedSegmentCount > 0) {
-    warningParts.push(`${unmappedSegmentCount} route or area segment${unmappedSegmentCount === 1 ? "" : "s"} need mapping`);
-  }
   if (areas.length > 1) {
     warningParts.push(`${areas.length} repeated area records grouped`);
   }
@@ -76,7 +76,7 @@ function summarizeLocationStatus(areas) {
     emptyAreaCount,
     mixed,
     warning: warningParts.length > 0 ? warningParts.join("; ") : null,
-    status: mixed ? "mixed" : warningParts.length > 0 ? "unmapped" : "mapped",
+    status: mappedSiteCount > 0 ? (mixed ? "mixed" : "mapped") : "unmapped",
   };
 }
 

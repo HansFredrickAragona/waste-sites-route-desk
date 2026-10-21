@@ -3,7 +3,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const demoDirectory = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const locationsDirectory = resolve(demoDirectory, "..");
+const locationsDirectory = resolve(demoDirectory, "..", "..");
 const rawMapPath = resolve(
   locationsDirectory,
   "data/csvs/raw/SWMD MAP - Baguio_SWMD_Google_MyMaps.csv",

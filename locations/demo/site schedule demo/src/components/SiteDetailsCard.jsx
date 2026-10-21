@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { parseMapCoordinates } from "../data/mapCoordinates.js";
+import { PIN_STATUS_OPTIONS } from "../data/scheduleModel.js";
 import GoogleStreetViewEditor from "./GoogleStreetViewEditor.jsx";
 
 function toDraft(site) {
@@ -7,6 +8,7 @@ function toDraft(site) {
     siteName: site?.siteName ?? "",
     mapLabel: site?.mapLabel ?? "",
     barangay: site?.barangay ?? site?.assignedBarangay ?? "",
+    pinStatus: site?.pinStatus ?? "Unverified / For Checking",
     latitude: String(site?.latitude ?? ""),
     longitude: String(site?.longitude ?? ""),
   };
@@ -49,7 +51,7 @@ export default function SiteDetailsCard({
     setShowEmbeddedStreetView(false);
     setShowSaveConfirmation(false);
     setIsEditing(isNew && !readOnly);
-  }, [site?.id, site?.siteName, site?.mapLabel, site?.barangay, site?.latitude, site?.longitude, isNew, readOnly]);
+  }, [site?.id, site?.siteName, site?.mapLabel, site?.barangay, site?.pinStatus, site?.latitude, site?.longitude, isNew, readOnly]);
 
   useEffect(() => {
     if (!site || positionUpdate?.siteId !== site.id) return;
@@ -154,6 +156,7 @@ export default function SiteDetailsCard({
       barangay: draft.barangay.trim(),
       latitude,
       longitude,
+      pinStatus: draft.pinStatus,
     });
     if (result === false || result === null) {
       setFormError("This pin could not be saved. Check that it belongs to an assigned area.");
@@ -218,6 +221,7 @@ export default function SiteDetailsCard({
             <div><dt>Site name</dt><dd>{draft.siteName.trim() || "Not provided"}</dd></div>
             <div><dt>Map label</dt><dd>{draft.mapLabel.trim() || "Not provided"}</dd></div>
             <div><dt>Barangay</dt><dd>{draft.barangay.trim() || "Not provided"}</dd></div>
+            <div><dt>Pin status</dt><dd>{draft.pinStatus}</dd></div>
             <div><dt>Coordinates</dt><dd>{Number(draft.latitude).toFixed(6)}, {Number(draft.longitude).toFixed(6)}</dd></div>
           </dl>
           {formError && <p className="form-error" role="alert">{formError}</p>}
@@ -239,6 +243,12 @@ export default function SiteDetailsCard({
           <label>
             Barangay
             <input value={draft.barangay} onChange={(event) => setField("barangay", event.target.value)} />
+          </label>
+          <label>
+            Pin status
+            <select value={draft.pinStatus} onChange={(event) => setField("pinStatus", event.target.value)}>
+              {PIN_STATUS_OPTIONS.map((status) => <option key={status.key} value={status.value}>{status.value}</option>)}
+            </select>
           </label>
           <div className="coordinate-edit-grid">
             <label>
@@ -262,6 +272,15 @@ export default function SiteDetailsCard({
             <div><dt>Pickup time</dt><dd>{site.pickupTime || "No pickup time provided"}</dd></div>
             <div><dt>Map label</dt><dd>{site.mapLabel || "No map label provided"}</dd></div>
             <div><dt>Barangay</dt><dd>{site.barangay || site.assignedBarangay || "No barangay provided"}</dd></div>
+            <div>
+              <dt>Pin status</dt>
+              <dd>
+                <span className={`pin-status-label pin-status-label--${site.pinStatusKey || "unchecked"}`}>
+                  <i className={`map-pin-status-swatch map-pin-status-swatch--${site.pinStatusKey || "unchecked"}`} aria-hidden="true" />
+                  {site.pinStatus || "Unverified / For Checking"}
+                </span>
+              </dd>
+            </div>
             {validPosition(site.latitude, site.longitude) && (
               <div><dt>Coordinates</dt><dd>{site.latitude.toFixed(6)}, {site.longitude.toFixed(6)}</dd></div>
             )}

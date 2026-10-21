@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import DataNotes from "./components/DataNotes.jsx";
+import ActivityLog from "./components/ActivityLog.jsx";
 import Dashboard from "./components/Dashboard.jsx";
 import DriverFilter, { ALL_DRIVERS } from "./components/DriverFilter.jsx";
 import QrtHistoryView from "./components/QrtHistoryView.jsx";
@@ -21,15 +21,49 @@ import {
   removeScheduleEdit,
 } from "./data/scheduleEdits.js";
 import { cellReviewKey } from "./data/cellReview.js";
-import { groupAreaAssignments, isQrtAreaName } from "./data/scheduleCellPresentation.js";
+import { groupAreaAssignments, isQrtAreaName, isUnmappedAreaSegment } from "./data/scheduleCellPresentation.js";
 import cleanedDriverAreaLabels from "./data/schedules/cleanedDriverAreaLabels.json";
 
 const SCHEDULE_LIBRARY_KEY = "baguio-driver-schedules";
 const LEGACY_V4_STORAGE_KEY = "baguio-driver-schedule-v4";
 const HIDDEN_BUILT_IN_VERSIONS_KEY = "baguio-driver-hidden-schedules";
 const ACTIVE_VERSION_STORAGE_KEY = "baguio-driver-active-schedule";
-const BUILT_IN_VERSION_ORDER = ["v3", "v4", "v5"];
+const ACTIVITY_LOG_STORAGE_KEY = "baguio-driver-activity-log";
+const MAX_ACTIVITY_LOG_ENTRIES = 500;
+const BUILT_IN_VERSION_ORDER = ["v3", "v4", "v5", "v6"];
 const BUILT_IN_VERSIONS = new Set(BUILT_IN_VERSION_ORDER);
+
+function loadActivityLog() {
+  if (typeof window === "undefined") return [];
+  try {
+    const entries = JSON.parse(window.localStorage.getItem(ACTIVITY_LOG_STORAGE_KEY) || "[]");
+    return Array.isArray(entries) ? entries.filter((entry) => entry && typeof entry.id === "string").slice(0, MAX_ACTIVITY_LOG_ENTRIES) : [];
+  } catch {
+    return [];
+  }
+}
+
+function formatActivityCoordinate(latitude, longitude) {
+  if (latitude === null || latitude === undefined || latitude === "" ||
+    longitude === null || longitude === undefined || longitude === "") return "";
+  const lat = Number(latitude);
+  const lng = Number(longitude);
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return "";
+  return `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+}
+
+function formatPinLocation(latitude, longitude, areaName = "") {
+  const coordinates = formatActivityCoordinate(latitude, longitude);
+  if (!coordinates) return areaName ? `${areaName} · location unavailable` : "Location unavailable";
+  return areaName ? `${areaName} · ${coordinates}` : coordinates;
+}
+
+function formatFeatureLocation(coordinates) {
+  if (!Array.isArray(coordinates) || coordinates.length === 0) return "No map nodes";
+  const points = coordinates.slice(0, 4).map((point) => formatActivityCoordinate(point?.[0], point?.[1])).filter(Boolean);
+  const remainder = coordinates.length > points.length ? ` · +${coordinates.length - points.length} more` : "";
+  return `${coordinates.length} map node${coordinates.length === 1 ? "" : "s"}${points.length > 0 ? ` · ${points.join(" → ")}${remainder}` : ""}`;
+}
 
 function isUndefinedFiringLineSite(site) {
   return site.siteName?.toLocaleLowerCase().replace(/\s+/g, "") === "firingline" && !site.hasCoordinates;
@@ -73,7 +107,7 @@ function loadSavedSchedules() {
   const usedIds = new Set(BUILT_IN_VERSIONS);
   const existingIds = new Set(saved.map((item) => item?.id).filter((id) => typeof id === "string"));
   const renamed = [];
-  let nextVersionNumber = 6;
+  let nextVersionNumber = 7;
   const schedules = saved
     .filter((item) => item && typeof item.id === "string" && Array.isArray(item.data))
     .map((item) => {
@@ -109,17 +143,18 @@ function loadSavedSchedules() {
 }
 
 function loadActiveVersion() {
-  if (typeof window === "undefined") return "v5";
+  if (typeof window === "undefined") return "v6";
   try {
-    return window.localStorage.getItem(ACTIVE_VERSION_STORAGE_KEY) || "v5";
+    return window.localStorage.getItem(ACTIVE_VERSION_STORAGE_KEY) || "v6";
   } catch {
-    return "v5";
+    return "v6";
   }
 }
 
 export default function App() {
   const [builtInSchedules, setBuiltInSchedules] = useState({});
   const [siteIndex, setSiteIndex] = useState(null);
+  const [activityLog, setActivityLog] = useState(loadActivityLog);
   const [uploadedSchedules, setUploadedSchedules] = useState(loadSavedSchedules);
   const [scheduleEdits, setScheduleEdits] = useState(loadScheduleEdits);
   const [hiddenBuiltInVersions, setHiddenBuiltInVersions] = useState(loadHiddenBuiltInVersions);
@@ -141,6 +176,12 @@ export default function App() {
     const timeoutId = window.setTimeout(() => setUploadMessage(""), 4000);
     return () => window.clearTimeout(timeoutId);
   }, [uploadMessage]);
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(ACTIVITY_LOG_STORAGE_KEY, JSON.stringify(activityLog));
+    } catch { /* Keep the history available for this session. */ }
+  }, [activityLog]);
 
   const availableBuiltInVersions = useMemo(
     () => BUILT_IN_VERSION_ORDER.filter((version) =>
@@ -282,7 +323,7 @@ export default function App() {
       ...BUILT_IN_VERSIONS,
       ...uploadedSchedules.map((schedule) => schedule.id),
     ]);
-    let nextVersionNumber = 6;
+    let nextVersionNumber = 7;
 
     for (const file of files) {
       try {
@@ -437,20 +478,152 @@ export default function App() {
     return readRawArea(schedule, ref)?.sites?.[ref.siteIndex] ?? null;
   }
 
+  function recordActivity({ action, itemType, itemName, location, driverName, day, undo }) {
+    const entry = {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+      timestamp: new Date().toISOString(),
+      scheduleId: activeVersion,
+      scheduleName: activeScheduleName || activeVersion,
+      action,
+      itemType,
+      itemName,
+      location,
+      driverName: driverName || selectedDriver?.name || "—",
+      day: day || selectedCell?.day || "—",
+      ...(undo ? { undo } : {}),
+    };
+
+    setActivityLog((current) => {
+      const next = [entry, ...current].slice(0, MAX_ACTIVITY_LOG_ENTRIES);
+      return next;
+    });
+  }
+
+  function handleActivityRevert(entry) {
+    const undo = entry?.undo;
+    if (!undo || entry.revertedAt || entry.scheduleId !== activeVersion) return;
+
+    const nextSchedule = Array.isArray(activeSchedule) ? JSON.parse(JSON.stringify(activeSchedule)) : null;
+    const nextMapFeatures = [...activeMapFeatures];
+    const nextCellStatuses = { ...activeCellStatuses };
+    let reverted = false;
+
+    if (undo.kind === "scheduled-site" && nextSchedule) {
+      const rawArea = readRawArea(nextSchedule, undo.sourceRef);
+      const sites = rawArea?.sites;
+      if (Array.isArray(sites)) {
+        if (undo.previous === null) {
+          if (sites[undo.sourceRef.siteIndex]) {
+            sites.splice(undo.sourceRef.siteIndex, 1);
+            if (sites.length === 0 && undo.removeSitesArrayWhenEmpty) delete rawArea.sites;
+            reverted = true;
+          }
+        } else if (undo.mode === "replace" && sites[undo.sourceRef.siteIndex]) {
+          sites[undo.sourceRef.siteIndex] = JSON.parse(JSON.stringify(undo.previous));
+          reverted = true;
+        } else {
+          sites.splice(undo.sourceRef.siteIndex, 0, JSON.parse(JSON.stringify(undo.previous)));
+          reverted = true;
+        }
+      }
+    } else if (undo.kind === "scheduled-route-segment" && nextSchedule) {
+      const rawArea = readRawArea(nextSchedule, undo.sourceRef);
+      const segments = rawArea?.unmapped_segments;
+      if (Array.isArray(segments)) {
+        if (undo.previous === null) {
+          if (segments[undo.sourceRef.segmentIndex]) {
+            segments.splice(undo.sourceRef.segmentIndex, 1);
+            reverted = true;
+          }
+        } else if (undo.mode === "replace" && segments[undo.sourceRef.segmentIndex]) {
+          segments[undo.sourceRef.segmentIndex] = JSON.parse(JSON.stringify(undo.previous));
+          reverted = true;
+        } else {
+          segments.splice(undo.sourceRef.segmentIndex, 0, JSON.parse(JSON.stringify(undo.previous)));
+          reverted = true;
+        }
+      }
+    } else if (undo.kind === "map-feature") {
+      const existingIndex = nextMapFeatures.findIndex((feature) => feature.id === undo.featureId);
+      if (undo.previous === null) {
+        if (existingIndex >= 0) {
+          nextMapFeatures.splice(existingIndex, 1);
+          reverted = true;
+        }
+      } else if (existingIndex >= 0) {
+        nextMapFeatures[existingIndex] = JSON.parse(JSON.stringify(undo.previous));
+        reverted = true;
+      } else {
+        nextMapFeatures.splice(Math.min(undo.index ?? nextMapFeatures.length, nextMapFeatures.length), 0, JSON.parse(JSON.stringify(undo.previous)));
+        reverted = true;
+      }
+    } else if (undo.kind === "cell-status") {
+      if (undo.previousExists) nextCellStatuses[undo.key] = undo.previous;
+      else delete nextCellStatuses[undo.key];
+      reverted = true;
+    }
+
+    if (!reverted) return;
+    commitScheduleEdit(nextSchedule, nextMapFeatures, nextCellStatuses);
+    const timestamp = new Date().toISOString();
+    const revertEntry = {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+      timestamp,
+      scheduleId: entry.scheduleId,
+      scheduleName: entry.scheduleName,
+      action: `Reverted: ${entry.action}`,
+      itemType: entry.itemType,
+      itemName: entry.itemName,
+      location: entry.location,
+      driverName: entry.driverName,
+      day: entry.day,
+    };
+    setActivityLog((current) => [
+      revertEntry,
+      ...current.map((currentEntry) => currentEntry.id === entry.id
+        ? { ...currentEntry, revertedAt: timestamp }
+        : currentEntry),
+    ].slice(0, MAX_ACTIVITY_LOG_ENTRIES));
+  }
+
   function handleSaveSite(siteId, values) {
     const site = allCellMappedSites.find((item) => item.id === siteId) ?? allCellSites.find((item) => item.id === siteId);
     if (!site) return false;
     let saved = false;
+    let moved = false;
+    const statusChanged = values.pinStatus !== site.pinStatus;
+    let previousSite = null;
     editSchedule((nextSchedule) => {
       const rawSite = readRawSite(nextSchedule, site);
       if (rawSite) {
-        const moved = values.latitude !== site.latitude || values.longitude !== site.longitude;
+        previousSite = JSON.parse(JSON.stringify(rawSite));
+        moved = values.latitude !== site.latitude || values.longitude !== site.longitude;
         const barangayChanged = values.barangay !== site.barangay;
-        Object.assign(rawSite, values);
-        if (moved || barangayChanged) rawSite.manual_override = true;
+        Object.assign(rawSite, {
+          site_name: values.site_name,
+          map_label: values.map_label,
+          barangay: values.barangay,
+          latitude: values.latitude,
+          longitude: values.longitude,
+          Status: values.pinStatus,
+        });
+        if (moved || barangayChanged || statusChanged) rawSite.manual_override = true;
         saved = true;
       }
     });
+    if (saved) {
+      recordActivity({
+        action: statusChanged
+          ? `Changed pin status to ${values.pinStatus}`
+          : moved ? "Moved collection pin" : "Updated collection pin",
+        itemType: "Collection pin",
+        itemName: values.map_label || values.site_name || site.mapLabel || site.siteName || "Unnamed collection pin",
+        location: formatPinLocation(values.latitude, values.longitude, values.barangay || site.areaName || site.barangay),
+        driverName: site.driverName,
+        day: site.day,
+        undo: { kind: "scheduled-site", mode: "replace", sourceRef: { ...site.sourceRef }, previous: previousSite },
+      });
+    }
     return saved;
   }
 
@@ -458,19 +631,38 @@ export default function App() {
     const sourceSite = allCellMappedSites.find((item) => item.id === site.id) ?? allCellSites.find((item) => item.id === site.id);
     const ref = sourceSite?.sourceRef;
     if (!ref) return;
+    let deleted = false;
+    let previousSite = null;
     editSchedule((nextSchedule) => {
       const rawArea = readRawArea(nextSchedule, ref);
-      if (Array.isArray(rawArea?.sites)) rawArea.sites.splice(ref.siteIndex, 1);
+      if (Array.isArray(rawArea?.sites) && rawArea.sites[ref.siteIndex]) {
+        previousSite = JSON.parse(JSON.stringify(rawArea.sites[ref.siteIndex]));
+        rawArea.sites.splice(ref.siteIndex, 1);
+        deleted = true;
+      }
     });
+    if (deleted) {
+      recordActivity({
+        action: "Deleted collection pin",
+        itemType: "Collection pin",
+        itemName: sourceSite.mapLabel || sourceSite.siteName || "Unnamed collection pin",
+        location: formatPinLocation(sourceSite.latitude, sourceSite.longitude, sourceSite.areaName || sourceSite.barangay),
+        driverName: sourceSite.driverName,
+        day: sourceSite.day,
+        undo: { kind: "scheduled-site", mode: "insert", sourceRef: { ...ref }, previous: previousSite },
+      });
+    }
   }
 
   function handleAddSite(area, coordinates, values = {}) {
     const ref = area.sourceRef;
     if (!ref) return null;
     let siteIndex = -1;
+    let previouslyHadSiteArray = true;
     editSchedule((nextSchedule) => {
       const rawArea = readRawArea(nextSchedule, ref);
       if (!rawArea) return;
+      previouslyHadSiteArray = Array.isArray(rawArea.sites);
       if (!Array.isArray(rawArea.sites)) rawArea.sites = [];
       siteIndex = rawArea.sites.length;
       rawArea.sites.push({
@@ -479,12 +671,28 @@ export default function App() {
         barangay: values.barangay ?? area.barangay,
         latitude: values.latitude ?? coordinates[0],
         longitude: values.longitude ?? coordinates[1],
+        Status: values.pinStatus ?? "Unverified / For Checking",
         manual_override: true,
       });
     });
-    return siteIndex >= 0
-      ? `${ref.driverIndex}-${ref.day}-${ref.entryIndex}-${ref.areaIndex}-${siteIndex}`
-      : null;
+    if (siteIndex < 0) return null;
+    recordActivity({
+      action: "Added collection pin",
+      itemType: "Collection pin",
+      itemName: values.map_label || values.site_name || "Unnamed collection pin",
+      location: formatPinLocation(
+        values.latitude ?? coordinates[0],
+        values.longitude ?? coordinates[1],
+        values.barangay || area.barangay || area.areaName,
+      ),
+      undo: {
+        kind: "scheduled-site",
+        sourceRef: { ...ref, siteIndex },
+        previous: null,
+        removeSitesArrayWhenEmpty: !previouslyHadSiteArray,
+      },
+    });
+    return `${ref.driverIndex}-${ref.day}-${ref.entryIndex}-${ref.areaIndex}-${siteIndex}`;
   }
 
   function handleAddFiringLine(feature) {
@@ -516,50 +724,156 @@ export default function App() {
       barangay: feature.barangay || assignedBarangays[0] || featureAreas[0]?.barangay || "",
     };
     commitScheduleEdit(activeSchedule, [...activeMapFeatures, mapFeature]);
+    const isBoundedArea = mapFeature.feature_type === "bounded_area";
+    recordActivity({
+      action: isBoundedArea ? "Added bounded area" : "Added firing line",
+      itemType: isBoundedArea ? "Bounded area" : "Firing line",
+      itemName: mapFeature.name || (isBoundedArea ? "Unnamed bounded area" : "Unnamed firing line"),
+      location: formatFeatureLocation(mapFeature.coordinates),
+      undo: {
+        kind: "map-feature",
+        featureId: mapFeature.id,
+        index: activeMapFeatures.length,
+        previous: null,
+      },
+    });
   }
 
   function handleUpdateFiringLine(featureId, coordinates) {
     const routeFeature = findScheduleRouteFeature(featureId);
     if (routeFeature) {
+      let saved = false;
+      let previousSegment = null;
       editSchedule((nextSchedule) => {
         const rawArea = readRawArea(nextSchedule, routeFeature.sourceRef);
         const rawSegment = rawArea?.unmapped_segments?.[routeFeature.sourceRef.segmentIndex];
         if (rawSegment && typeof rawSegment === "object") {
+          previousSegment = JSON.parse(JSON.stringify(rawSegment));
           rawSegment.coordinates = coordinates.map((point) => [...point]);
+          saved = true;
         }
       });
+      if (saved) {
+        const oldNodeCount = routeFeature.coordinates?.length ?? 0;
+        const wasUnmapped = oldNodeCount < 2;
+        const action = wasUnmapped
+          ? "Mapped route segment"
+          : coordinates.length > oldNodeCount
+            ? "Added node to route segment"
+            : coordinates.length < oldNodeCount
+              ? "Removed node from route segment"
+              : "Moved route segment node";
+        recordActivity({
+          action,
+          itemType: "Route segment",
+          itemName: routeFeature.name || "Unnamed route segment",
+          location: formatFeatureLocation(coordinates),
+          undo: {
+            kind: "scheduled-route-segment",
+            mode: "replace",
+            sourceRef: { ...routeFeature.sourceRef },
+            previous: previousSegment,
+          },
+        });
+      }
       return;
     }
 
+    const existingFeature = activeMapFeatures.find((feature) => feature.id === featureId);
+    if (!existingFeature) return;
+    const existingFeatureIndex = activeMapFeatures.findIndex((feature) => feature.id === featureId);
     const nextFeatures = activeMapFeatures.map((feature) => feature.id === featureId
       ? { ...feature, coordinates }
       : feature);
     commitScheduleEdit(activeSchedule, nextFeatures);
+    const isBoundedArea = existingFeature.feature_type === "bounded_area";
+    const oldNodeCount = existingFeature.coordinates?.length ?? 0;
+    const nodeName = isBoundedArea ? "point" : "node";
+    const itemName = isBoundedArea ? "bounded area" : "firing line";
+    recordActivity({
+      action: coordinates.length > oldNodeCount
+        ? `Added ${nodeName} to ${itemName}`
+        : coordinates.length < oldNodeCount
+          ? `Removed ${nodeName} from ${itemName}`
+          : `Moved ${itemName} ${nodeName}`,
+      itemType: isBoundedArea ? "Bounded area" : "Firing line",
+      itemName: existingFeature.name || (isBoundedArea ? "Unnamed bounded area" : "Unnamed firing line"),
+      location: formatFeatureLocation(coordinates),
+      undo: {
+        kind: "map-feature",
+        featureId,
+        index: existingFeatureIndex,
+        previous: JSON.parse(JSON.stringify(existingFeature)),
+      },
+    });
   }
 
   function handleDeleteFiringLine(featureId) {
     const routeFeature = findScheduleRouteFeature(featureId);
     if (routeFeature) {
+      let deleted = false;
+      let previousSegment = null;
       editSchedule((nextSchedule) => {
         const rawArea = readRawArea(nextSchedule, routeFeature.sourceRef);
         const segments = rawArea?.unmapped_segments;
         const segmentIndex = routeFeature.sourceRef.segmentIndex;
         if (Array.isArray(segments) && segments[segmentIndex]?.type === "route") {
+          previousSegment = JSON.parse(JSON.stringify(segments[segmentIndex]));
           segments.splice(segmentIndex, 1);
+          deleted = true;
         }
       });
+      if (deleted) {
+        recordActivity({
+          action: "Deleted route segment",
+          itemType: "Route segment",
+          itemName: routeFeature.name || "Unnamed route segment",
+          location: formatFeatureLocation(routeFeature.coordinates),
+          undo: {
+            kind: "scheduled-route-segment",
+            mode: "insert",
+            sourceRef: { ...routeFeature.sourceRef },
+            previous: previousSegment,
+          },
+        });
+      }
       return;
     }
 
-    commitScheduleEdit(activeSchedule, activeMapFeatures.filter((feature) => feature.id !== featureId));
+    const feature = activeMapFeatures.find((item) => item.id === featureId);
+    if (!feature) return;
+    const featureIndex = activeMapFeatures.findIndex((item) => item.id === featureId);
+    commitScheduleEdit(activeSchedule, activeMapFeatures.filter((item) => item.id !== featureId));
+    const isBoundedArea = feature.feature_type === "bounded_area";
+    recordActivity({
+      action: isBoundedArea ? "Deleted bounded area" : "Deleted firing line",
+      itemType: isBoundedArea ? "Bounded area" : "Firing line",
+      itemName: feature.name || (isBoundedArea ? "Unnamed bounded area" : "Unnamed firing line"),
+      location: formatFeatureLocation(feature.coordinates),
+      undo: {
+        kind: "map-feature",
+        featureId,
+        index: featureIndex,
+        previous: JSON.parse(JSON.stringify(feature)),
+      },
+    });
   }
 
   function handleCellConfirmationChange(confirmed) {
     if (!selectedDriver || !selectedCell || !Array.isArray(activeSchedule)) return;
     const key = cellReviewKey(selectedDriver.id, selectedCell.day);
+    const previousExists = Object.prototype.hasOwnProperty.call(activeCellStatuses, key);
+    const previous = activeCellStatuses[key];
     commitScheduleEdit(activeSchedule, activeMapFeatures, {
       ...activeCellStatuses,
       [key]: confirmed,
+    });
+    recordActivity({
+      action: confirmed ? "Confirmed schedule cell" : "Reopened schedule cell",
+      itemType: "Schedule cell",
+      itemName: `${selectedDriver.name} · ${selectedCell.day}`,
+      location: "—",
+      undo: { kind: "cell-status", key, previousExists, previous },
     });
   }
 
@@ -637,7 +951,7 @@ export default function App() {
               sites: new Map(),
             };
             for (const site of area.sites) {
-              if (!site.hasCoordinates || site.catalogStatus === "removed" || isUndefinedFiringLineSite(site)) continue;
+              if (!site.hasCoordinates || isUndefinedFiringLineSite(site)) continue;
               previousArea.sites.set(site.id, site);
             }
             groupedAreas.set(id, previousArea);
@@ -663,6 +977,10 @@ export default function App() {
   );
   const allCellMappedSites = useMemo(
     () => allCellSites.filter((site) => site.hasCoordinates && site.catalogStatus !== "removed"),
+    [allCellSites],
+  );
+  const allCellMapSites = useMemo(
+    () => allCellSites.filter((site) => site.hasCoordinates),
     [allCellSites],
   );
   const allCellRemovedSiteCount = allCellSites.filter((site) => site.catalogStatus === "removed").length;
@@ -730,50 +1048,57 @@ export default function App() {
     if (!selectedDriver || !selectedCell) return [];
 
     const areaGroups = groupAreaAssignments(unfilteredCellAreas);
-    const areaWarnings = areaGroups.filter((group) => group.warning).length;
-    const allCellSites = getSitesForAreas(fixedCellAreas).filter((site) => !isUndefinedFiringLineSite(site));
-    const removedCount = allCellSites.filter((site) => site.catalogStatus === "removed").length;
-    const activeSiteCount = allCellSites.length - removedCount;
-    const mappedSiteCount = allCellSites.filter(
-      (site) => site.hasCoordinates && site.catalogStatus !== "removed",
-    ).length;
-    const unmappedSiteCount = activeSiteCount - mappedSiteCount;
-    const cellFeatures = selectedFiringLines;
-    const firingLineCount = cellFeatures.filter((feature) => feature.feature_type === "firing_line").length;
-    const undefinedFiringLineCount = undefinedFiringLines.filter((feature) => feature.kind === "firing_line").length;
-    const undefinedRouteCount = undefinedFiringLines.filter((feature) => feature.kind === "route").length;
-    const boundedAreaCount = cellFeatures.filter((feature) => feature.feature_type === "bounded_area").length;
-    const areaNames = [...new Set(areaGroups.map((group) => group.areaName).filter(Boolean))];
+    const notes = [];
 
-    return [
-      `Assigned area names (${areaNames.length}): ${areaNames.length > 0 ? areaNames.join(", ") : "none recorded"}.`,
-      areaWarnings > 0
-        ? `${areaWarnings} area group${areaWarnings === 1 ? " has" : "s have"} map-data notes.`
-        : "Area map checks have no reported issues.",
-      `Collection sites: ${mappedSiteCount} mapped${unmappedSiteCount > 0 ? `, ${unmappedSiteCount} without usable coordinates` : ""}${removedCount > 0 ? `, ${removedCount} marked removed` : ""}.`,
-      firingLineCount > 0
-        ? `Firing lines: ${firingLineCount} defined for this cell.`
-        : "Firing lines: none saved as map features for this cell.",
-      ...(undefinedFiringLineCount > 0
-        ? [`${undefinedFiringLineCount} schedule firing-line record${undefinedFiringLineCount === 1 ? " has" : "s have"} no coordinates; select its area to view it in Firing lines and areas.`]
-        : []),
-      ...(undefinedRouteCount > 0
-        ? [`${undefinedRouteCount} route segment${undefinedRouteCount === 1 ? " has" : "s have"} no map coordinates; select its area to view it in Firing lines and areas.`]
-        : []),
-      boundedAreaCount > 0
-        ? `Bounded areas: ${boundedAreaCount} defined for this cell.`
-        : "Bounded areas: none defined for this cell.",
-      `Cell confirmation: ${selectedCellConfirmed ? "confirmed" : "not confirmed"}.`,
-    ];
+    for (const group of areaGroups) {
+      if (isQrtAreaName(group.areaName)) continue;
+      const areas = group.records ?? [];
+      const sites = areas.flatMap((area) => area.sites ?? []).filter((site) => !isUndefinedFiringLineSite(site));
+      const missingCoordinateCount = sites.filter((site) => !site.hasCoordinates).length;
+      const removedSiteCount = sites.filter(
+        (site) => site.hasCoordinates && site.catalogStatus === "removed",
+      ).length;
+      const unmatchedSiteCount = sites.filter(
+        (site) => site.hasCoordinates && site.catalogStatus !== "active" && site.catalogStatus !== "removed",
+      ).length;
+      const emptyAreaCount = areas.filter((area) => !Array.isArray(area.sites) || area.sites.length === 0).length;
+      const unmappedSegments = areas.flatMap((area) => area.unmappedSegments ?? []).filter(isUnmappedAreaSegment);
+      const otherUnmappedSegmentCount = unmappedSegments.filter((segment) => segment.type !== "route").length;
+
+      if (missingCoordinateCount > 0) {
+        notes.push(`${group.areaName}: ${missingCoordinateCount} collection stop${missingCoordinateCount === 1 ? " needs" : "s need"} map coordinates.`);
+      }
+      if (removedSiteCount > 0) {
+        notes.push(`${group.areaName}: ${removedSiteCount} stop${removedSiteCount === 1 ? " is" : "s are"} marked removed; review the assignment.`);
+      }
+      if (unmatchedSiteCount > 0) {
+        notes.push(`${group.areaName}: ${unmatchedSiteCount} mapped stop${unmatchedSiteCount === 1 ? " needs" : "s need"} verification against the SWMD reference.`);
+      }
+      if (emptyAreaCount > 0) {
+        notes.push(`${group.areaName}: ${emptyAreaCount} area record${emptyAreaCount === 1 ? " has" : "s have"} no collection stops; confirm or add them.`);
+      }
+      if (otherUnmappedSegmentCount > 0) {
+        notes.push(`${group.areaName}: ${otherUnmappedSegmentCount} area segment${otherUnmappedSegmentCount === 1 ? " needs" : "s need"} map nodes.`);
+      }
+    }
+
+    for (const feature of undefinedFiringLines) {
+      if (feature.kind === "route") {
+        const routeName = feature.name || feature.areaName || "Unnamed route";
+        notes.push(`Route segment “${routeName}” needs at least two map nodes.`);
+      } else {
+        notes.push(`${feature.areaName}: a schedule firing-line record has no map coordinates.`);
+      }
+    }
+
+    if (!selectedCellConfirmed) notes.push("This schedule cell has not been confirmed.");
+    return notes;
   }, [
-    allCellSites,
-    selectedFiringLines,
     undefinedFiringLines,
     selectedCell,
     selectedCellConfirmed,
     selectedDriver,
     unfilteredCellAreas,
-    fixedCellAreas,
   ]);
   const fallbackMapCenter = useMemo(() => {
     const selectedAreaSite = fixedCellAreas.flatMap((area) => area.sites).find((site) => site.hasCoordinates);
@@ -795,6 +1120,11 @@ export default function App() {
   const activeScheduleName = BUILT_IN_VERSIONS.has(activeVersion)
     ? `driver_schedule_${activeVersion}.json`
     : activeUploadedSchedule?.name ?? activeVersion;
+  const activeActivityEntries = activityLog.filter((entry) => entry.scheduleId === activeVersion);
+  const selectedCellActivityEntries = selectedDriver && selectedCell
+    ? activeActivityEntries.filter((entry) =>
+      entry.driverName === selectedDriver.name && entry.day === selectedCell.day)
+    : [];
 
   function handleTabKeyDown(event) {
     if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
@@ -871,9 +1201,16 @@ export default function App() {
               />
             )}
             {scheduleModel && (
-              <button className="export-schedule-button" type="button" onClick={handleExportSchedule}>
-                Export new JSON
-              </button>
+              <>
+                <button className="export-schedule-button" type="button" onClick={handleExportSchedule}>
+                  Export new JSON
+                </button>
+                <ActivityLog
+                  entries={activeActivityEntries}
+                  scheduleName={activeScheduleName}
+                  onRevert={handleActivityRevert}
+                />
+              </>
             )}
             {editMessage && <span className="schedule-edit-status" role="status">{editMessage}</span>}
           </div>
@@ -924,7 +1261,7 @@ export default function App() {
             cellAreas={unfilteredCellAreas}
             barangays={filterBarangays}
             qrtPreviousAreas={qrtPreviousAreas}
-            sites={allCellMappedSites}
+            sites={allCellMapSites}
             areaLocationSites={siteIndex?.sourceSites ?? []}
             siteRecords={allCellActiveSiteRecordCount}
             unmappedCount={allCellUnmappedCount}
@@ -934,10 +1271,10 @@ export default function App() {
             undefinedFiringLines={undefinedFiringLines}
             saveMessage={editMessage}
             cellNotes={selectedCellNotes}
+            activityEntries={selectedCellActivityEntries}
+            activityScheduleName={activeScheduleName}
+            onRevertActivity={handleActivityRevert}
             cellConfirmed={selectedCellConfirmed}
-            scheduleIssues={scheduleModel.issues}
-            scheduleContextNotes={scheduleModel.contextNotes}
-            showV3Reports={activeVersion === "v3"}
             onCellConfirmationChange={handleCellConfirmationChange}
             onBack={() => setSelectedCell(null)}
             onAddSite={handleAddSite}
@@ -948,21 +1285,13 @@ export default function App() {
             onDeleteFiringLine={handleDeleteFiringLine}
           />
         ) : (
-          <>
-              <DataNotes
-                mode="panel"
-                issues={scheduleModel.issues}
-                contextNotes={scheduleModel.contextNotes}
-                showV3Reports={activeVersion === "v3"}
-              />
-              <WeeklySchedule
-                drivers={scheduleModel.drivers}
-                selectedDriverId={selectedDriverId}
-                cellStatuses={activeCellStatuses}
-                version={activeVersion}
-                onSelectCell={setSelectedCell}
-              />
-          </>
+          <WeeklySchedule
+            drivers={scheduleModel.drivers}
+            selectedDriverId={selectedDriverId}
+            cellStatuses={activeCellStatuses}
+            version={activeVersion}
+            onSelectCell={setSelectedCell}
+          />
         )}
       </div>
 

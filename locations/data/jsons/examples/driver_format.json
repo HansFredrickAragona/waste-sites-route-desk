@@ -1,487 +1,615 @@
- {
-    "driver": "BLANTE CHRISTOPHER",
+{
+    "driver": {
+      "name": "BLANTE CHRISTOPHER",
+      "type": "driver",
+      "truck":[""]
+    },
     "schedule": [
       {
         "day": "Monday",
-        "area":{
-             "name":"Sto. Niño-Slaughter,Lower P. Burgos, Andres Bonifacioincld. BPI Compd.", 
-             "details": [
-          {
-            "barangay": "Sto. Niño-Slaughter",
-            "sites": [
-              {
-                "site_name": "Site 1",
-                "latitude": 16.420337,
-                "longitude": 120.593627,
-                "source_purok": "1 Purok",
-                "purok_candidate": "",
-                "purok_check": "Source field appears to be a Purok count; no name-level comparison",
-                "street_or_road": "Balajadia Street",
-                "map_label": "Santo Niño - Slaughter Comfort Room Terminal 2, Balajadia Street, Slaughter House, District 7, Central Business District, Baguio, Cordillera Administrative Region, 2600, Philippines",
-                "map_lookup_status": "map_feature_returned_no_explicit_purok",
-                "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.4203370&lon=120.5936270&zoom=18&addressdetails=1&accept-language=en",
-                "google_maps_url": "https://www.google.com/maps?q=16.420337,120.593627"
-              }
-            ],
-            "pick up time": "Monday 4:00AM - 6:00AM"
-          },
-          {
-            "barangay": " Lower P. Burgos",
-            "sites": [
-              {
-                "site_name": "Site 1",
-                "latitude": 16.420077,
-                "longitude": 120.591441,
-                "source_purok": "Purok 1",
-                "purok_candidate": "",
-                "purok_check": "No explicit map Purok candidate to compare",
-                "street_or_road": "P. Gomez Street",
-                "map_label": "P. Gomez Street, Johnbee Village, Padre Burgos, District 7, Central Business District, Baguio, Cordillera Administrative Region, 2600, Philippines",
-                "map_lookup_status": "map_feature_returned_no_explicit_purok",
-                "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.4200770&lon=120.5914410&zoom=18&addressdetails=1&accept-language=en",
-                "google_maps_url": "https://www.google.com/maps?q=16.420077,120.591441"
-              },
-              {
-                "site_name": "Site 2",
-                "latitude": 16.418646,
-                "longitude": 120.590608,
-                "source_purok": "Purok 2",
-                "purok_candidate": "Purok 5",
-                "purok_check": "Source Purok differs from map candidate; review",
-                "street_or_road": "Lower P. Burgos Street",
-                "map_label": "68, Lower P. Burgos Street, Purok 5, Padre Burgos, District 7, Central Business District, Baguio, Cordillera Administrative Region, 2600, Philippines",
-                "map_lookup_status": "explicit_purok_candidate_returned",
-                "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.4186460&lon=120.5906080&zoom=18&addressdetails=1&accept-language=en",
-                "google_maps_url": "https://www.google.com/maps?q=16.418646,120.590608"
-              },
-              {
-                "site_name": "Site 3",
-                "latitude": 16.419772,
-                "longitude": 120.59196,
-                "source_purok": "Purok 3",
-                "purok_candidate": "",
-                "purok_check": "No explicit map Purok candidate to compare",
-                "street_or_road": "Upper P. Burgos Street",
-                "map_label": "45, Upper P. Burgos Street, Johnbee Village, Padre Burgos, District 7, Central Business District, Baguio, Cordillera Administrative Region, 2600, Philippines",
-                "map_lookup_status": "map_feature_returned_no_explicit_purok",
-                "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.4197720&lon=120.5919600&zoom=18&addressdetails=1&accept-language=en",
-                "google_maps_url": "https://www.google.com/maps?q=16.419772,120.59196"
-              },
-              {
-                "site_name": "Site 4",
-                "latitude": 16.41877,
-                "longitude": 120.593304,
-                "source_purok": "Purok 4",
-                "purok_candidate": "",
-                "purok_check": "No explicit map Purok candidate to compare",
-                "street_or_road": "Upper P. Burgos Street",
-                "map_label": "Upper P. Burgos Street, Johnbee Village, Padre Burgos, District 7, Central Business District, Baguio, Cordillera Administrative Region, 2600, Philippines",
-                "map_lookup_status": "map_feature_returned_no_explicit_purok",
-                "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.4187700&lon=120.5933040&zoom=18&addressdetails=1&accept-language=en",
-                "google_maps_url": "https://www.google.com/maps?q=16.41877,120.593304"
-              },
-              {
-                "site_name": "Site 5",
-                "latitude": 16.418908,
-                "longitude": 120.593878,
-                "source_purok": "Purok 5",
-                "purok_candidate": "",
-                "purok_check": "No explicit map Purok candidate to compare",
-                "street_or_road": "Upper P. Burgos Street",
-                "map_label": "Upper P. Burgos Street, Johnbee Village, Padre Burgos, District 7, Central Business District, Baguio, Cordillera Administrative Region, 2600, Philippines",
-                "map_lookup_status": "map_feature_returned_no_explicit_purok",
-                "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.4189080&lon=120.5938780&zoom=18&addressdetails=1&accept-language=en",
-                "google_maps_url": "https://www.google.com/maps?q=16.418908,120.593878"
-              },
-              {
-                "site_name": "Site 6",
-                "latitude": 16.418393,
-                "longitude": 120.594418,
-                "source_purok": "Purok 6",
-                "purok_candidate": "",
-                "purok_check": "No explicit map Purok candidate to compare",
-                "street_or_road": "Upper P. Burgos Street",
-                "map_label": "Kane Construction Inc., Upper P. Burgos Street, Johnbee Village, Padre Zamora, District 7, Central Business District, Baguio, Cordillera Administrative Region, 2600, Philippines",
-                "map_lookup_status": "map_feature_returned_no_explicit_purok",
-                "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.4183930&lon=120.5944180&zoom=18&addressdetails=1&accept-language=en",
-                "google_maps_url": "https://www.google.com/maps?q=16.418393,120.594418"
-              },
-              {
-                "site_name": "Site 7",
-                "latitude": 16.421235,
-                "longitude": 120.592452,
-                "source_purok": "",
-                "purok_candidate": "",
-                "purok_check": "Source Purok field is blank",
-                "street_or_road": "P. Gomez Street",
-                "map_label": "P. Gomez Street, Johnbee Village, Padre Burgos, District 7, Central Business District, Baguio, Cordillera Administrative Region, 2600, Philippines",
-                "map_lookup_status": "map_feature_returned_no_explicit_purok",
-                "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.4212350&lon=120.5924520&zoom=18&addressdetails=1&accept-language=en",
-                "google_maps_url": "https://www.google.com/maps?q=16.421235,120.592452"
-              }
-            ],
-            "pick up time": "Sunday 8:00PM - Monday 4:00AM"
-          },
-          {
-            "barangay": " Andres Bonifacio",
-            "sites": [
-              {
-                "site_name": "Site 1",
-                "latitude": 16.418687,
-                "longitude": 120.585901,
-                "source_purok": "5 Puroks",
-                "purok_candidate": "",
-                "purok_check": "Source field appears to be a Purok count; no name-level comparison",
-                "street_or_road": "Ferguson Road",
-                "map_label": "Ferguson Road, Cresencia Village, District 7, Baguio, Cordillera Administrative Region, 2600, Philippines",
-                "map_lookup_status": "map_feature_returned_no_explicit_purok",
-                "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.4186870&lon=120.5859010&zoom=18&addressdetails=1&accept-language=en",
-                "google_maps_url": "https://www.google.com/maps?q=16.418687,120.585901"
-              },
-              {
-                "site_name": "Site 2",
-                "latitude": 16.41786,
-                "longitude": 120.586632,
-                "source_purok": "",
-                "purok_candidate": "",
-                "purok_check": "Source Purok field is blank",
-                "street_or_road": "Ferguson Road",
-                "map_label": "Ferguson Road, Andres Bonifacio, District 6, Baguio, Cordillera Administrative Region, 2600, Philippines",
-                "map_lookup_status": "map_feature_returned_no_explicit_purok",
-                "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.4178600&lon=120.5866320&zoom=18&addressdetails=1&accept-language=en",
-                "google_maps_url": "https://www.google.com/maps?q=16.41786,120.586632"
-              },
-              {
-                "site_name": "Site 3",
-                "latitude": 16.416875,
-                "longitude": 120.586154,
-                "source_purok": "",
-                "purok_candidate": "",
-                "purok_check": "Source Purok field is blank",
-                "street_or_road": "Avelino Street",
-                "map_label": "8B, Avelino Street, Andres Bonifacio, District 6, Baguio, Cordillera Administrative Region, 2600, Philippines",
-                "map_lookup_status": "map_feature_returned_no_explicit_purok",
-                "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.4168750&lon=120.5861540&zoom=18&addressdetails=1&accept-language=en",
-                "google_maps_url": "https://www.google.com/maps?q=16.416875,120.586154"
-              },
-              {
-                "site_name": "Site 4",
-                "latitude": 16.418315,
-                "longitude": 120.584684,
-                "source_purok": "",
-                "purok_candidate": "",
-                "purok_check": "Source Purok field is blank",
-                "street_or_road": "Avelino Street",
-                "map_label": "Avelino Street, Andres Bonifacio, District 6, Baguio, Cordillera Administrative Region, 2600, Philippines",
-                "map_lookup_status": "map_feature_returned_no_explicit_purok",
-                "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.4183150&lon=120.5846840&zoom=18&addressdetails=1&accept-language=en",
-                "google_maps_url": "https://www.google.com/maps?q=16.418315,120.584684"
-              }
-            ],
-            "pick up time": "Monday 5:00AM - 7:00 AM"
-          },
-          {
-            "barangay": "incld. BPI Compd.",
-            "sites": [
-              {
-                "site_name": "",
-                "latitude": null,
-                "longitude": null
-              }
-            ],
-            "pick up time": ""
-          }
-            ]
-        },
-        "time": "3am-12nn"
-    },
-      {
-        "day": "Tuesday",
-        "area":  {
-            "name":"Brookspoint,Purok 1 North Sanitary Camp", 
-            "details": [
+        "area": {
+          "name": "Sto. Niño-Slaughter, Lower P. Burgos, Andres Bonifacio,incld. BPI Compd.",
+          "details": [
+            {
+              "barangay": "Slaughter House Area (Santo NiÃ±o Slaughter)",
+              "sites": [
                 {
-                    "barangay": "Brookspoint",
-                    "sites": [
-                    {
-                        "site_name": "Site 1",
-                        "latitude": 16.425656,
-                        "longitude": 120.608836,
-                        "source_purok": "7 Puroks",
-                        "purok_candidate": "Purok 1",
-                        "purok_check": "Source field appears to be a Purok count; no name-level comparison",
-                        "street_or_road": "Brookspoint Road",
-                        "map_label": "Brookspoint Road, Purok 1, Brookspoint, District 19, Baguio, Cordillera Administrative Region, 2600, Philippines",
-                        "map_lookup_status": "explicit_purok_candidate_returned",
-                        "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.4256560&lon=120.6088360&zoom=18&addressdetails=1&accept-language=en",
-                        "google_maps_url": "https://www.google.com/maps?q=16.425656,120.608836"
-                    },
-                    {
-                        "site_name": "",
-                        "latitude": null,
-                        "longitude": null
-                    }
-                    ],
-                    "pick up time": "Tuesday 5:00-7:00AM"
+                  "site_name": "Site 1",
+                  "latitude": 16.420337,
+                  "longitude": 120.593627,
+                  "source_purok": "1 Purok",
+                  "purok_check": "Source field appears to be a Purok count; no name-level comparison",
+                  "street_or_road": "Balajadia Street",
+                  "map_label": "Santo Niño - Slaughter Comfort Room Terminal 2, Balajadia Street, Slaughter House, District 7, Central Business District, Baguio, Cordillera Administrative Region, 2600, Philippines",
+                  "map_lookup_status": "map_feature_returned_no_explicit_purok",
+                  "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.4203370&lon=120.5936270&zoom=18&addressdetails=1&accept-language=en",
+                  "google_maps_url": "https://www.google.com/maps?q=16.420337,120.593627",
+                  "source_csv_row": 653,
+                  "Status":""
+                }
+              ],
+              "pick up time": "Monday 4:00AM - 6:00AM",
+              "source_areas": [
+                "Sto. Niño-Slaughter"
+              ]
+            },
+            {
+              "barangay": "Padre Burgos",
+              "sites": [
+                {
+                  "site_name": "Site 1",
+                  "latitude": 16.420077,
+                  "longitude": 120.591441,
+                  "source_purok": "Purok 1",
+                  "purok_check": "No explicit map Purok candidate to compare",
+                  "street_or_road": "P. Gomez Street",
+                  "map_label": "P. Gomez Street, Johnbee Village, Padre Burgos, District 7, Central Business District, Baguio, Cordillera Administrative Region, 2600, Philippines",
+                  "map_lookup_status": "map_feature_returned_no_explicit_purok",
+                  "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.4200770&lon=120.5914410&zoom=18&addressdetails=1&accept-language=en",
+                  "google_maps_url": "https://www.google.com/maps?q=16.420077,120.591441",
+                  "source_csv_row": 519,
+                  "Status": ""
                 },
                 {
-                    "barangay": " Purok 1 North Sanitary Camp",
-                    "sites": [
-                    {
-                        "site_name": "Site 1",
-                        "latitude": 16.430635,
-                        "longitude": 120.598266,
-                        "source_purok": "Purok 1",
-                        "purok_candidate": "Purok 1",
-                        "purok_check": "Source Purok agrees with map candidate",
-                        "street_or_road": "North Sanitary Camp Road",
-                        "map_label": "93, North Sanitary Camp Road, Purok 1, North Sanitary Camp, District 17, Baguio, Cordillera Administrative Region, 2600, Philippines",
-                        "map_lookup_status": "explicit_purok_candidate_returned",
-                        "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.4306350&lon=120.5982660&zoom=18&addressdetails=1&accept-language=en",
-                        "google_maps_url": "https://www.google.com/maps?q=16.430635,120.598266"
-                    }
-                    ],
-                    "pick up time": ""
+                  "site_name": "Site 2",
+                  "latitude": 16.418646,
+                  "longitude": 120.590608,
+                  "source_purok": "Purok 2",
+                  "purok_candidate": "Purok 5",
+                  "purok_check": "Source Purok differs from map candidate; review",
+                  "street_or_road": "Lower P. Burgos Street",
+                  "map_label": "68, Lower P. Burgos Street, Purok 5, Padre Burgos, District 7, Central Business District, Baguio, Cordillera Administrative Region, 2600, Philippines",
+                  "map_lookup_status": "explicit_purok_candidate_returned",
+                  "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.4186460&lon=120.5906080&zoom=18&addressdetails=1&accept-language=en",
+                  "google_maps_url": "https://www.google.com/maps?q=16.418646,120.590608",
+                  "source_csv_row": 520,
+                  "Status":""
+                },
+                {
+                  "site_name": "Site 3",
+                  "latitude": 16.419772,
+                  "longitude": 120.59196,
+                  "source_purok": "Purok 3",
+                  "purok_check": "No explicit map Purok candidate to compare",
+                  "street_or_road": "Upper P. Burgos Street",
+                  "map_label": "45, Upper P. Burgos Street, Johnbee Village, Padre Burgos, District 7, Central Business District, Baguio, Cordillera Administrative Region, 2600, Philippines",
+                  "map_lookup_status": "map_feature_returned_no_explicit_purok",
+                  "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.4197720&lon=120.5919600&zoom=18&addressdetails=1&accept-language=en",
+                  "google_maps_url": "https://www.google.com/maps?q=16.419772,120.59196",
+                  "source_csv_row": 521,
+                  "Status":""
+                },
+                {
+                  "site_name": "Site 4",
+                  "latitude": 16.41877,
+                  "longitude": 120.593304,
+                  "source_purok": "Purok 4",
+                  "purok_check": "No explicit map Purok candidate to compare",
+                  "street_or_road": "Upper P. Burgos Street",
+                  "map_label": "Upper P. Burgos Street, Johnbee Village, Padre Burgos, District 7, Central Business District, Baguio, Cordillera Administrative Region, 2600, Philippines",
+                  "map_lookup_status": "map_feature_returned_no_explicit_purok",
+                  "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.4187700&lon=120.5933040&zoom=18&addressdetails=1&accept-language=en",
+                  "google_maps_url": "https://www.google.com/maps?q=16.41877,120.593304",
+                  "source_csv_row": 522,
+                  "Status":""
+                },
+                {
+                  "site_name": "Site 5",
+                  "latitude": 16.418908,
+                  "longitude": 120.593878,
+                  "source_purok": "Purok 5",
+                  "purok_check": "No explicit map Purok candidate to compare",
+                  "street_or_road": "Upper P. Burgos Street",
+                  "map_label": "Upper P. Burgos Street, Johnbee Village, Padre Burgos, District 7, Central Business District, Baguio, Cordillera Administrative Region, 2600, Philippines",
+                  "map_lookup_status": "map_feature_returned_no_explicit_purok",
+                  "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.4189080&lon=120.5938780&zoom=18&addressdetails=1&accept-language=en",
+                  "google_maps_url": "https://www.google.com/maps?q=16.418908,120.593878",
+                  "source_csv_row": 523,
+                  "Status":""
+                },
+                {
+                  "site_name": "Site 6",
+                  "latitude": 16.418393,
+                  "longitude": 120.594418,
+                  "source_purok": "Purok 6",
+                  "purok_check": "No explicit map Purok candidate to compare",
+                  "street_or_road": "Upper P. Burgos Street",
+                  "map_label": "Kane Construction Inc., Upper P. Burgos Street, Johnbee Village, Padre Zamora, District 7, Central Business District, Baguio, Cordillera Administrative Region, 2600, Philippines",
+                  "map_lookup_status": "map_feature_returned_no_explicit_purok",
+                  "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.4183930&lon=120.5944180&zoom=18&addressdetails=1&accept-language=en",
+                  "google_maps_url": "https://www.google.com/maps?q=16.418393,120.594418",
+                  "source_csv_row": 524,
+                  "Status":""
+                },
+                {
+                  "site_name": "Site 7",
+                  "latitude": 16.421235,
+                  "longitude": 120.592452,
+                  "purok_check": "Source Purok field is blank",
+                  "street_or_road": "P. Gomez Street",
+                  "map_label": "P. Gomez Street, Johnbee Village, Padre Burgos, District 7, Central Business District, Baguio, Cordillera Administrative Region, 2600, Philippines",
+                  "map_lookup_status": "map_feature_returned_no_explicit_purok",
+                  "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.4212350&lon=120.5924520&zoom=18&addressdetails=1&accept-language=en",
+                  "google_maps_url": "https://www.google.com/maps?q=16.421235,120.592452",
+                  "source_csv_row": 525,
+                  "Status":""
                 }
-             ]
-         },
+              ],
+              "pick up time": "Sunday 8:00PM - Monday 4:00AM",
+              "source_areas": [
+                "Lower P. Burgos"
+              ]
+            },
+            {
+              "barangay": "Andres Bonifacio (Lower Bokawkan)",
+              "sites": [
+                {
+                  "site_name": "Site 1",
+                  "latitude": 16.418687,
+                  "longitude": 120.585901,
+                  "source_purok": "5 Puroks",
+                  "purok_check": "Source field appears to be a Purok count; no name-level comparison",
+                  "street_or_road": "Ferguson Road",
+                  "map_label": "Ferguson Road, Cresencia Village, District 7, Baguio, Cordillera Administrative Region, 2600, Philippines",
+                  "map_lookup_status": "map_feature_returned_no_explicit_purok",
+                  "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.4186870&lon=120.5859010&zoom=18&addressdetails=1&accept-language=en",
+                  "google_maps_url": "https://www.google.com/maps?q=16.418687,120.585901",
+                  "source_csv_row": 17,
+                  "Status": ""
+                },
+                {
+                  "site_name": "Site 2",
+                  "latitude": 16.41786,
+                  "longitude": 120.586632,
+                  "purok_check": "Source Purok field is blank",
+                  "street_or_road": "Ferguson Road",
+                  "map_label": "Ferguson Road, Andres Bonifacio, District 6, Baguio, Cordillera Administrative Region, 2600, Philippines",
+                  "map_lookup_status": "map_feature_returned_no_explicit_purok",
+                  "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.4178600&lon=120.5866320&zoom=18&addressdetails=1&accept-language=en",
+                  "google_maps_url": "https://www.google.com/maps?q=16.41786,120.586632",
+                  "source_csv_row": 18,
+                  "Status":""
+                },
+                {
+                  "site_name": "Site 3",
+                  "latitude": 16.416875,
+                  "longitude": 120.586154,
+                  "purok_check": "Source Purok field is blank",
+                  "street_or_road": "Avelino Street",
+                  "map_label": "8B, Avelino Street, Andres Bonifacio, District 6, Baguio, Cordillera Administrative Region, 2600, Philippines",
+                  "map_lookup_status": "map_feature_returned_no_explicit_purok",
+                  "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.4168750&lon=120.5861540&zoom=18&addressdetails=1&accept-language=en",
+                  "google_maps_url": "https://www.google.com/maps?q=16.416875,120.586154",
+                  "source_csv_row": 19,
+                  "Status":""
+                },
+                {
+                  "site_name": "Site 4",
+                  "latitude": 16.418315,
+                  "longitude": 120.584684,
+                  "purok_check": "Source Purok field is blank",
+                  "street_or_road": "Avelino Street",
+                  "map_label": "Avelino Street, Andres Bonifacio, District 6, Baguio, Cordillera Administrative Region, 2600, Philippines",
+                  "map_lookup_status": "map_feature_returned_no_explicit_purok",
+                  "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.4183150&lon=120.5846840&zoom=18&addressdetails=1&accept-language=en",
+                  "google_maps_url": "https://www.google.com/maps?q=16.418315,120.584684",
+                  "source_csv_row": 20,
+                  "Status":""
+                }
+              ],
+              "pick up time": "Monday 5:00AM - 7:00 AM",
+              "source_areas": [
+                "Andres Bonifacio"
+              ]
+            },
+            {
+              "barangay": "",
+              "sites": [],
+              "pick up time": "",
+              "source_areas": [
+                "incld. BPI Compd."
+              ],
+              "route_segment": "incld. BPI Compd.",
+              "unmapped_segments": [
+                {
+                  "name": "incld. BPI Compd.",
+                  "type": "area"
+                }
+              ]
+            }
+          ]
+        },
+        "time": "3am-12nn"
+      },
+      {
+        "day": "Tuesday",
+        "area": {
+          "name": "Brookspoint, Purok 1 North Sanitary Camp",
+          "details": [
+            {
+              "barangay": "Brookspoint",
+              "sites": [
+                {
+                  "site_name": "Site 1",
+                  "latitude": 16.425656,
+                  "longitude": 120.608836,
+                  "source_purok": "7 Puroks",
+                  "purok_candidate": "Purok 1",
+                  "purok_check": "Source field appears to be a Purok count; no name-level comparison",
+                  "street_or_road": "Brookspoint Road",
+                  "map_label": "Brookspoint Road, Purok 1, Brookspoint, District 19, Baguio, Cordillera Administrative Region, 2600, Philippines",
+                  "map_lookup_status": "explicit_purok_candidate_returned",
+                  "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.4256560&lon=120.6088360&zoom=18&addressdetails=1&accept-language=en",
+                  "google_maps_url": "https://www.google.com/maps?q=16.425656,120.608836",
+                  "source_csv_row": 118,
+                  "Status":""
+                }
+              ],
+              "pick up time": "Tuesday 5:00-7:00AM",
+              "source_areas": [
+                "Brookspoint"
+              ],
+              "unmapped_segments": [
+                {
+                  "name": "Brookspoint",
+                  "type": "area"
+                }
+              ]
+            },
+            {
+              "barangay": "Sanitary Camp, North",
+              "sites": [
+                {
+                  "site_name": "Site 1",
+                  "latitude": 16.430635,
+                  "longitude": 120.598266,
+                  "source_purok": "Purok 1",
+                  "purok_candidate": "Purok 1",
+                  "purok_check": "Source Purok agrees with map candidate",
+                  "street_or_road": "North Sanitary Camp Road",
+                  "map_label": "93, North Sanitary Camp Road, Purok 1, North Sanitary Camp, District 17, Baguio, Cordillera Administrative Region, 2600, Philippines",
+                  "map_lookup_status": "explicit_purok_candidate_returned",
+                  "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.4306350&lon=120.5982660&zoom=18&addressdetails=1&accept-language=en",
+                  "google_maps_url": "https://www.google.com/maps?q=16.430635,120.598266",
+                  "source_csv_row": 611,
+                  "Status":""
+                }
+              ],
+              "pick up time": "",
+              "source_areas": [
+                "Purok 1 North Sanitary Camp"
+              ]
+            }
+          ]
+        },
         "time": "3am-12nn"
       },
       {
         "day": "Wednesday",
         "area": {
-            "name":"Bakbakan (Joaquin Smith NHS) to City Limit",
-            "details": [
+          "name": "Bakbakan (Joaquin Smith NHS) to City Limit",
+          "details": [
+            {
+              "barangay": "",
+              "sites": [],
+              "pick up time": "",
+              "source_areas": [
+                "Bakbakan (Joaquin Smith NHS) to City Limit"
+              ],
+              "route_segment": "Bakbakan (Joaquin Smith NHS) to City Limit",
+              "unmapped_segments": [
                 {
-                    "barangay": "Bakbakan (Joaquin Smith NHS) to City Limit",
-                    "sites": [
-                    {
-                        "site_name": "firingline",
-                        "latitude": null,
-                        "longitude": null
-                    }
-                    ],
-                    "pick up time": ""
+                  "name": "Bakbakan (Joaquin Smith NHS) to City Limit",
+                  "type": "route"
                 }
-            ]
-        } ,
+              ]
+            }
+          ]
+        },
         "time": "3am-12nn"
       },
       {
         "day": "Thursday",
-        "area":{
-            "name":"Spring Hills, Kadaclan, Cudirao Rd. (in front of Baptist School)",
-            "details":[
-                    {
-                        "barangay": "Spring Hills",
-                        "sites": [
-                        {
-                            "site_name": "firingline",
-                            "latitude": null,
-                            "longitude": null
-                        }
-                        ],
-                        "pick up time": ""
-                    },
-                    {
-                        "barangay": " Kadaclan",
-                        "sites": [],
-                        "pick up time": ""
-                    },
-                    {
-                        "barangay": " Cudirao Rd. (in front of Baptist School)",
-                        "sites": [],
-                        "pick up time": ""
-                    }
-                    ]
-        }, 
-        "time": "3am-12nn" 
+        "area": {
+          "name": "Spring Hills, Kadaclan, Cudirao Rd. (in front of Baptist School)",
+          "details": [
+            {
+              "barangay": "Apugan-Loakan",
+              "sites": [
+                {
+                  "site_name": "Site 3",
+                  "latitude": 16.378909,
+                  "longitude": 120.624359,
+                  "purok_check": "Source Purok field is blank",
+                  "street_or_road": "Spring Hills Road",
+                  "map_label": "Spring Hills Road, Loakan Apugan, District 12, Baguio, Cordillera Administrative Region, 2600, Philippines",
+                  "map_lookup_status": "map_feature_returned_no_explicit_purok",
+                  "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.3789090&lon=120.6243590&zoom=18&addressdetails=1&accept-language=en",
+                  "google_maps_url": "https://www.google.com/maps?q=16.378909,120.624359",
+                  "source_csv_row": 23,
+                  "Status": ""
+                },
+                {
+                  "site_name": "Site 4",
+                  "latitude": 16.380377,
+                  "longitude": 120.624027,
+                  "purok_check": "Source Purok field is blank",
+                  "street_or_road": "Spring Hills Road",
+                  "map_label": "Spring Hills Road, Loakan Apugan, District 12, Baguio, Cordillera Administrative Region, 2600, Philippines",
+                  "map_lookup_status": "map_feature_returned_no_explicit_purok",
+                  "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.3803770&lon=120.6240270&zoom=18&addressdetails=1&accept-language=en",
+                  "google_maps_url": "https://www.google.com/maps?q=16.380377,120.624027",
+                  "source_csv_row": 24,
+                  "Status": ""
+                },
+                {
+                  "site_name": "Site 5",
+                  "latitude": 16.384361,
+                  "longitude": 120.617183,
+                  "purok_check": "Source Purok field is blank",
+                  "street_or_road": "Eastern Link Circumferential Road",
+                  "map_label": "Eastern Link Circumferential Road, Kadaclan Village, Country Club, District 11, Baguio, Cordillera Administrative Region, 2600, Philippines",
+                  "map_lookup_status": "map_feature_returned_no_explicit_purok",
+                  "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.3843610&lon=120.6171830&zoom=18&addressdetails=1&accept-language=en",
+                  "google_maps_url": "https://www.google.com/maps?q=16.384361,120.617183",
+                  "source_csv_row": 25,
+                  "Status": ""
+                }
+              ],
+              "pick up time": "",
+              "source_areas": [
+                "Spring Hills",
+                "Kadaclan"
+              ]
+            },
+            {
+              "barangay": "Loakan Proper",
+              "sites": [
+                {
+                  "site_name": "Site 5",
+                  "latitude": 16.375703,
+                  "longitude": 120.612392,
+                  "purok_check": "Source Purok field is blank",
+                  "street_or_road": "Heavens Garden Road",
+                  "map_label": "Aqua Faustina, 11, Heavens Garden Road, Kudirao, Loakan Proper, District 12, Baguio, Cordillera Administrative Region, 2600, Philippines",
+                  "map_lookup_status": "map_feature_returned_no_explicit_purok",
+                  "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.3757030&lon=120.6123920&zoom=18&addressdetails=1&accept-language=en",
+                  "google_maps_url": "https://www.google.com/maps?q=16.375703,120.612392",
+                  "source_csv_row": 416,
+                  "Status": ""
+                }
+              ],
+              "pick up time": "",
+              "source_areas": [
+                "Cudirao Rd. (in front of Baptist School)"
+              ]
+            }
+          ]
+        },
+        "time": "3am-12nn"
       },
       {
         "day": "Friday",
         "area": {
-            "name":"Outlook Drive (Highway and Interior), Magsaysay Drive (Tesda), Happy Hallow",
-            "details":[
+          "name": "Outlook Drive (Highway and Interior), Magsaysay Drive (Tesda), Happy Hallow",
+          "details": [
+            {
+              "barangay": "Outlook Drive",
+              "sites": [
                 {
-                "barangay": "Outlook Drive (Highway and Interior)",
-                "sites": [
-                {
-                    "site_name": "Site 1",
-                    "latitude": 16.409152,
-                    "longitude": 120.622537,
-                    "source_purok": "4 Puroks",
-                    "purok_candidate": "Purok 1",
-                    "purok_check": "Source field appears to be a Purok count; no name-level comparison",
-                    "street_or_road": "Lucnab Road",
-                    "map_label": "Lucnab Road, Purok 1, Outlook Drive, District 11, Baguio, Cordillera Administrative Region, 2600, Philippines",
-                    "map_lookup_status": "explicit_purok_candidate_returned",
-                    "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.4091520&lon=120.6225370&zoom=18&addressdetails=1&accept-language=en",
-                    "google_maps_url": "https://www.google.com/maps?q=16.409152,120.622537"
+                  "site_name": "Site 1",
+                  "latitude": 16.409152,
+                  "longitude": 120.622537,
+                  "source_purok": "4 Puroks",
+                  "purok_candidate": "Purok 1",
+                  "purok_check": "Source field appears to be a Purok count; no name-level comparison",
+                  "street_or_road": "Lucnab Road",
+                  "map_label": "Lucnab Road, Purok 1, Outlook Drive, District 11, Baguio, Cordillera Administrative Region, 2600, Philippines",
+                  "map_lookup_status": "explicit_purok_candidate_returned",
+                  "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.4091520&lon=120.6225370&zoom=18&addressdetails=1&accept-language=en",
+                  "google_maps_url": "https://www.google.com/maps?q=16.409152,120.622537",
+                  "source_csv_row": 496,
+                  "Status": ""
                 },
                 {
-                    "site_name": "Site 2",
-                    "latitude": 16.412843,
-                    "longitude": 120.62582,
-                    "source_purok": "",
-                    "purok_candidate": "Purok 2",
-                    "purok_check": "Source Purok field is blank",
-                    "street_or_road": "M. V. Delos Reyes Street",
-                    "map_label": "M. V. Delos Reyes Street, Purok 2, Outlook Drive, District 11, Baguio, Cordillera Administrative Region, 2600, Philippines",
-                    "map_lookup_status": "explicit_purok_candidate_returned",
-                    "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.4128430&lon=120.6258200&zoom=18&addressdetails=1&accept-language=en",
-                    "google_maps_url": "https://www.google.com/maps?q=16.412843,120.62582"
+                  "site_name": "Site 2",
+                  "latitude": 16.412843,
+                  "longitude": 120.62582,
+                  "purok_candidate": "Purok 2",
+                  "purok_check": "Source Purok field is blank",
+                  "street_or_road": "M. V. Delos Reyes Street",
+                  "map_label": "M. V. Delos Reyes Street, Purok 2, Outlook Drive, District 11, Baguio, Cordillera Administrative Region, 2600, Philippines",
+                  "map_lookup_status": "explicit_purok_candidate_returned",
+                  "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.4128430&lon=120.6258200&zoom=18&addressdetails=1&accept-language=en",
+                  "google_maps_url": "https://www.google.com/maps?q=16.412843,120.62582",
+                  "source_csv_row": 497,
+                  "Status": ""
                 },
                 {
-                    "site_name": "Site 3",
-                    "latitude": 16.410602,
-                    "longitude": 120.621288,
-                    "source_purok": "",
-                    "purok_candidate": "Purok 1",
-                    "purok_check": "Source Purok field is blank",
-                    "street_or_road": "Outlook Drive",
-                    "map_label": "Outlook Drive, Purok 1, Outlook Drive, District 11, Baguio, Cordillera Administrative Region, 2600, Philippines",
-                    "map_lookup_status": "explicit_purok_candidate_returned",
-                    "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.4106020&lon=120.6212880&zoom=18&addressdetails=1&accept-language=en",
-                    "google_maps_url": "https://www.google.com/maps?q=16.410602,120.621288"
+                  "site_name": "Site 3",
+                  "latitude": 16.410602,
+                  "longitude": 120.621288,
+                  "purok_candidate": "Purok 1",
+                  "purok_check": "Source Purok field is blank",
+                  "street_or_road": "Outlook Drive",
+                  "map_label": "Outlook Drive, Purok 1, Outlook Drive, District 11, Baguio, Cordillera Administrative Region, 2600, Philippines",
+                  "map_lookup_status": "explicit_purok_candidate_returned",
+                  "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.4106020&lon=120.6212880&zoom=18&addressdetails=1&accept-language=en",
+                  "google_maps_url": "https://www.google.com/maps?q=16.410602,120.621288",
+                  "source_csv_row": 498,
+                  "Status": ""
                 },
                 {
-                    "site_name": "Site 4",
-                    "latitude": 16.413028,
-                    "longitude": 120.623972,
-                    "source_purok": "",
-                    "purok_candidate": "Purok 2",
-                    "purok_check": "Source Purok field is blank",
-                    "street_or_road": "Outlook Drive",
-                    "map_label": "Outlook Drive, Purok 2, Outlook Drive, District 11, Baguio, Cordillera Administrative Region, 2600, Philippines",
-                    "map_lookup_status": "explicit_purok_candidate_returned",
-                    "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.4130280&lon=120.6239720&zoom=18&addressdetails=1&accept-language=en",
-                    "google_maps_url": "https://www.google.com/maps?q=16.413028,120.623972"
+                  "site_name": "Site 4",
+                  "latitude": 16.413028,
+                  "longitude": 120.623972,
+                  "purok_candidate": "Purok 2",
+                  "purok_check": "Source Purok field is blank",
+                  "street_or_road": "Outlook Drive",
+                  "map_label": "Outlook Drive, Purok 2, Outlook Drive, District 11, Baguio, Cordillera Administrative Region, 2600, Philippines",
+                  "map_lookup_status": "explicit_purok_candidate_returned",
+                  "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.4130280&lon=120.6239720&zoom=18&addressdetails=1&accept-language=en",
+                  "google_maps_url": "https://www.google.com/maps?q=16.413028,120.623972",
+                  "source_csv_row": 499,
+                  "Status": ""
                 },
                 {
-                    "site_name": "Site 5",
-                    "latitude": 16.413242,
-                    "longitude": 120.623901,
-                    "source_purok": "",
-                    "purok_candidate": "Purok 2",
-                    "purok_check": "Source Purok field is blank",
-                    "street_or_road": "Outlook Drive",
-                    "map_label": "Outlook Drive, Purok 2, Outlook Drive, District 11, Baguio, Cordillera Administrative Region, 2600, Philippines",
-                    "map_lookup_status": "explicit_purok_candidate_returned",
-                    "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.4132420&lon=120.6239010&zoom=18&addressdetails=1&accept-language=en",
-                    "google_maps_url": "https://www.google.com/maps?q=16.413242,120.623901"
+                  "site_name": "Site 5",
+                  "latitude": 16.413242,
+                  "longitude": 120.623901,
+                  "purok_candidate": "Purok 2",
+                  "purok_check": "Source Purok field is blank",
+                  "street_or_road": "Outlook Drive",
+                  "map_label": "Outlook Drive, Purok 2, Outlook Drive, District 11, Baguio, Cordillera Administrative Region, 2600, Philippines",
+                  "map_lookup_status": "explicit_purok_candidate_returned",
+                  "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.4132420&lon=120.6239010&zoom=18&addressdetails=1&accept-language=en",
+                  "google_maps_url": "https://www.google.com/maps?q=16.413242,120.623901",
+                  "source_csv_row": 500,
+                  "Status": ""
                 }
-                ],
-                "pick up time": "Thursday and Friday"
+              ],
+              "pick up time": "Thursday and Friday",
+              "source_areas": [
+                "Outlook Drive (Highway and Interior)"
+              ],
+              "unmapped_segments": [
+                {
+                  "name": "Outlook Drive (Highway and Interior)",
+                  "type": "route"
+                }
+              ]
             },
             {
-                "barangay": " Magsaysay Drive (Tesda)",
-                "sites": [
+              "barangay": "Loakan Proper",
+              "sites": [
                 {
-                    "site_name": "firingline",
-                    "latitude": null,
-                    "longitude": null
+                  "site_name": "Site 13",
+                  "latitude": 16.37746,
+                  "longitude": 120.622191,
+                  "purok_check": "Source Purok field is blank",
+                  "street_or_road": "Magsaysay Drive",
+                  "map_label": "Magsaysay Drive, Magsaysay, Loakan Proper, District 12, Baguio, Cordillera Administrative Region, 2600, Philippines",
+                  "map_lookup_status": "map_feature_returned_no_explicit_purok",
+                  "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.3774600&lon=120.6221910&zoom=18&addressdetails=1&accept-language=en",
+                  "google_maps_url": "https://www.google.com/maps?q=16.37746,120.622191",
+                  "source_csv_row": 424,
+                  "Status": ""
                 }
-                ],
-                "pick up time": ""
+              ],
+              "pick up time": "",
+              "source_areas": [
+                "Magsaysay Drive (Tesda)"
+              ]
             },
             {
-                "barangay": " Happy Hallow",
-                "sites": [
+              "barangay": "Happy Hollow",
+              "sites": [
                 {
-                    "site_name": "Site 1",
-                    "latitude": 16.38955,
-                    "longitude": 120.62313,
-                    "source_purok": "4 Puroks",
-                    "purok_candidate": "Purok 3",
-                    "purok_check": "Source field appears to be a Purok count; no name-level comparison",
-                    "street_or_road": "Eastern Link Circumferential Road",
-                    "map_label": "Eastern Link Circumferential Road, Purok 3, Country Club, District 11, Baguio, Cordillera Administrative Region, 2600, Philippines",
-                    "map_lookup_status": "explicit_purok_candidate_returned",
-                    "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.3895500&lon=120.6231300&zoom=18&addressdetails=1&accept-language=en",
-                    "google_maps_url": "https://www.google.com/maps?q=16.38955,120.62313"
+                  "site_name": "Site 1",
+                  "latitude": 16.38955,
+                  "longitude": 120.62313,
+                  "source_purok": "4 Puroks",
+                  "purok_candidate": "Purok 3",
+                  "purok_check": "Source field appears to be a Purok count; no name-level comparison",
+                  "street_or_road": "Eastern Link Circumferential Road",
+                  "map_label": "Eastern Link Circumferential Road, Purok 3, Country Club, District 11, Baguio, Cordillera Administrative Region, 2600, Philippines",
+                  "map_lookup_status": "explicit_purok_candidate_returned",
+                  "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.3895500&lon=120.6231300&zoom=18&addressdetails=1&accept-language=en",
+                  "google_maps_url": "https://www.google.com/maps?q=16.38955,120.62313",
+                  "source_csv_row": 253,
+                  "Status": ""
                 },
                 {
-                    "site_name": "Site 2",
-                    "latitude": 16.39048,
-                    "longitude": 120.623499,
-                    "source_purok": "",
-                    "purok_candidate": "Purok 3",
-                    "purok_check": "Source Purok field is blank",
-                    "street_or_road": "Eastern Link Circumferential Road",
-                    "map_label": "Eastern Link Circumferential Road, Purok 3, Country Club, District 11, Baguio, Cordillera Administrative Region, 2600, Philippines",
-                    "map_lookup_status": "explicit_purok_candidate_returned",
-                    "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.3904800&lon=120.6234990&zoom=18&addressdetails=1&accept-language=en",
-                    "google_maps_url": "https://www.google.com/maps?q=16.39048,120.623499"
+                  "site_name": "Site 2",
+                  "latitude": 16.39048,
+                  "longitude": 120.623499,
+                  "purok_candidate": "Purok 3",
+                  "purok_check": "Source Purok field is blank",
+                  "street_or_road": "Eastern Link Circumferential Road",
+                  "map_label": "Eastern Link Circumferential Road, Purok 3, Country Club, District 11, Baguio, Cordillera Administrative Region, 2600, Philippines",
+                  "map_lookup_status": "explicit_purok_candidate_returned",
+                  "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.3904800&lon=120.6234990&zoom=18&addressdetails=1&accept-language=en",
+                  "google_maps_url": "https://www.google.com/maps?q=16.39048,120.623499",
+                  "source_csv_row": 254,
+                  "Status": ""
                 },
                 {
-                    "site_name": "Site 3",
-                    "latitude": 16.392228,
-                    "longitude": 120.623348,
-                    "source_purok": "",
-                    "purok_candidate": "Purok 3",
-                    "purok_check": "Source Purok field is blank",
-                    "street_or_road": "Eastern Link Circumferential Road",
-                    "map_label": "Eastern Link Circumferential Road, Purok 3, Country Club, District 11, Baguio, Cordillera Administrative Region, 2600, Philippines",
-                    "map_lookup_status": "explicit_purok_candidate_returned",
-                    "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.3922280&lon=120.6233480&zoom=18&addressdetails=1&accept-language=en",
-                    "google_maps_url": "https://www.google.com/maps?q=16.392228,120.623348"
+                  "site_name": "Site 3",
+                  "latitude": 16.392228,
+                  "longitude": 120.623348,
+                  "purok_candidate": "Purok 3",
+                  "purok_check": "Source Purok field is blank",
+                  "street_or_road": "Eastern Link Circumferential Road",
+                  "map_label": "Eastern Link Circumferential Road, Purok 3, Country Club, District 11, Baguio, Cordillera Administrative Region, 2600, Philippines",
+                  "map_lookup_status": "explicit_purok_candidate_returned",
+                  "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.3922280&lon=120.6233480&zoom=18&addressdetails=1&accept-language=en",
+                  "google_maps_url": "https://www.google.com/maps?q=16.392228,120.623348",
+                  "source_csv_row": 255,
+                  "Status": ""
                 },
                 {
-                    "site_name": "Site 4",
-                    "latitude": 16.398136,
-                    "longitude": 120.623244,
-                    "source_purok": "",
-                    "purok_candidate": "Purok 2",
-                    "purok_check": "Source Purok field is blank",
-                    "street_or_road": "Eastern Link Circumferential Road",
-                    "map_label": "Tibay Store, 05, Eastern Link Circumferential Road, Purok 2, Country Club, District 11, Baguio, Cordillera Administrative Region, 2600, Philippines",
-                    "map_lookup_status": "explicit_purok_candidate_returned",
-                    "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.3981360&lon=120.6232440&zoom=18&addressdetails=1&accept-language=en",
-                    "google_maps_url": "https://www.google.com/maps?q=16.398136,120.623244"
+                  "site_name": "Site 4",
+                  "latitude": 16.398136,
+                  "longitude": 120.623244,
+                  "purok_candidate": "Purok 2",
+                  "purok_check": "Source Purok field is blank",
+                  "street_or_road": "Eastern Link Circumferential Road",
+                  "map_label": "Tibay Store, 05, Eastern Link Circumferential Road, Purok 2, Country Club, District 11, Baguio, Cordillera Administrative Region, 2600, Philippines",
+                  "map_lookup_status": "explicit_purok_candidate_returned",
+                  "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.3981360&lon=120.6232440&zoom=18&addressdetails=1&accept-language=en",
+                  "google_maps_url": "https://www.google.com/maps?q=16.398136,120.623244",
+                  "source_csv_row": 256,
+                  "Status": ""
                 },
                 {
-                    "site_name": "Site 5",
-                    "latitude": 16.400263,
-                    "longitude": 120.625362,
-                    "source_purok": "",
-                    "purok_candidate": "Purok 1",
-                    "purok_check": "Source Purok field is blank",
-                    "street_or_road": "Eastern Link Circumferential Road",
-                    "map_label": "96, Eastern Link Circumferential Road, Purok 1, Country Club, District 11, Baguio, Cordillera Administrative Region, 2600, Philippines",
-                    "map_lookup_status": "explicit_purok_candidate_returned",
-                    "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.4002630&lon=120.6253620&zoom=18&addressdetails=1&accept-language=en",
-                    "google_maps_url": "https://www.google.com/maps?q=16.400263,120.625362"
+                  "site_name": "Site 5",
+                  "latitude": 16.400263,
+                  "longitude": 120.625362,
+                  "purok_candidate": "Purok 1",
+                  "purok_check": "Source Purok field is blank",
+                  "street_or_road": "Eastern Link Circumferential Road",
+                  "map_label": "96, Eastern Link Circumferential Road, Purok 1, Country Club, District 11, Baguio, Cordillera Administrative Region, 2600, Philippines",
+                  "map_lookup_status": "explicit_purok_candidate_returned",
+                  "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.4002630&lon=120.6253620&zoom=18&addressdetails=1&accept-language=en",
+                  "google_maps_url": "https://www.google.com/maps?q=16.400263,120.625362",
+                  "source_csv_row": 257,
+                  "Status": ""
                 },
                 {
-                    "site_name": "Site 6",
-                    "latitude": 16.403111,
-                    "longitude": 120.622287,
-                    "source_purok": "",
-                    "purok_candidate": "Purok 1",
-                    "purok_check": "Source Purok field is blank",
-                    "street_or_road": "Eastern Link Circumferential Road",
-                    "map_label": "Eastern Link Circumferential Road, Purok 1, Country Club, District 11, Baguio, Cordillera Administrative Region, 2600, Philippines",
-                    "map_lookup_status": "explicit_purok_candidate_returned",
-                    "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.4031110&lon=120.6222870&zoom=18&addressdetails=1&accept-language=en",
-                    "google_maps_url": "https://www.google.com/maps?q=16.403111,120.622287"
+                  "site_name": "Site 6",
+                  "latitude": 16.403111,
+                  "longitude": 120.622287,
+                  "purok_candidate": "Purok 1",
+                  "purok_check": "Source Purok field is blank",
+                  "street_or_road": "Eastern Link Circumferential Road",
+                  "map_label": "Eastern Link Circumferential Road, Purok 1, Country Club, District 11, Baguio, Cordillera Administrative Region, 2600, Philippines",
+                  "map_lookup_status": "explicit_purok_candidate_returned",
+                  "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.4031110&lon=120.6222870&zoom=18&addressdetails=1&accept-language=en",
+                  "google_maps_url": "https://www.google.com/maps?q=16.403111,120.622287",
+                  "source_csv_row": 258,
+                  "Status": ""
                 },
                 {
-                    "site_name": "Site 7",
-                    "latitude": 16.400408,
-                    "longitude": 120.625284,
-                    "source_purok": "",
-                    "purok_candidate": "Purok 1",
-                    "purok_check": "Source Purok field is blank",
-                    "street_or_road": "Eastern Link Circumferential Road",
-                    "map_label": "96, Eastern Link Circumferential Road, Purok 1, Country Club, District 11, Baguio, Cordillera Administrative Region, 2600, Philippines",
-                    "map_lookup_status": "explicit_purok_candidate_returned",
-                    "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.4004080&lon=120.6252840&zoom=18&addressdetails=1&accept-language=en",
-                    "google_maps_url": "https://www.google.com/maps?q=16.400408,120.625284"
+                  "site_name": "Site 7",
+                  "latitude": 16.400408,
+                  "longitude": 120.625284,
+                  "purok_candidate": "Purok 1",
+                  "purok_check": "Source Purok field is blank",
+                  "street_or_road": "Eastern Link Circumferential Road",
+                  "map_label": "96, Eastern Link Circumferential Road, Purok 1, Country Club, District 11, Baguio, Cordillera Administrative Region, 2600, Philippines",
+                  "map_lookup_status": "explicit_purok_candidate_returned",
+                  "map_lookup_url": "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=16.4004080&lon=120.6252840&zoom=18&addressdetails=1&accept-language=en",
+                  "google_maps_url": "https://www.google.com/maps?q=16.400408,120.625284",
+                  "source_csv_row": 259,
+                  "Status": ""
                 }
-                ],
-                "pick up time": "Friday"
+              ],
+              "pick up time": "Friday",
+              "source_areas": [
+                "Happy Hallow"
+              ]
             }
-            ]
+          ]
         },
         "time": "3am-12nn"
       }

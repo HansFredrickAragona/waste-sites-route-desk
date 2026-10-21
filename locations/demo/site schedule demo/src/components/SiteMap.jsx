@@ -11,8 +11,9 @@ import {
   useMapEvents,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import { ALL_BARANGAYS } from "../data/scheduleModel.js";
+import { ALL_BARANGAYS, PIN_STATUS_OPTIONS } from "../data/scheduleModel.js";
 import { isQrtAreaName } from "../data/scheduleCellPresentation.js";
+import ActivityLog from "./ActivityLog.jsx";
 import CellReviewToggle from "./CellReviewToggle.jsx";
 import DataNotes from "./DataNotes.jsx";
 import GoogleStreetViewEditor from "./GoogleStreetViewEditor.jsx";
@@ -61,10 +62,10 @@ function FitMapContent({ sites, firingLines, estimatedAreaPoints = emptyCoordina
   return null;
 }
 
-function markerIcon(index, active, isPreviousRoute = false) {
+function markerIcon(index, active, statusKey = "unchecked", isPreviousRoute = false) {
   return L.divIcon({
     className: "site-marker-shell",
-    html: `<span class="site-marker${active ? " site-marker--active" : ""}${isPreviousRoute ? " site-marker--previous" : ""}"><span>${index + 1}</span></span>`,
+    html: `<span class="site-marker site-marker--${statusKey || "unchecked"}${active ? " site-marker--active" : ""}${isPreviousRoute ? " site-marker--previous" : ""}"><span>${index + 1}</span></span>`,
     iconSize: [32, 38],
     iconAnchor: [16, 36],
   });
@@ -191,9 +192,9 @@ function MapContents({
           <Marker
             key={site.id}
             position={[site.latitude, site.longitude]}
-            icon={markerIcon(index, isActive, site.isPreviousRoute)}
-            title={`${markerName}${site.isPreviousRoute ? ` · Previous route: ${site.referenceDriverName}, ${site.referenceDay}, ${site.referenceAreaName}` : ""} · ${site.barangay || site.assignedBarangay || "Barangay not provided"}`}
-            alt={`${markerName}, ${site.barangay || site.assignedBarangay || "barangay not provided"}`}
+            icon={markerIcon(index, isActive, site.pinStatusKey, site.isPreviousRoute)}
+            title={`${markerName} · ${site.pinStatus || "Unverified / For Checking"}${site.isPreviousRoute ? ` · Previous route: ${site.referenceDriverName}, ${site.referenceDay}, ${site.referenceAreaName}` : ""} · ${site.barangay || site.assignedBarangay || "Barangay not provided"}`}
+            alt={`${markerName}, ${site.pinStatus || "Unverified / For Checking"}, ${site.barangay || site.assignedBarangay || "barangay not provided"}`}
             keyboard
             interactive={toolMode === "browse" && !isAddingFeatureNode}
             draggable={!site.isPreviousRoute && editableSiteId === site.id}
@@ -209,7 +210,7 @@ function MapContents({
               } } : {}),
             }}
           >
-            <Tooltip direction="top" offset={[0, -30]}>{markerName}</Tooltip>
+            <Tooltip direction="top" offset={[0, -30]}>{markerName} · {site.pinStatus || "Unverified / For Checking"}</Tooltip>
           </Marker>
         );
       })}
@@ -378,10 +379,10 @@ export default function SiteMap({
   undefinedFiringLines = [],
   saveMessage,
   cellNotes = [],
+  activityEntries = [],
+  activityScheduleName = "",
+  onRevertActivity,
   cellConfirmed = false,
-  scheduleIssues = [],
-  scheduleContextNotes = [],
-  showV3Reports = false,
   onCellConfirmationChange,
   onBack,
   onAddSite,
@@ -515,9 +516,7 @@ export default function SiteMap({
     return total.map((coordinate) => coordinate / estimatedAreaPoints.length);
   }, [estimatedAreaPoints]);
   const visibleUndefinedFiringLines = useMemo(() => {
-    // These records have no coordinates, so they cannot be drawn as map
-    // geometry. Show their red map notices after the viewer selects an area.
-    if (selectedMapBarangay === ALL_BARANGAYS) return [];
+    if (selectedMapBarangay === ALL_BARANGAYS) return undefinedFiringLines;
     const activeAreaIds = new Set(activeCellAreas.map((area) => area.id));
     return undefinedFiringLines.filter((feature) => activeAreaIds.has(feature.areaId));
   }, [activeCellAreas, selectedMapBarangay, undefinedFiringLines]);
@@ -913,12 +912,15 @@ export default function SiteMap({
           <div className="selected-cell-areas-content">
             <div className="selected-cell-filter-heading">
               {dayAreaNames.length > 0 && <p className="selected-cell-route-name">{dayAreaNames.join(" · ")}</p>}
-              <DataNotes
-                issues={scheduleIssues}
-                contextNotes={scheduleContextNotes}
-                selectedCellNotes={cellNotes}
-                showV3Reports={showV3Reports}
-              />
+              <div className="selected-cell-filter-actions">
+                <DataNotes selectedCellNotes={cellNotes} />
+                <ActivityLog
+                  entries={activityEntries}
+                  scheduleName={activityScheduleName}
+                  scopeLabel={`${driver.name} · ${day}`}
+                  onRevert={onRevertActivity}
+                />
+              </div>
             </div>
             {hasFixedAssignment ? (
               <div className="selected-cell-chip-row" role="group" aria-label="Filter map by barangay or area">
@@ -955,7 +957,7 @@ export default function SiteMap({
                 <span className="map-count-number">{displayedSites.length}</span>
                 <span>
                   site pin{displayedSites.length === 1 ? "" : "s"} on map
-                  {selectedPreviousArea && <small> · blue pins are reference stops</small>}
+                  {selectedPreviousArea && <small> · dashed blue outline marks reference stops</small>}
                   {pendingPin && <small> · 1 unsaved draft</small>}
                 </span>
               </div>
@@ -1017,6 +1019,14 @@ export default function SiteMap({
             {toolMode === "draw-area" && (
               <p className="map-action-status" role="status">Click the map to add points, then finish the bounded area.</p>
             )}
+            <div className="map-pin-status-legend" role="group" aria-label="Pin status colors">
+              {PIN_STATUS_OPTIONS.map((status) => (
+                <span className="map-pin-status-key" key={status.key}>
+                  <i className={`map-pin-status-swatch map-pin-status-swatch--${status.key}`} aria-hidden="true" />
+                  {status.value}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -1258,7 +1268,6 @@ export default function SiteMap({
             <MapEditingTools
               firingLines={visibleFiringLines}
               undefinedFiringLines={visibleUndefinedFiringLines}
-              showAreaSelectionHint={selectedMapBarangay === ALL_BARANGAYS && undefinedFiringLines.length > 0}
               selectedFeatureId={selectedFeatureId}
               editingFeatureId={editingFeatureId}
               selectedFeatureNode={selectedFeatureNode}

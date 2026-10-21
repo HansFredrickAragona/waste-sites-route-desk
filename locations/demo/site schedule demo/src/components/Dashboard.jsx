@@ -28,6 +28,37 @@ function scheduleAreaLabel(area) {
   return area.dayAreaName || area.areaName || area.sourceAreaName || area.barangay || "Area name not provided";
 }
 
+function cleanDashboardAreaName(value) {
+  return typeof value === "string"
+    ? value.trim().replace(/\s+/g, " ").replace(/\s*\(\s*\d{1,2}(?::\d{2})?\s*(?:am|pm)\s*[-–]\s*\d{1,2}(?::\d{2})?\s*(?:am|pm|nn)\s*\)\s*$/i, "")
+    : "";
+}
+
+function splitAreaList(value) {
+  const parts = [];
+  let depth = 0;
+  let start = 0;
+
+  for (let index = 0; index < value.length; index += 1) {
+    if (value[index] === "(") depth += 1;
+    if (value[index] === ")") depth = Math.max(0, depth - 1);
+    if (value[index] === "," && depth === 0) {
+      parts.push(value.slice(start, index));
+      start = index + 1;
+    }
+  }
+  parts.push(value.slice(start));
+  return parts;
+}
+
+function dashboardAreaNames(area) {
+  const sourceName = area.sourceAreaName || area.areaName || area.barangay || area.dayAreaName || "Area name not provided";
+  return splitAreaList(sourceName)
+    .map(cleanDashboardAreaName)
+    .flatMap((name) => normalizeName(name) === "burnham-legarda" ? ["Burnham", "Legarda"] : [name])
+    .filter(Boolean);
+}
+
 function siteLabel(site) {
   return site.siteName || site.mapLabel || site.sourceSiteNames?.[0] || "Unnamed site";
 }
@@ -55,110 +86,121 @@ function getDashboardStats(scheduleModel, mapFeatures) {
       const cellKey = `${driver.id}:${day}`;
 
       areas.forEach((area) => {
-        const label = scheduleAreaLabel(area);
-        const areaName = normalizeName(area.dayAreaName || area.areaName || area.barangay);
-        const barangay = normalizeName(area.barangay);
-        const areaKey = areaName || barangay || `missing::${area.id}`;
-        const activeSites = (area.sites ?? []).filter(
-          (site) => site.hasCoordinates && site.catalogStatus !== "removed",
-        );
+        dashboardAreaNames(area).forEach((label) => {
+          const areaName = normalizeName(label);
+          const barangay = normalizeName(area.barangay);
+          const areaKey = areaName || barangay || `missing::${area.id}`;
+          const activeSites = (area.sites ?? []).filter(
+            (site) => site.hasCoordinates && site.catalogStatus !== "removed",
+          );
 
-        if (barangay) barangayLabels.add(barangay);
+          if (barangay) barangayLabels.add(barangay);
 
-        const savedArea = uniqueAreas.get(areaKey) ?? {
-          key: areaKey,
-          name: label,
-          hasSites: false,
-          barangays: new Set(),
-          sites: new Map(),
-          occurrences: new Map(),
-        };
-        savedArea.hasSites ||= activeSites.length > 0;
-        if (area.barangay) savedArea.barangays.add(area.barangay);
-        savedArea.occurrences.set(`${driver.id}:${day}`, `${driver.name} · ${day}`);
-
-        (area.sites ?? []).forEach((site) => {
-          const labelForSite = siteLabel(site);
-          const siteKey = site.hasCoordinates
-            ? `${site.latitude.toFixed(6)},${site.longitude.toFixed(6)}`
-            : normalizeName(labelForSite) === "unnamed site"
-              ? `unmapped::${site.id}`
-              : `unmapped::${normalizeName(labelForSite)}`;
-          const savedSite = savedArea.sites.get(siteKey) ?? {
-            key: siteKey,
-            name: labelForSite,
-            mapped: false,
-            status: "No map coordinates",
-            coordinates: null,
-            occurrences: new Set(),
+          const savedArea = uniqueAreas.get(areaKey) ?? {
+            key: areaKey,
+            name: label,
+            hasSites: false,
+            barangays: new Set(),
+            sites: new Map(),
+            occurrences: new Map(),
           };
-          const mapped = site.hasCoordinates && site.catalogStatus !== "removed";
-          savedSite.mapped ||= mapped;
-          savedSite.status = site.catalogStatus === "removed"
-            ? "Removed from map"
-            : site.hasCoordinates ? "Mapped" : "No map coordinates";
-          if (site.hasCoordinates) savedSite.coordinates = [site.latitude, site.longitude];
-          savedSite.occurrences.add(`${driver.name} · ${day}`);
-          savedArea.sites.set(siteKey, savedSite);
+          savedArea.hasSites ||= activeSites.length > 0;
+          if (area.barangay) savedArea.barangays.add(area.barangay);
+          savedArea.occurrences.set(`${driver.id}:${day}`, `${driver.name} · ${day}`);
 
-          let siteBarangayNames = [
-            ...(site.mapBarangays ?? []),
-            ...(site.sourceBarangays ?? []),
-            site.hasExplicitBarangay ? site.barangay : "",
-          ].filter(Boolean);
-          if (siteBarangayNames.length === 0) {
-            siteBarangayNames = [...(area.mapBarangays ?? []), area.barangay].filter(Boolean);
-          }
-          const matchingBarangayKeys = new Set(siteBarangayNames.map(normalizeName));
-          matchingBarangayKeys.forEach((barangayKey) => {
-            const savedBarangay = canonicalBarangays.get(barangayKey);
-            if (!savedBarangay) return;
-            const savedBarangaySite = savedBarangay.sites.get(siteKey) ?? {
+          (area.sites ?? []).forEach((site) => {
+            const labelForSite = siteLabel(site);
+            const siteKey = site.hasCoordinates
+              ? `${site.latitude.toFixed(6)},${site.longitude.toFixed(6)}`
+              : normalizeName(labelForSite) === "unnamed site"
+                ? `unmapped::${site.id}`
+                : `unmapped::${normalizeName(labelForSite)}`;
+            const savedSite = savedArea.sites.get(siteKey) ?? {
               key: siteKey,
               name: labelForSite,
-              status: site.catalogStatus === "removed"
-                ? "Removed from map"
-                : site.hasCoordinates ? "Mapped" : "No map coordinates",
-              coordinates: site.hasCoordinates ? [site.latitude, site.longitude] : null,
+              mapped: false,
+              status: "No map coordinates",
+              hasMissingCoordinates: false,
+              hasRemovedRecord: false,
+              hasUnmatchedReference: false,
+              coordinates: null,
               occurrences: new Set(),
             };
-            savedBarangaySite.occurrences.add(`${driver.name} · ${day}`);
-            savedBarangay.sites.set(siteKey, savedBarangaySite);
-            savedBarangay.areas.add(label);
+            const mapped = site.hasCoordinates && site.catalogStatus !== "removed";
+            savedSite.mapped ||= mapped;
+            savedSite.hasMissingCoordinates ||= !site.hasCoordinates;
+            savedSite.hasRemovedRecord ||= site.hasCoordinates && site.catalogStatus === "removed";
+            savedSite.hasUnmatchedReference ||= site.hasCoordinates && site.catalogStatus !== "active" && site.catalogStatus !== "removed";
+            savedSite.status = savedSite.hasRemovedRecord && savedSite.mapped
+              ? "Conflicting map status"
+              : savedSite.hasRemovedRecord
+                ? "Removed from map"
+                : savedSite.hasUnmatchedReference
+                  ? "Map reference needs review"
+                  : savedSite.mapped ? "Mapped" : "No map coordinates";
+            if (site.hasCoordinates) savedSite.coordinates = [site.latitude, site.longitude];
+            savedSite.occurrences.add(`${driver.name} · ${day}`);
+            savedArea.sites.set(siteKey, savedSite);
+
+            let siteBarangayNames = [
+              ...(site.mapBarangays ?? []),
+              ...(site.sourceBarangays ?? []),
+              site.hasExplicitBarangay ? site.barangay : "",
+            ].filter(Boolean);
+            if (siteBarangayNames.length === 0) {
+              siteBarangayNames = [...(area.mapBarangays ?? []), area.barangay].filter(Boolean);
+            }
+            const matchingBarangayKeys = new Set(siteBarangayNames.map(normalizeName));
+            matchingBarangayKeys.forEach((barangayKey) => {
+              const savedBarangay = canonicalBarangays.get(barangayKey);
+              if (!savedBarangay) return;
+              const savedBarangaySite = savedBarangay.sites.get(siteKey) ?? {
+                key: siteKey,
+                name: labelForSite,
+                status: site.catalogStatus === "removed"
+                  ? "Removed from map"
+                  : site.hasCoordinates ? "Mapped" : "No map coordinates",
+                coordinates: site.hasCoordinates ? [site.latitude, site.longitude] : null,
+                occurrences: new Set(),
+              };
+              savedBarangaySite.occurrences.add(`${driver.name} · ${day}`);
+              savedBarangay.sites.set(siteKey, savedBarangaySite);
+              savedBarangay.areas.add(label);
+            });
           });
-        });
 
-        (area.mapBarangays ?? []).forEach((name) => {
-          canonicalBarangays.get(normalizeName(name))?.areas.add(label);
-        });
-        if (area.barangay) canonicalBarangays.get(barangay)?.areas.add(label);
-        uniqueAreas.set(areaKey, savedArea);
-
-        const daily = dailyStats.get(day);
-        if (daily) {
-          const dailyArea = daily.areas.get(areaKey) ?? { hasSites: false };
-          dailyArea.hasSites ||= activeSites.length > 0;
-          daily.areas.set(areaKey, dailyArea);
-          activeSites.forEach((site) => {
-            daily.sites.add(`${site.latitude.toFixed(6)},${site.longitude.toFixed(6)}`);
+          (area.mapBarangays ?? []).forEach((name) => {
+            canonicalBarangays.get(normalizeName(name))?.areas.add(label);
           });
-        }
+          if (area.barangay) canonicalBarangays.get(barangay)?.areas.add(label);
+          uniqueAreas.set(areaKey, savedArea);
 
-        const lineItems = (area.unmappedSegments ?? [])
-          .filter((segment) => segment.type === "route" && isUnmappedAreaSegment(segment))
-          .map((segment) => ({ label: segment.name || "Unnamed route segment" }));
-        lineItems.push(...(area.sites ?? [])
-          .filter((site) => normalizeName(site.siteName) === "firingline")
-          .map((site) => ({ label: site.mapLabel || "FiringLine placeholder" })));
-        lineItems.forEach((line, index) => {
-          undefinedLineRecords.push({
-            key: `${driver.id}:${day}:${area.id}:${index}`,
-            areaKey,
-            areaName: label,
-            barangay: area.barangay,
-            lineName: line.label,
-            driverName: driver.name,
-            day,
+          const daily = dailyStats.get(day);
+          if (daily) {
+            const dailyArea = daily.areas.get(areaKey) ?? { hasSites: false };
+            dailyArea.hasSites ||= activeSites.length > 0;
+            daily.areas.set(areaKey, dailyArea);
+            activeSites.forEach((site) => {
+              daily.sites.add(`${site.latitude.toFixed(6)},${site.longitude.toFixed(6)}`);
+            });
+          }
+
+          const lineItems = (area.unmappedSegments ?? [])
+            .filter((segment) => segment.type === "route" && isUnmappedAreaSegment(segment))
+            .map((segment) => ({ label: segment.name || "Unnamed route segment" }));
+          lineItems.push(...(area.sites ?? [])
+            .filter((site) => normalizeName(site.siteName) === "firingline")
+            .map((site) => ({ label: site.mapLabel || "FiringLine placeholder" })));
+          lineItems.forEach((line, index) => {
+            undefinedLineRecords.push({
+              key: `${driver.id}:${day}:${area.id}:${index}`,
+              areaKey,
+              areaName: label,
+              barangay: area.barangay,
+              lineName: line.label,
+              driverName: driver.name,
+              day,
+            });
           });
         });
       });
@@ -214,17 +256,41 @@ function getDashboardStats(scheduleModel, mapFeatures) {
       totalAreas: daily.areas.size,
     };
   });
-  const areaBreakdown = [...uniqueAreas.values()].map((area) => ({
-    key: area.key,
-    name: area.name,
-    hasSites: area.hasSites,
-    barangays: [...area.barangays].sort((a, b) => a.localeCompare(b)),
-    sites: [...area.sites.values()].map((site) => ({
+  const undefinedLineCountsByArea = new Map();
+  undefinedLineRecords.forEach((record) => {
+    undefinedLineCountsByArea.set(record.areaKey, (undefinedLineCountsByArea.get(record.areaKey) ?? 0) + 1);
+  });
+  const areaBreakdown = [...uniqueAreas.values()].map((area) => {
+    const sites = [...area.sites.values()].map((site) => ({
       ...site,
       occurrences: [...site.occurrences].sort((a, b) => a.localeCompare(b)),
-    })).sort((a, b) => a.name.localeCompare(b.name)),
-    occurrences: [...area.occurrences.values()].sort((a, b) => a.localeCompare(b)),
-  })).sort((a, b) => a.name.localeCompare(b.name));
+    })).sort((a, b) => a.name.localeCompare(b.name));
+    const clarificationReasons = [];
+    const missingCoordinateCount = sites.filter((site) => site.hasMissingCoordinates && normalizeName(site.name).replace(/\s+/g, "") !== "firingline").length;
+    const removedCount = sites.filter((site) => site.hasRemovedRecord && !site.mapped).length;
+    const conflictingStatusCount = sites.filter((site) => site.hasRemovedRecord && site.mapped).length;
+    const unmatchedCount = sites.filter((site) => site.hasUnmatchedReference).length;
+    const undefinedLineCount = undefinedLineCountsByArea.get(area.key) ?? 0;
+
+    if (missingCoordinateCount > 0) clarificationReasons.push(`${formatted(missingCoordinateCount)} ${missingCoordinateCount === 1 ? "site has" : "sites have"} no map coordinates`);
+    if (removedCount > 0) clarificationReasons.push(`${formatted(removedCount)} scheduled ${removedCount === 1 ? "site is" : "sites are"} marked removed from the map`);
+    if (conflictingStatusCount > 0) clarificationReasons.push(`${formatted(conflictingStatusCount)} ${conflictingStatusCount === 1 ? "site has" : "sites have"} conflicting map status across schedule entries`);
+    if (unmatchedCount > 0) clarificationReasons.push(`${formatted(unmatchedCount)} ${unmatchedCount === 1 ? "map location needs" : "map locations need"} reference verification`);
+    if (undefinedLineCount > 0) clarificationReasons.push(`${formatted(undefinedLineCount)} undefined route or firing ${undefinedLineCount === 1 ? "line needs" : "lines need"} map nodes`);
+    if (!area.hasSites && sites.length === 0) clarificationReasons.push("No site records appear in this schedule");
+    else if (!area.hasSites && clarificationReasons.length === 0) clarificationReasons.push("No active mapped sites in this schedule");
+
+    return {
+      key: area.key,
+      name: area.name,
+      hasSites: area.hasSites,
+      needsClarification: clarificationReasons.length > 0,
+      clarificationReasons,
+      barangays: [...area.barangays].sort((a, b) => a.localeCompare(b)),
+      sites,
+      occurrences: [...area.occurrences.values()].sort((a, b) => a.localeCompare(b)),
+    };
+  }).sort((a, b) => a.name.localeCompare(b.name));
   const undefinedLinesByArea = new Map();
   undefinedLineRecords.forEach((record) => {
     const existing = undefinedLinesByArea.get(record.areaKey) ?? {
@@ -258,7 +324,7 @@ function getDashboardStats(scheduleModel, mapFeatures) {
     referenceBarangayCount: canonicalBarangays.size,
     referenceBarangaysMissingCount: canonicalBarangays.size - referenceBarangaysInSchedule,
     driverCount: scheduleModel.stats.driverCount,
-    undefinedFiringLines: undefinedLineRecords.length,
+    undefinedFiringLines: new Set(undefinedLineRecords.map((record) => record.key)).size,
     areasWithLines,
     totalAreaGroups,
     areasWithSites: areaCount - areasWithoutSites,
@@ -422,36 +488,50 @@ function AreaBreakdownList({ areas, query }) {
     ...area.barangays,
     ...area.occurrences,
     ...area.sites.flatMap((site) => [site.name, site.status]),
+    ...area.clarificationReasons,
+    area.needsClarification ? "needs clarification" : "no current issues",
   ));
 
-  if (visibleAreas.length === 0) return <EmptyBreakdown>No areas match this search.</EmptyBreakdown>;
-
   return (
-    <div className="dashboard-detail-card-list">
-      {visibleAreas.map((area) => {
-        const mappedSites = area.sites.filter((site) => site.mapped);
-        return (
-          <article className="dashboard-detail-card" key={area.key}>
-            <div className="dashboard-detail-card-heading">
-              <h3>{area.name}</h3>
-              <span>{formatted(mappedSites.length)} mapped {mappedSites.length === 1 ? "site" : "sites"}</span>
-            </div>
-            {area.barangays.length > 0 && <p className="dashboard-detail-secondary">Barangays: {area.barangays.join(" · ")}</p>}
-            {area.sites.length > 0 ? (
-              <ul className="dashboard-detail-site-list">
-                {area.sites.map((site) => (
-                  <li key={site.key}>
-                    <strong>{site.name}</strong>
-                    <span>{site.status}{site.occurrences.length > 0 ? ` · ${site.occurrences.length} schedule occurrence${site.occurrences.length === 1 ? "" : "s"}` : ""}</span>
-                  </li>
-                ))}
-              </ul>
-            ) : <EmptyBreakdown>No site records in the selected schedule.</EmptyBreakdown>}
-            {area.occurrences.length > 0 && <p className="dashboard-detail-secondary">Scheduled: {area.occurrences.join(" · ")}</p>}
-          </article>
-        );
-      })}
-    </div>
+    <>
+      {visibleAreas.length === 0 ? <EmptyBreakdown>No areas match this search.</EmptyBreakdown> : (
+        <div className="dashboard-detail-card-list">
+          {visibleAreas.map((area) => {
+            const mappedSites = area.sites.filter((site) => site.mapped);
+            return (
+              <article className="dashboard-detail-card" key={area.key}>
+                <div className="dashboard-detail-card-heading">
+                  <h3>{area.name}</h3>
+                  <div className="dashboard-area-card-meta">
+                    <span className={`dashboard-area-status${area.needsClarification ? " dashboard-area-status--review" : " dashboard-area-status--clear"}`}>
+                      {area.needsClarification ? "Needs clarification" : "No current issues"}
+                    </span>
+                    <span>{formatted(mappedSites.length)} mapped {mappedSites.length === 1 ? "site" : "sites"}</span>
+                  </div>
+                </div>
+                {area.clarificationReasons.length > 0 && (
+                  <ul className="dashboard-area-clarification-reasons" aria-label={`Clarification needed for ${area.name}`}>
+                    {area.clarificationReasons.map((reason) => <li key={reason}>{reason}</li>)}
+                  </ul>
+                )}
+                {area.barangays.length > 0 && <p className="dashboard-detail-secondary">Barangays: {area.barangays.join(" · ")}</p>}
+                {area.sites.length > 0 ? (
+                  <ul className="dashboard-detail-site-list">
+                    {area.sites.map((site) => (
+                      <li key={site.key}>
+                        <strong>{site.name}</strong>
+                        <span>{site.status}{site.occurrences.length > 0 ? ` · ${site.occurrences.length} schedule occurrence${site.occurrences.length === 1 ? "" : "s"}` : ""}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : <EmptyBreakdown>No site records in the selected schedule.</EmptyBreakdown>}
+                {area.occurrences.length > 0 && <p className="dashboard-detail-secondary">Scheduled: {area.occurrences.join(" · ")}</p>}
+              </article>
+            );
+          })}
+        </div>
+      )}
+    </>
   );
 }
 
@@ -539,7 +619,6 @@ function DashboardDetailContent({ metric, stats, query }) {
   if (metric.key === "undefined-firing-lines") {
     return <UndefinedLineBreakdown areas={stats.undefinedLineBreakdown} query={query} />;
   }
-
   const areasWithoutSites = stats.areaBreakdown.filter((area) => !area.hasSites);
   const areasWithSites = stats.areaBreakdown.filter((area) => area.hasSites);
   return (

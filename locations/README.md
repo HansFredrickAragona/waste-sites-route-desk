@@ -1,18 +1,21 @@
 # Collection Locations and Driver Schedules
 
-Prepare and review Baguio City collection-site and driver-route data, then explore and edit the schedules in the React map demo. This folder includes source CSVs, mapping research, versioned schedule JSON, Python preparation scripts, and the demo application.
+Prepare and review Baguio City collection-site and driver-route data, then explore schedules or verify barangay collection sites in the React map demos. This folder includes source CSVs, mapping research, versioned schedule JSON, Python preparation scripts, and both demo applications.
 
-[Whole project](../README.md) · [Demo guide](demo/README.md) · [Script guide](scripts/README.md)
+[Whole project](../README.md) · [Shared demo setup](<demo/README.md>) · [Schedule demo guide](<demo/site schedule demo/README.md>) · [Barangay demo guide](<demo/barangay sites demo/README.md>) · [Script guide](scripts/README.md)
 
 ## Run the schedule and map demo
 
-Use Node.js 22.12+ and npm. From the repository root:
+Use Node.js 22.12+ and npm. Install dependencies once for both collection demos from the repository root:
 
 ```bash
-cd locations/demo
-npm ci
+cd "locations/demo"
+npm install
+cd "site schedule demo"
 npm run dev
 ```
+
+To run the barangay verification demo, from `locations/demo` run `cd "barangay sites demo"` and then `npm run dev`.
 
 Open the URL printed by Vite, normally <http://127.0.0.1:5173>.
 
@@ -24,11 +27,11 @@ The demo uses React, Vite, and Leaflet. It includes:
 - JSON import and numbered JSON export, including map features and review states.
 - Browser-local working copies that remain after reload.
 
-Map tiles require internet access. Embedded Google Street View is optional: copy `demo/.env.example` to `demo/.env.local`, set `VITE_GOOGLE_MAPS_API_KEY`, and restart Vite. The environment file is ignored by Git; the example contains only a placeholder. The key is used in the browser and should be restricted to the intended referrers and APIs. See the [demo guide](demo/README.md) for full setup and editing instructions.
+Map tiles require internet access. Embedded Google Street View is optional: copy `demo/site schedule demo/.env.example` to `demo/site schedule demo/.env.local`, set `VITE_GOOGLE_MAPS_API_KEY`, and restart Vite. The environment file is ignored by Git; the example contains only a placeholder. The key is used in the browser and should be restricted to the intended referrers and APIs. See the [schedule demo guide](<demo/site schedule demo/README.md>) for full setup and editing instructions.
 
-The demo reads its own copies in `demo/public/data/`. Browser edits do not modify the source CSVs or canonical schedule JSON. Use **Export new JSON** to save a portable copy of your work.
+The schedule demo reads its own copies in `demo/site schedule demo/public/data/`. Browser edits do not modify the source CSVs or canonical schedule JSON. Use **Export new JSON** to save a portable copy of your work.
 
-To build or preview the demo, run `npm run build` or `npm run preview` from `locations/demo`.
+To build or preview either demo, run `npm run build` or `npm run preview` from its folder under `locations/demo`.
 
 ## Folder layout
 
@@ -44,7 +47,9 @@ locations/
 │       ├── schedules/    Legacy and versioned schedule files
 │       ├── maps/         SWMD map JSON
 │       └── examples/    Example driver record format
-├── demo/                 Interactive schedule and map application
+├── demo/                  Shared npm install and collection-site demos
+│   ├── site schedule demo/
+│   └── barangay sites demo/
 ├── questionnaire/        Draft GSO review questionnaire
 ├── scripts/
 │   ├── data_preparation/ CSV cleaning and summaries
@@ -80,13 +85,13 @@ It writes both the canonical and demo copies of v5 plus its audit. The optional 
 
 ## Refresh demo data
 
-After changing the raw SWMD map, run this from `locations/demo`:
+After changing the raw SWMD map, run this from `locations/demo/site schedule demo`:
 
 ```bash
 npm run data:refresh
 ```
 
-This rebuilds the site index, barangay lookup, and v3 comparison reports. It does not copy schedule JSON. The v4 and v5 generators write their own demo copies; after rebuilding v3, copy `data/jsons/schedules/driver_schedule_v3.json` to `demo/public/data/schedules/driver_schedule_v3.json` from the `locations` folder.
+This rebuilds the site index, barangay lookup, and v3 comparison reports. It does not copy schedule JSON. The v4 and v5 generators write their own demo copies; after rebuilding v3, copy `data/jsons/schedules/driver_schedule_v3.json` to `demo/site schedule demo/public/data/schedules/driver_schedule_v3.json` from the `locations` folder.
 
 ## Mapping review
 

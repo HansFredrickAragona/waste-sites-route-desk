@@ -1,7 +1,6 @@
 export default function MapEditingTools({
   firingLines,
   undefinedFiringLines = [],
-  showAreaSelectionHint = false,
   selectedFeatureId,
   editingFeatureId,
   selectedFeatureNode,
@@ -122,10 +121,7 @@ export default function MapEditingTools({
           })}
         </ul>
       )}
-      {showAreaSelectionHint && (
-        <p className="tool-instruction">Select a barangay or area above to view records without coordinates.</p>
-      )}
-      {firingLines.length === 0 && undefinedFiringLines.length === 0 && !showAreaSelectionHint && (
+      {firingLines.length === 0 && undefinedFiringLines.length === 0 && (
         <p className="tool-instruction">No firing lines or bounded areas are saved for this driver and day.</p>
       )}
       {firingLines.some((feature) => feature.id === editingFeatureId && feature.feature_type === "firing_line") && (

@@ -43,6 +43,7 @@ export default function ScheduleVersionControl({
         {availableBuiltInVersions.includes("v3") && <option value="v3">driver_schedule_v3.json</option>}
         {availableBuiltInVersions.includes("v4") && <option value="v4">driver_schedule_v4.json</option>}
         {availableBuiltInVersions.includes("v5") && <option value="v5">driver_schedule_v5.json</option>}
+        {availableBuiltInVersions.includes("v6") && <option value="v6">driver_schedule_v6.json</option>}
         {uploadedSchedules.map((schedule, index) => {
           const fileName = schedule.name || "Uploaded JSON";
           const sameName = uploadedSchedules.filter((item) => item.name === schedule.name);

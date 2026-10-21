@@ -10,6 +10,14 @@ export const DAYS = [
 
 export const ALL_BARANGAYS = "__all__";
 
+export const PIN_STATUS_OPTIONS = [
+  { value: "Existing", key: "existing" },
+  { value: "With remarks", key: "remarks" },
+  { value: "Unverified / For Checking", key: "unchecked" },
+  { value: "Removed collection point", key: "removed" },
+  { value: "Corrected/Adjusted", key: "corrected" },
+];
+
 function textValue(value) {
   return typeof value === "string" ? value.trim() : "";
 }
@@ -38,6 +46,15 @@ function hasValidCoordinates(latitude, longitude) {
 
 function coordinateKey(latitude, longitude) {
   return `${latitude.toFixed(6)},${longitude.toFixed(6)}`;
+}
+
+function resolvePinStatus(value) {
+  const normalized = normalizedLabel(value);
+  if (normalized.includes("removed")) return PIN_STATUS_OPTIONS[3];
+  if (normalized.includes("corrected") || normalized.includes("adjusted")) return PIN_STATUS_OPTIONS[4];
+  if (normalized.includes("remark")) return PIN_STATUS_OPTIONS[1];
+  if (normalized.includes("existing")) return PIN_STATUS_OPTIONS[0];
+  return PIN_STATUS_OPTIONS[2];
 }
 
 function createIssueCounts() {
@@ -126,7 +143,10 @@ export function buildScheduleModel(source, siteIndex, version = "v3", dayAreaLab
       return;
     }
 
-    const driverName = textValue(record.driver);
+    const driverRecord = record.driver && typeof record.driver === "object" && !Array.isArray(record.driver)
+      ? record.driver
+      : { name: record.driver };
+    const driverName = textValue(driverRecord.name);
     if (!driverName) issueCounts.missingDriverNames += 1;
 
     const days = Object.fromEntries(DAYS.map((day) => [day, []]));
@@ -218,11 +238,19 @@ export function buildScheduleModel(source, siteIndex, version = "v3", dayAreaLab
                 const catalogSite = hasCoordinates
                   ? catalogByCoordinate.get(siteCoordinateKey)
                   : null;
+                const annotationStatus = textValue(site.Status);
+                const pinStatus = resolvePinStatus(annotationStatus);
+                const annotationMarksRemoved = pinStatus.key === "removed";
+                const catalogStatus = annotationMarksRemoved
+                  ? "removed"
+                  : hasManualMapOverride
+                    ? "active"
+                    : catalogSite?.status ?? "unmatched";
                 if (hasCoordinates) {
                   coordinateBearingSiteOccurrences += 1;
                   scheduledLocationStatuses.set(
                     siteCoordinateKey,
-                    hasManualMapOverride ? "active" : catalogSite?.status ?? "active",
+                    catalogStatus === "unmatched" ? "active" : catalogStatus,
                   );
                   if (!catalogSite) issueCounts.siteCoordinatesWithoutSourceMatch += 1;
                 } else {
@@ -256,7 +284,9 @@ export function buildScheduleModel(source, siteIndex, version = "v3", dayAreaLab
                     sourceSiteNames: catalogSite?.siteNames ?? [],
                     sourcePuroks: catalogSite?.puroks ?? [],
                     mapBarangays,
-                    catalogStatus: hasManualMapOverride ? "active" : catalogSite?.status ?? "unmatched",
+                    catalogStatus,
+                    pinStatus: pinStatus.value,
+                    pinStatusKey: pinStatus.key,
                     barangay: explicitBarangay || barangay,
                     hasExplicitBarangay: Object.prototype.hasOwnProperty.call(site, "barangay"),
                     assignedBarangay: barangay,
@@ -319,6 +349,8 @@ export function buildScheduleModel(source, siteIndex, version = "v3", dayAreaLab
     drivers.push({
       id: `driver-${driverIndex}`,
       name: driverName || `Driver name missing (record ${driverIndex + 1})`,
+      type: textValue(driverRecord.type),
+      truck: Array.isArray(driverRecord.truck) ? driverRecord.truck.map(textValue).filter(Boolean) : [],
       days,
     });
   });

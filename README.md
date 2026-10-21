@@ -6,27 +6,28 @@ Baguio City waste-collection project with a collection-site and driver-schedule 
 
 | Project | Purpose | Documentation |
 | --- | --- | --- |
-| [`locations/`](locations/) | Prepare collection-site and driver-route data, then review schedules and edit mapped sites in a React demo. | [Locations README](locations/README.md) · [Demo guide](locations/demo/README.md) |
+| [`locations/`](locations/) | Prepare collection-site and driver-route data, then review schedules or verify barangay collection sites in the map demos. | [Locations README](locations/README.md) · [Schedule demo guide](<locations/demo/site schedule demo/README.md>) · [Barangay demo guide](<locations/demo/barangay sites demo/README.md>) |
 | [`bwms-clone/`](bwms-clone/) | Recreate the waste-management dashboard and record-management screens using Nuxt and Vue. | [Website duplicate README](bwms-clone/README.md) |
 
-The applications run independently. The website duplicate uses demonstration records and does not load the `locations` datasets or connect to a live Baguio City service. The map editor stores changes in the browser and exports new JSON files.
+The applications run independently. The website duplicate uses demonstration records and does not load the `locations` datasets or connect to a live Baguio City service. The map demos store changes in the browser and export new JSON files.
 
 ## Run locally
 
-Use Node.js 22.12+ and npm for the web applications. Each app has its own package manifest and lockfile; run commands from its folder.
+Use Node.js 22.12+ and npm for the web applications. The two collection-site demos share one install under `locations/demo`; the website duplicate has its own install.
 
 ### Collection schedules and site map
 
 ```bash
 git clone https://github.com/HansFredrickAragona/waste-sites-route-desk.git
-cd waste-sites-route-desk/locations/demo
-npm ci
+cd "waste-sites-route-desk/locations/demo"
+npm install
+cd "site schedule demo"
 npm run dev
 ```
 
 Open the local URL printed by Vite, normally <http://127.0.0.1:5173>. The demo opens on the bundled v5 schedule and supports driver and barangay filters, collection pins, firing lines, bounded areas, review confirmations, JSON import, and JSON export. Map tiles need an internet connection.
 
-Google Street View is optional. Copy `locations/demo/.env.example` to `locations/demo/.env.local`, replace the placeholder key, and restart the demo. See the [demo guide](locations/demo/README.md) for setup and editing behavior.
+Google Street View is optional. In `locations/demo/site schedule demo`, copy `.env.example` to `.env.local`, replace the placeholder key, and restart the demo. See the [schedule demo guide](<locations/demo/site schedule demo/README.md>) for setup and editing behavior.
 
 ### Waste-management website duplicate
 
@@ -54,7 +55,9 @@ Start with the [locations README](locations/README.md) for the data layout and w
 waste-sites-route-desk/
 ├── locations/
 │   ├── data/              Source CSVs, prepared data, audits, and schedule JSON
-│   ├── demo/              React, Vite, and Leaflet map editor
+│   ├── demo/              Shared npm install for the collection-site demos
+│   │   ├── site schedule demo/
+│   │   └── barangay sites demo/
 │   ├── questionnaire/     GSO site and schedule review questions
 │   └── scripts/           Python data preparation and JSON generation
 ├── bwms-clone/            Nuxt and Vue website duplicate
