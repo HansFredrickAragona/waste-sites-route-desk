@@ -1,6 +1,6 @@
 # Barangay sites demo
 
-A React, Vite, and Leaflet prototype in the shared collection-demo folder for reviewing Baguio City collection-site data with barangay officials. It loads its source records from `locations/data/jsons/barangays/barangay_sites.json` and keeps review edits in the browser until they are exported.
+A React, Vite, and Leaflet app for collecting and reviewing Baguio City collection-site data by barangay. It loads its source records from `locations/data/jsons/barangays/barangay_sites.json` and keeps edits in the browser until they are exported.
 
 ## Start locally
 
@@ -23,7 +23,7 @@ Open the local URL printed by Vite (normally <http://127.0.0.1:5173>).
 ## Review workflow
 
 - The barangay list shows the number of mapped site records and each barangay's confirmation status. Open a row to review its map.
-- Select a site to inspect its source status, coordinates, pickup/drop-off schedule, remarks, and purok. Records with no coordinates remain in the list and can be mapped by editing the site and entering coordinates or a Google Maps link. Add a pin by choosing **Add pin** and clicking the map. Existing mapped pins can be edited by form or by dragging the highlighted pin. Purok choices come from **Update barangay details**.
+- Select a site to inspect its source status, coordinates, pickup/drop-off date, day and time, remarks, and purok. Records with no coordinates remain in the list and can be mapped by editing the site and entering coordinates or a Google Maps link. Choose **Add GPS pin** to create a pin from your device's GPS, or choose **Add pin** and click the map to place it manually. GPS pins save latitude, longitude, capture accuracy, and a Google Maps link. The floating target button recenters on your current GPS position; a second map button returns to the selected pin or, when none is selected, shows all mapped pins. Existing mapped pins can be edited by form or by dragging the highlighted pin. Puroks can be selected from saved suggestions or entered directly.
 - Add a firing line, click its path nodes, and finish the line with a double-click or **Finish line**. While editing a line, select a blue node to open its Google Street View link, move it by dragging or pasting coordinates, add nodes after it, or delete it when at least two nodes will remain. Save the line to record node and line changes.
 - Use the barangay confirmation switch after the local review. Purok and review notes are saved under **Update barangay details**.
 - The activity log records barangay, pin, firing-line, import, and confirmation changes.
@@ -34,7 +34,7 @@ Open the local URL printed by Vite (normally <http://127.0.0.1:5173>).
 
 Map filters on the barangay map are visual placeholders. Map tiles require an internet connection; visible attribution is included. To use another compatible tile service, set `VITE_MAP_TILE_URL` in an `.env` file to a `{z}/{x}/{y}` URL template.
 
-When editing a pin or firing-line node, the Google Maps link opens that location in Street View and the coordinate field accepts a full Maps URL or latitude and longitude. Applying coordinates moves the draft location on the map; save the pin or firing line to record the change. Short `maps.app.goo.gl` links do not contain coordinates, so use the full Maps URL or enter the coordinates directly. To navigate an embedded Street View panorama in the editor, copy `.env.example` to `.env.local`, set `VITE_GOOGLE_MAPS_API_KEY`, enable the Maps JavaScript API with billing for that key, and restart Vite. Restrict the key to the Maps JavaScript API and this demo's website referrers. The link and coordinate paste work without an API key.
+Current-location capture requires browser location permission and a secure page (HTTPS or localhost). The browser centers the map on the GPS result and shows its reported accuracy; check the pin before saving. The app builds a Google Maps link from the saved coordinates and does not need a Google Maps API key for this flow. When editing a pin or firing-line node, the Google Maps link opens that location in Street View and the coordinate field accepts a full Maps URL or latitude and longitude. Applying coordinates moves the draft location on the map; save the pin or firing line to record the change. Short `maps.app.goo.gl` links do not contain coordinates, so use the full Maps URL or enter the coordinates directly. To navigate an embedded Street View panorama in the editor, copy `.env.example` to `.env.local`, set `VITE_GOOGLE_MAPS_API_KEY`, enable the Maps JavaScript API with billing for that key, and restart Vite. Restrict the key to the Maps JavaScript API and this demo's website referrers. The link and coordinate paste work without an API key.
 
 ## Bundled sample data
 

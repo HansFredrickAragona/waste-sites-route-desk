@@ -11,6 +11,8 @@ Baguio City waste-collection project with a collection-site and driver-schedule 
 
 The applications run independently. The website duplicate uses demonstration records and does not load the `locations` datasets or connect to a live Baguio City service. The map demos store changes in the browser and export new JSON files.
 
+The product roadmap starts with personal field collection: capture a site from your current location, then enter its purok and pickup/drop-off details. See [ROADMAP.md](ROADMAP.md).
+
 ## Run locally
 
 Use Node.js 22.12+ and npm for the web applications. The two collection-site demos share one install under `locations/demo`; the website duplicate has its own install.

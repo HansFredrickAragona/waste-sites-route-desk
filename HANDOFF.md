@@ -2,13 +2,15 @@
 
 **Updated:** Thursday, October 22, 2026 (Asia/Manila)
 
-## Current focus: Barangay sites prototype
+## Current focus: Personal field collection tool
 
-The active interface work is in `locations/demo/barangay sites demo/`, a React, Vite, and Leaflet prototype for reviewing Baguio collection sites by barangay. Its source dataset is `locations/data/jsons/barangays/barangay_sites.json`; the JSON is generated from the annotated SWMD sites CSV.
+The active app is `locations/demo/barangay sites demo/`, a React, Vite, and Leaflet tool for personally collecting Baguio collection-site data in the field, organized by barangay. Its source dataset is `locations/data/jsons/barangays/barangay_sites.json`; the JSON is generated from the annotated SWMD sites CSV. The product direction and staged plan are in `ROADMAP.md`.
 
 ### Current prototype behavior
 
 - Site records can be reviewed and edited for name, pickup and drop-off schedules, coordinates, status type, remarks, purok, and review notes. Saving a site updates its status date automatically.
+- **Add GPS pin** requests the device's current position, opens a new pin at those coordinates, shows the reported GPS accuracy, and saves a Google Maps link. Separate floating map controls recenter on the user's current location or return to the selected pin; when no pin is selected, the pin control shows all mapped pins. The site form includes purok and pickup/drop-off date, day, and time fields. **Add pin** remains available for manual map placement.
+- Purok can be selected from the saved list or typed directly. GPS capture requires browser location permission and HTTPS or localhost.
 - Barangay details can update the barangay name, purok list, and notes.
 - JSON datasets can be added, selected, exported, and removed from the browser-based selector. Each dataset keeps a separate local review copy.
 - Firing lines support drawing and editing nodes. Right-clicking a node opens actions to disconnect the next segment, delete the selected node, or remove the line. Backspace deletes the selected node; Ctrl+Z undoes supported recent edits. The Pins panel minimizes during firing-line drawing/editing and expands after saving or cancelling.

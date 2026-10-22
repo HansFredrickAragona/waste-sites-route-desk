@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import L from "leaflet";
 import barangaySitesUrl from "../../../data/jsons/barangays/barangay_sites.json?url";
 import {
+  Circle,
+  CircleMarker,
   MapContainer,
   Marker,
   Polyline,
@@ -84,7 +86,7 @@ function sourceScheduleRows(schedule) {
   if (!Array.isArray(schedule)) return [];
   return schedule.flatMap((entry) => Object.entries(entry ?? {}).map(([kind, timing]) => ({
     label: kind.replace(/-/g, " "),
-    value: [timing?.day, timing?.time].filter(Boolean).join(" · ") || "Not provided",
+    value: [timing?.date, timing?.day, timing?.time].filter(Boolean).join(" · ") || "Not provided",
   })));
 }
 
@@ -191,8 +193,27 @@ function FitBarangay({ barangay }) {
   return null;
 }
 
+function FocusMap({ focus }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!focus) return;
+    if (focus.type === "point") {
+      map.flyTo(focus.point, 17, { duration: 0.6 });
+    } else if (focus.type === "bounds" && focus.points.length === 1) {
+      map.flyTo(focus.points[0], 15, { duration: 0.6 });
+    } else if (focus.type === "bounds" && focus.points.length > 1) {
+      map.flyToBounds(L.latLngBounds(focus.points), { padding: [32, 32], maxZoom: 16, duration: 0.6 });
+    }
+  }, [focus, map]);
+
+  return null;
+}
+
 function BarangayMap({
   barangay,
+      focus,
+  deviceLocation,
   mode,
   selectedPinId,
   selectedLineId,
@@ -237,6 +258,23 @@ function BarangayMap({
         maxZoom={19}
       />
       <FitBarangay barangay={barangay} />
+      <FocusMap focus={focus} />
+      {deviceLocation && (
+        <>
+          {Number.isFinite(deviceLocation.accuracy) && deviceLocation.accuracy > 0 && <Circle
+            center={[deviceLocation.latitude, deviceLocation.longitude]}
+            radius={deviceLocation.accuracy}
+            pathOptions={{ color: "#4389e8", weight: 1, fillColor: "#4389e8", fillOpacity: 0.12 }}
+            interactive={false}
+          />}
+          <CircleMarker
+            center={[deviceLocation.latitude, deviceLocation.longitude]}
+            radius={7}
+            pathOptions={{ color: "#fff", weight: 3, fillColor: "#4389e8", fillOpacity: 1 }}
+            interactive={false}
+          />
+        </>
+      )}
       <MapInteractions mode={mode} onMapClick={onMapClick} onFinishLine={onFinishLine} />
       {pins.map((pin, index) => {
         const selected = selectedPinId === pin.id;
@@ -412,6 +450,9 @@ function App() {
   const [selectedLineId, setSelectedLineId] = useState(null);
   const [pinManagerCollapsed, setPinManagerCollapsed] = useState(false);
   const [pinDraft, setPinDraft] = useState(null);
+  const [isLocatingCurrentPosition, setIsLocatingCurrentPosition] = useState(false);
+  const [mapFocus, setMapFocus] = useState(null);
+  const [deviceLocation, setDeviceLocation] = useState(null);
   const [lineDraft, setLineDraft] = useState(null);
   const [selectedLineNodeIndex, setSelectedLineNodeIndex] = useState(null);
   const [showLineNodeStreetView, setShowLineNodeStreetView] = useState(false);
@@ -428,6 +469,7 @@ function App() {
   const pinMoveUndoRef = useRef([]);
   const lineDraftUndoRef = useRef([]);
   const pinDragStartRef = useRef(null);
+  const locationRequestRef = useRef(0);
   const [undoCount, setUndoCount] = useState(0);
 
   useEffect(() => {
@@ -591,6 +633,13 @@ function App() {
   const barangays = review?.barangays ?? [];
   const selectedBarangay = barangays.find((barangay) => barangay.id === selectedBarangayId) ?? null;
   const selectedPin = selectedBarangay?.pins.find((pin) => pin.id === selectedPinId) ?? null;
+  const selectedPinForMap = pinDraft?.id === selectedPinId ? pinDraft : selectedPin;
+  const mapPinPoints = (selectedBarangay?.pins ?? [])
+    .map((pin) => pinDraft?.id === pin.id ? pinDraft : pin)
+    .filter(hasMapCoordinates)
+    .map((pin) => [Number(pin.latitude), Number(pin.longitude)]);
+  if (pinDraft?.isNew && hasMapCoordinates(pinDraft)) mapPinPoints.push([Number(pinDraft.latitude), Number(pinDraft.longitude)]);
+  const selectedPinHasMapCoordinates = Boolean(selectedPinId && hasMapCoordinates(selectedPinForMap));
   const selectedLine = selectedBarangay?.firingLines.find((line) => line.id === selectedLineId) ?? null;
   const selectedLineNode = lineDraft && Number.isInteger(selectedLineNodeIndex)
     ? lineDraft.coordinates[selectedLineNodeIndex] ?? null
@@ -665,6 +714,9 @@ function App() {
   }
 
   function openBarangay(barangay) {
+    locationRequestRef.current += 1;
+    setIsLocatingCurrentPosition(false);
+    setMapFocus(null);
     clearDraftUndoHistory();
     setSelectedBarangayId(barangay.id);
     setPage("map");
@@ -681,6 +733,9 @@ function App() {
   }
 
   function returnToBarangayList() {
+    locationRequestRef.current += 1;
+    setIsLocatingCurrentPosition(false);
+    setMapFocus(null);
     clearDraftUndoHistory();
     setPage("barangays");
     setMode("browse");
@@ -693,6 +748,9 @@ function App() {
   }
 
   function resetReviewView() {
+    locationRequestRef.current += 1;
+    setIsLocatingCurrentPosition(false);
+    setMapFocus(null);
     clearDraftUndoHistory();
     setPage("barangays");
     setSelectedBarangayId(null);
@@ -769,6 +827,8 @@ function App() {
       return;
     }
     clearDraftUndoHistory();
+    locationRequestRef.current += 1;
+    setIsLocatingCurrentPosition(false);
     setPinDraft(null);
     setSelectedPinId(null);
     setSelectedLineId(null);
@@ -780,7 +840,174 @@ function App() {
     setMode((current) => current === "place-pin" ? "browse" : "place-pin");
   }
 
+  function createPinDraftAt(point, locationCapture = null) {
+    if (!selectedBarangay) return;
+    const latitude = Number(Number(point[0]).toFixed(6));
+    const longitude = Number(Number(point[1]).toFixed(6));
+    const mapsUrl = `https://www.google.com/maps?q=${coordinateText(latitude, longitude)}`;
+    const id = createId("pin");
+    const location = {
+      latitude,
+      longitude,
+      google_maps_url: mapsUrl,
+      ...(locationCapture ? {
+        source: "device_gps",
+        accuracy_m: Number.isFinite(locationCapture.accuracy) ? Math.round(locationCapture.accuracy) : null,
+        captured_at: locationCapture.capturedAt,
+      } : {}),
+    };
+    setPinDraft({
+      id,
+      isNew: true,
+      name: `Collection site ${selectedBarangay.pins.length + 1}`,
+      sourceNames: [],
+      latitude,
+      longitude,
+      location,
+      sourceStatus: "new",
+      statusType: "New",
+      statusLastUpdated: "",
+      schedule: [{ "pick-up": { day: "", time: "" } }, { "drop-off": { day: "", time: "" } }],
+      sourceSchedule: [],
+      remarks: "",
+      sourceRemarks: "",
+      sourceRowCount: 0,
+      reviewStatus: "needs_review",
+      purok: "",
+      sourcePuroks: [],
+      notes: "",
+    });
+    setSelectedPinId(id);
+    setSelectedLineId(null);
+    setLineDraft(null);
+    setSelectedLineNodeIndex(null);
+    setShowLineNodeStreetView(false);
+    setLinePoints([]);
+    setMode("browse");
+    setPinManagerCollapsed(false);
+    setMapFocus(locationCapture ? { type: "point", point: [latitude, longitude] } : null);
+  }
+
+  function beginPinFromCurrentLocation() {
+    if (!selectedBarangay) return;
+    if (pinDraft || lineDraft) {
+      setNotice({ kind: "error", text: "Save or cancel the open edit before adding another feature." });
+      return;
+    }
+    if (!navigator.geolocation) {
+      setNotice({ kind: "error", text: "Current location needs browser location access on HTTPS or localhost." });
+      return;
+    }
+
+    clearDraftUndoHistory();
+    const requestId = locationRequestRef.current + 1;
+    locationRequestRef.current = requestId;
+    setIsLocatingCurrentPosition(true);
+    setMode("browse");
+    setNotice({ kind: "info", text: "Getting your current location…" });
+    try {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          if (locationRequestRef.current !== requestId) return;
+          setIsLocatingCurrentPosition(false);
+          const capturedAt = new Date().toISOString();
+          setDeviceLocation({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            accuracy: position.coords.accuracy,
+          });
+          createPinDraftAt([position.coords.latitude, position.coords.longitude], {
+            accuracy: position.coords.accuracy,
+            capturedAt,
+          });
+          const accuracyText = Number.isFinite(position.coords.accuracy)
+            ? ` GPS accuracy is about ${Math.round(position.coords.accuracy)} m.`
+            : "";
+          setNotice({ kind: "success", text: `Location captured. Confirm the pin on the map, then enter its details.${accuracyText}` });
+        },
+        (error) => {
+          if (locationRequestRef.current !== requestId) return;
+          setIsLocatingCurrentPosition(false);
+          const message = error.code === 1
+            ? "Location access was denied. Allow location access in your browser and try again."
+            : error.code === 3
+              ? "Location lookup timed out. Move to an open area and try again."
+              : "Your current location is unavailable. Check device location services and try again.";
+          setNotice({ kind: "error", text: message });
+        },
+        { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 },
+      );
+    } catch {
+      if (locationRequestRef.current !== requestId) return;
+      setIsLocatingCurrentPosition(false);
+      setNotice({ kind: "error", text: "Your browser could not start location lookup. Check location settings and try again." });
+    }
+  }
+
+  function recenterOnCurrentLocation() {
+    if (!navigator.geolocation) {
+      if (deviceLocation) {
+        setMapFocus({ type: "point", point: [deviceLocation.latitude, deviceLocation.longitude] });
+        setNotice({ kind: "info", text: "Showing your last captured location. Fresh GPS access is unavailable here." });
+      } else {
+        setNotice({ kind: "error", text: "Current location needs browser location access on HTTPS or localhost." });
+      }
+      return;
+    }
+
+    const requestId = locationRequestRef.current + 1;
+    locationRequestRef.current = requestId;
+    setIsLocatingCurrentPosition(true);
+    setNotice({ kind: "info", text: "Finding your current location…" });
+    try {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          if (locationRequestRef.current !== requestId) return;
+          setIsLocatingCurrentPosition(false);
+          const point = [position.coords.latitude, position.coords.longitude];
+          setDeviceLocation({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            accuracy: position.coords.accuracy,
+          });
+          setMapFocus({ type: "point", point });
+          const accuracyText = Number.isFinite(position.coords.accuracy)
+            ? ` GPS accuracy is about ${Math.round(position.coords.accuracy)} m.`
+            : "";
+          setNotice({ kind: "success", text: `Map centered on your current location.${accuracyText}` });
+        },
+        (error) => {
+          if (locationRequestRef.current !== requestId) return;
+          setIsLocatingCurrentPosition(false);
+          if (deviceLocation) {
+            setMapFocus({ type: "point", point: [deviceLocation.latitude, deviceLocation.longitude] });
+            setNotice({ kind: "info", text: "Could not get a fresh GPS fix. Recentered on your last captured location." });
+            return;
+          }
+          const message = error.code === 1
+            ? "Location access was denied. Allow location access in your browser and try again."
+            : error.code === 3
+              ? "Location lookup timed out. Move to an open area and try again."
+              : "Your current location is unavailable. Check device location services and try again.";
+          setNotice({ kind: "error", text: message });
+        },
+        { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 },
+      );
+    } catch {
+      if (locationRequestRef.current !== requestId) return;
+      setIsLocatingCurrentPosition(false);
+      if (deviceLocation) {
+        setMapFocus({ type: "point", point: [deviceLocation.latitude, deviceLocation.longitude] });
+        setNotice({ kind: "info", text: "Fresh GPS lookup failed. Recentered on your last captured location." });
+      } else {
+        setNotice({ kind: "error", text: "Your browser could not start location lookup. Check location settings and try again." });
+      }
+    }
+  }
+
   function beginLineDrawing() {
+    locationRequestRef.current += 1;
+    setIsLocatingCurrentPosition(false);
     if (mode === "draw-line") {
       setLinePoints([]);
       setMode("browse");
@@ -828,30 +1055,7 @@ function App() {
       return;
     }
     if (mode === "place-pin") {
-      const id = createId("pin");
-      setPinDraft({
-        id,
-        isNew: true,
-        name: `Collection site ${selectedBarangay.pins.length + 1}`,
-        sourceNames: [],
-        latitude: Number(point[0].toFixed(6)),
-        longitude: Number(point[1].toFixed(6)),
-        sourceStatus: "new",
-        statusType: "New",
-        statusLastUpdated: "",
-        schedule: [{ "pick-up": { day: "", time: "" } }, { "drop-off": { day: "", time: "" } }],
-        sourceSchedule: [],
-        remarks: "",
-        sourceRemarks: "",
-        sourceRowCount: 0,
-        reviewStatus: "needs_review",
-        purok: "",
-        sourcePuroks: [],
-        notes: "",
-      });
-      setSelectedPinId(id);
-      setSelectedLineId(null);
-      setMode("browse");
+      createPinDraftAt(point);
       return;
     }
     if (mode === "add-line-node" && lineDraft) {
@@ -891,6 +1095,8 @@ function App() {
   }
 
   function cancelMapMode() {
+    locationRequestRef.current += 1;
+    setIsLocatingCurrentPosition(false);
     clearDraftUndoHistory();
     setMode("browse");
     setLinePoints([]);
@@ -912,6 +1118,8 @@ function App() {
       setNotice({ kind: "error", text: "Save or cancel the open edit before selecting another feature." });
       return;
     }
+    locationRequestRef.current += 1;
+    setIsLocatingCurrentPosition(false);
     setSelectedPinId(pinId);
     setSelectedLineId(null);
     setPinDraft(null);
@@ -924,6 +1132,8 @@ function App() {
       setNotice({ kind: "error", text: "Save or cancel the open edit before selecting another feature." });
       return;
     }
+    locationRequestRef.current += 1;
+    setIsLocatingCurrentPosition(false);
     setSelectedLineId(lineId);
     setSelectedPinId(null);
     setPinDraft(null);
@@ -1472,9 +1682,9 @@ function App() {
         <section className="map-view barangay-map-view" aria-labelledby="barangay-map-title">
           <div className="map-page-heading">
             <div>
-              <p className="eyebrow">Barangay map review</p>
+              <p className="eyebrow">Field collection</p>
               <h1 id="barangay-map-title">{selectedBarangay.name}</h1>
-              <p className="map-page-subtitle">Review mapped collection sites, discuss purok assignments, and record what local officials confirm.</p>
+              <p className="map-page-subtitle">Capture collection sites and pickup/drop-off details for this barangay. Use a GPS pin or place one manually on the map.</p>
             </div>
             <div className="barangay-review-actions">
               <button className="secondary-action" type="button" onClick={openDetailsEditor}><span aria-hidden="true">✎</span>Update barangay details</button>
@@ -1516,6 +1726,8 @@ function App() {
                 <BarangayMap
                   key={selectedBarangay.id}
                   barangay={selectedBarangay}
+                  focus={mapFocus}
+                  deviceLocation={deviceLocation}
                   mode={mode}
                   selectedPinId={selectedPinId}
                   selectedLineId={selectedLineId}
@@ -1560,7 +1772,41 @@ function App() {
                     else requestDelete("line", lineDraft);
                   }}
                 />
-                <div className="map-legend"><span><i className="legend-pin" />Collection site</span><span><i className="legend-line" />Firing line</span><span><i className="legend-removed" />Removed in source</span></div>
+                <button
+                  className={`map-recenter-button${isLocatingCurrentPosition ? " map-recenter-button--loading" : ""}`}
+                  type="button"
+                  onClick={recenterOnCurrentLocation}
+                  disabled={isLocatingCurrentPosition}
+                  aria-label="Recenter map on my current location"
+                  aria-busy={isLocatingCurrentPosition}
+                  title="Recenter on my current location"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="12" cy="12" r="5.25" />
+                    <circle className="map-recenter-dot" cx="12" cy="12" r="1.5" />
+                    <path d="M12 2.75v3.1M12 18.15v3.1M2.75 12h3.1M18.15 12h3.1" />
+                  </svg>
+                </button>
+                <button
+                  className="map-recenter-button map-recenter-button--pin"
+                  type="button"
+                  disabled={!selectedPinHasMapCoordinates && mapPinPoints.length === 0}
+                  onClick={() => {
+                    if (selectedPinHasMapCoordinates) {
+                      setMapFocus({ type: "point", point: [Number(selectedPinForMap.latitude), Number(selectedPinForMap.longitude)] });
+                    } else {
+                      setMapFocus({ type: "bounds", points: mapPinPoints });
+                    }
+                  }}
+                  aria-label={selectedPinHasMapCoordinates ? "Recenter map on selected pin" : "Recenter map to show all pins"}
+                  title={selectedPinHasMapCoordinates ? "Recenter on selected pin" : "Show all pins on map"}
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M19 10c0 5-7 11-7 11S5 15 5 10a7 7 0 1 1 14 0Z" />
+                    <circle cx="12" cy="10" r="2.25" />
+                  </svg>
+                </button>
+                <div className="map-legend"><span><i className="legend-pin" />Collection site</span>{deviceLocation && <span><i className="legend-current-location" />My location</span>}<span><i className="legend-line" />Firing line</span><span><i className="legend-removed" />Removed in source</span></div>
               </div>
               <div className="map-card-footer"><span>Map tiles by OpenStreetMap</span><span>{formatNumber(unlocatedSiteCount)} without coordinates · {formatNumber(removedSiteCount)} removed in source</span></div>
             </section>
@@ -1570,6 +1816,7 @@ function App() {
                 <div className="tools-heading">
                   <div><p className="eyebrow">Collection sites</p><h2>Pins <span>{formatNumber(selectedBarangay.pins.length)}</span></h2></div>
                   <div className="pin-manager-heading-actions">
+                    {!pinManagerCollapsed && <button className="small-action" type="button" onClick={beginPinFromCurrentLocation} disabled={isLocatingCurrentPosition} aria-busy={isLocatingCurrentPosition}>{isLocatingCurrentPosition ? "Locating…" : "⌖ Add GPS pin"}</button>}
                     {!pinManagerCollapsed && <button className={`small-action${mode === "place-pin" ? " small-action--active" : ""}`} type="button" onClick={beginPinPlacement} aria-pressed={mode === "place-pin"}>＋ Add pin</button>}
                     <button
                       className="small-action pin-manager-toggle"
@@ -1586,11 +1833,13 @@ function App() {
                   <form className="pin-editor" onSubmit={savePin}>
                     <div className="editor-topline"><div><p className="eyebrow">{pinDraft.isNew ? "New site" : "Edit site"}</p><h3>{pinDraft.isNew ? "Collection-site pin" : pinDraft.name}</h3></div><button className="icon-close icon-close--small" type="button" aria-label="Cancel pin editing" onClick={cancelMapMode}>×</button></div>
                     <label className="field-label">Site name<input autoFocus value={pinDraft.name} onChange={(event) => setPinDraft((current) => ({ ...current, name: event.target.value }))} placeholder="e.g. Site 3, Riverside drop-off" /></label>
-                    <label className="field-label">Assigned purok<select value={pinDraft.purok} onChange={(event) => setPinDraft((current) => ({ ...current, purok: event.target.value }))}><option value="">Unassigned</option>{selectedBarangay.puroks.map((purok) => <option key={purok} value={purok}>{purok}</option>)}</select></label>
+                    <label className="field-label">Assigned purok<input list="barangay-purok-options" value={pinDraft.purok} onChange={(event) => setPinDraft((current) => ({ ...current, purok: event.target.value }))} placeholder="e.g. Purok 1" /><datalist id="barangay-purok-options">{selectedBarangay.puroks.map((purok) => <option key={purok} value={purok} />)}</datalist></label>
                     <div className="coordinate-fields"><label className="field-label">Latitude<input type="number" step="any" value={pinDraft.latitude} onChange={(event) => setPinDraft((current) => ({ ...current, latitude: event.target.value }))} /></label><label className="field-label">Longitude<input type="number" step="any" value={pinDraft.longitude} onChange={(event) => setPinDraft((current) => ({ ...current, longitude: event.target.value }))} /></label></div>
+                    {pinDraft.location?.source === "device_gps" && <p className="field-help gps-capture-note">GPS location captured{Number.isFinite(pinDraft.location.accuracy_m) ? ` · about ±${pinDraft.location.accuracy_m} m` : ""}. A Google Maps link will be saved with this pin.</p>}
                     <div className="site-schedule-editor">
                       <fieldset className="site-schedule-group">
                         <legend>Pickup schedule</legend>
+                        <label className="field-label">Date<input type="date" value={scheduleFieldValue(pinDraft.schedule ?? pinDraft.sourceSchedule, "pick-up", "date")} onChange={(event) => setPinDraft((current) => current ? ({ ...current, schedule: updateScheduleField(current.schedule ?? current.sourceSchedule, "pick-up", "date", event.target.value) }) : current)} /></label>
                         <div className="site-schedule-fields">
                           <label className="field-label">Day<input value={scheduleFieldValue(pinDraft.schedule ?? pinDraft.sourceSchedule, "pick-up", "day")} onChange={(event) => setPinDraft((current) => current ? ({ ...current, schedule: updateScheduleField(current.schedule ?? current.sourceSchedule, "pick-up", "day", event.target.value) }) : current)} placeholder="Monday" /></label>
                           <label className="field-label">Time<input value={scheduleFieldValue(pinDraft.schedule ?? pinDraft.sourceSchedule, "pick-up", "time")} onChange={(event) => setPinDraft((current) => current ? ({ ...current, schedule: updateScheduleField(current.schedule ?? current.sourceSchedule, "pick-up", "time", event.target.value) }) : current)} placeholder="5:00 AM - 7:00 AM" /></label>
@@ -1598,6 +1847,7 @@ function App() {
                       </fieldset>
                       <fieldset className="site-schedule-group">
                         <legend>Drop-off schedule</legend>
+                        <label className="field-label">Date<input type="date" value={scheduleFieldValue(pinDraft.schedule ?? pinDraft.sourceSchedule, "drop-off", "date")} onChange={(event) => setPinDraft((current) => current ? ({ ...current, schedule: updateScheduleField(current.schedule ?? current.sourceSchedule, "drop-off", "date", event.target.value) }) : current)} /></label>
                         <div className="site-schedule-fields">
                           <label className="field-label">Day<input value={scheduleFieldValue(pinDraft.schedule ?? pinDraft.sourceSchedule, "drop-off", "day")} onChange={(event) => setPinDraft((current) => current ? ({ ...current, schedule: updateScheduleField(current.schedule ?? current.sourceSchedule, "drop-off", "day", event.target.value) }) : current)} placeholder="Monday" /></label>
                           <label className="field-label">Time<input value={scheduleFieldValue(pinDraft.schedule ?? pinDraft.sourceSchedule, "drop-off", "time")} onChange={(event) => setPinDraft((current) => current ? ({ ...current, schedule: updateScheduleField(current.schedule ?? current.sourceSchedule, "drop-off", "time", event.target.value) }) : current)} placeholder="5:00 AM - 7:00 AM" /></label>
