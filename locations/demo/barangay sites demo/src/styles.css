@@ -519,7 +519,7 @@ input:focus-visible, textarea:focus-visible { outline: 3px solid #87bea4; outlin
 .map-filter-preview select { min-height: 29px; padding: 5px 23px 5px 8px; color: #7a897f; background-color: #fff; font-size: 8px; cursor: not-allowed; opacity: .77; }
 .map-filter-preview > p { margin: 0 0 0 auto; color: #a1aaa3; font-size: 7px; white-space: nowrap; }
 .barangay-map-layout { grid-template-columns: minmax(0, 1fr) minmax(330px, 390px); align-items: stretch; gap: 13px; }
-.map-card { min-width: 0; overflow: hidden; border: 1px solid #e1e8e2; border-radius: 11px; background: #fff; }
+.map-card { min-width: 0; isolation: isolate; overflow: hidden; border: 1px solid #e1e8e2; border-radius: 11px; background: #fff; }
 .map-card-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 58px; padding: 10px 13px; }
 .map-card-heading .eyebrow { margin: 0 0 3px; font-size: 8px; }
 .map-card-heading h2 { margin: 0; color: #344c3b; font-size: 14px; }
@@ -991,6 +991,7 @@ input:focus-visible, textarea:focus-visible { outline: 3px solid #87bea4; outlin
 .manual-street-view-fallback summary { color: #62756a; font-size: 9px; font-weight: 750; cursor: pointer; }
 
 .app-tabs { display: flex; align-items: center; gap: 4px; min-height: 48px; border-bottom: 1px solid #dfe6df; }
+.mobile-app-tabs { display: none; }
 .app-tab { display: inline-flex; align-items: center; gap: 8px; min-height: 39px; margin-top: 8px; padding: 9px 14px 10px; border: 1px solid transparent; border-bottom: 0; border-radius: 9px 9px 0 0; background: transparent; color: #748179; font-size: 11px; font-weight: 750; cursor: pointer; }
 .app-tab svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 .app-tab:hover { color: #2f6349; background: #eef4ee; }
@@ -1121,6 +1122,16 @@ input:focus-visible, textarea:focus-visible { outline: 3px solid #87bea4; outlin
   .filter-control select { max-width: 100%; }
 }
 @media (max-width: 720px) {
+  .sticky-header { position: static; z-index: auto; }
+  .desktop-app-tabs { display: none; }
+  .app-tabs.mobile-app-tabs { position: sticky; top: 0; z-index: 1000; display: flex; background: #f4f6f2; }
+  .global-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; gap: 8px; }
+  .global-actions .json-library-control { grid-column: 1 / -1; width: 100%; min-width: 0; }
+  .global-actions .json-library-control select { width: 100%; }
+  .global-actions .json-add-action, .global-actions .json-delete-action,
+  .global-actions .export-schedule-button, .global-actions .undo-action,
+  .global-actions .activity-log-trigger { width: 100%; min-width: 0; justify-content: center; }
+  .global-actions .activity-log-trigger { grid-column: 1 / -1; }
   .dashboard-view { padding-top: 13px; }
   .dashboard-heading { align-items: flex-start; flex-direction: column; gap: 14px; margin-bottom: 16px; }
   .dashboard-schedule-chip { width: 100%; max-width: none; }
