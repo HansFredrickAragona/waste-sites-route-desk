@@ -1,0 +1,33 @@
+[
+    {
+        "site_name": "Site 1",
+        "barangay":{
+            "name":"A. Bonifacio-Caguioa-Rimando (ABCR)",
+            "purok":""
+        },
+        "schedule": [
+            {
+                "pick-up": {
+                    "day":"Monday",
+                    "time":"5:00AM - 7:00AM"
+                }
+            },
+            {
+                "drop-off": {
+                    "day":"",
+                    "time":""
+                }
+            }
+        ],
+        "location": {
+            "latitude": "16.420712",
+            "longitude": "120.59923",
+            "google_maps_url": "https://www.google.com/maps?q=16.420712,120.59923"
+        },
+        "status": {
+            "type": "Corrected/Adjusted",
+            "last_updated": "22/10/2025 8:46 AM"
+        },
+        "remarks": ""
+    }
+]

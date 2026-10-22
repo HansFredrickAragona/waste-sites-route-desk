@@ -86,9 +86,7 @@ export default function PinLocationAssistant({ pinId, latitude, longitude, onCoo
             />
           )}
         </>
-      ) : (
-        <p className="imagery-note">In-app Street View needs a Google Maps API key. The Maps link and coordinate paste below work without a key.</p>
-      )}
+      ) : null}
 
       <details className="manual-street-view-fallback" open={!apiKey}>
         <summary>Paste a Google Maps link or coordinates</summary>

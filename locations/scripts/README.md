@@ -38,4 +38,6 @@ For v6, run `python scripts/json_generation/build_driver_schedule_v6.py` from th
 
 `generate_tables.py` splits the cleaned schedule into central and non-central summaries while preserving both collection day and shift time. `barangay_sites_from_swmd.py` builds the SWMD barangay summary. Other scripts can regenerate mapping status reports. `schedule_extractor.py` is an empty placeholder. `build_driver_schedule_json.py` creates an intermediate `driver_schedule_v2.json` and is not required for the active v3 workflow.
 
+For the barangay sites demo JSON, run `python scripts/json_generation/generate_barangay_sites_json.py` from the `locations` directory. It reads the annotated driver SWMD CSV and writes `data/jsons/barangays/barangay_sites.json` using the schema in `data/jsons/examples/barangay_sites_format.json`. It generates `status.last_updated` in Asia/Manila time; multi-line pickup schedules are emitted as separate `pick-up` entries.
+
 For a detailed explanation of the v3 generator, its inputs and outputs, mapping logic, and review files, see [`json_generation/UPDATE_DRIVER_JSON.md`](json_generation/UPDATE_DRIVER_JSON.md).

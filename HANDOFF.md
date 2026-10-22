@@ -1,68 +1,63 @@
 # Baguio project handoff
 
-**Prepared:** Thursday, October 15, 2026 (Asia/Manila)  
-**Resume:** Friday, October 16, 2026
+**Updated:** Thursday, October 22, 2026 (Asia/Manila)
 
-## Start here tomorrow
+## Current focus: Barangay sites prototype
 
-The most recently edited area is the collection schedule and site-map demo in `locations/demo/site schedule demo`. From PowerShell:
+The active interface work is in `locations/demo/barangay sites demo/`, a React, Vite, and Leaflet prototype for reviewing Baguio collection sites by barangay. Its source dataset is `locations/data/jsons/barangays/barangay_sites.json`; the JSON is generated from the annotated SWMD sites CSV.
+
+### Current prototype behavior
+
+- Site records can be reviewed and edited for name, pickup and drop-off schedules, coordinates, status type, remarks, purok, and review notes. Saving a site updates its status date automatically.
+- Barangay details can update the barangay name, purok list, and notes.
+- JSON datasets can be added, selected, exported, and removed from the browser-based selector. Each dataset keeps a separate local review copy.
+- Firing lines support drawing and editing nodes. Right-clicking a node opens actions to disconnect the next segment, delete the selected node, or remove the line. Backspace deletes the selected node; Ctrl+Z undoes supported recent edits. The Pins panel minimizes during firing-line drawing/editing and expands after saving or cancelling.
+- The map uses OpenStreetMap tiles. Google Street View editing needs a Maps API key; map links and pasted coordinates remain available without one.
+- Review state persists in browser storage and can be exported as JSON. The prototype does not write edits back to its input JSON.
+
+### Start the prototype
+
+Requires Node.js 20.19+ or 22.12+. In PowerShell:
 
 ```powershell
-cd "C:\Users\Hans\Downloads\Personal\CODE\BAGUIO\locations\demo"
-npm install
-cd "site schedule demo"
+cd "C:\Users\Hans\Downloads\Personal\CODE\BAGUIO\locations\demo\barangay sites demo"
+npm install --prefix ..
 npm run dev
 ```
 
-Use Node.js 20.19+ or 22.12+. Vite prints the local URL (normally `http://127.0.0.1:5173`). The map needs an internet connection for OpenStreetMap tiles.
+Vite prints the local URL (normally `http://127.0.0.1:5173`). Map tiles require an internet connection. The optional production build is `npm run build` from this demo folder. It was not run for the latest UI changes; the user plans to review the prototype manually.
 
-Latest file timestamps on October 15: `locations/demo/site schedule demo/src/styles.css` and `locations/demo/site schedule demo/src/components/ScheduleCell.jsx` around 3:03 PM; `locations/demo/site schedule demo/src/App.jsx` around 2:39 PM. The recent interface work is in the weekly schedule cells, location warnings, and overall styling. The demo loads a weekly driver schedule, filters by barangay, and opens mapped sites on a map when a schedule cell is selected.
+### Data workflow and key files
 
-## Suggested first steps
+To regenerate the demo input JSON, run from `locations/`:
 
-1. Start the demo and pick up with the latest schedule-cell and style changes.
-2. Check the schedule-to-map flow and the warning states for missing, unmatched, or removed site locations.
-3. Continue with UI work, or switch to the GSO mapping review if the next milestone is confirming real site assignments. Use the questionnaire and mapping audit below; unresolved assignments should remain marked for review until GSO confirms them.
-4. After making demo changes, run `npm run build` from `locations/demo/site schedule demo` if you want a production-build check.
+```powershell
+python scripts/json_generation/generate_barangay_sites_json.py
+```
 
-No app launch or build was performed while preparing this handoff.
+The generator reads the annotated SWMD CSV and writes `data/jsons/barangays/barangay_sites.json` using the example schema at `data/jsons/examples/barangay_sites_format.json`. The generated JSON includes site schedule, status, remarks, coordinate, and source-row fields; missing coordinates remain reviewable in the app.
 
-## Project locations
+| Area | File or folder |
+| --- | --- |
+| Prototype UI and map workflows | `locations/demo/barangay sites demo/src/App.jsx` |
+| Browser review persistence and JSON workspaces | `locations/demo/barangay sites demo/src/data/reviewData.js` |
+| Prototype styles | `locations/demo/barangay sites demo/src/styles.css` |
+| Map coordinate parsing | `locations/demo/barangay sites demo/src/data/mapCoordinates.js` |
+| Source demo data | `locations/data/jsons/barangays/barangay_sites.json` |
+| Source JSON schema example | `locations/data/jsons/examples/barangay_sites_format.json` |
+| JSON generator | `locations/scripts/json_generation/generate_barangay_sites_json.py` |
+| Data generation notes | `locations/scripts/README.md` and `locations/data/jsons/README.md` |
+
+The codebase is a Git repository at the workspace root, currently on branch `main`, with remote `origin`. Check `git status --short` before staging future work.
+
+## Other active project areas
 
 | Work area | Start here | Notes |
 | --- | --- | --- |
-| Schedule and site-map demo | `locations/demo/site schedule demo/` | React + Vite. Run commands from this folder. |
-| Demo app entry and shared state | `locations/demo/site schedule demo/src/App.jsx` | Loads the schedule and site index; switches between weekly schedule and map. |
-| Schedule cell behavior | `locations/demo/site schedule demo/src/components/ScheduleCell.jsx` | Area labels, map-status warnings, and warning tooltip. |
-| Map view | `locations/demo/site schedule demo/src/components/SiteMap.jsx` | Leaflet map and selected site details. |
-| Schedule/data model | `locations/demo/site schedule demo/src/data/scheduleModel.js` | Normalizes v3 schedule/site records and computes visible assignments. |
-| Demo styling | `locations/demo/site schedule demo/src/styles.css` | Most recently edited file. |
-| Canonical v3 schedule | `locations/data/jsons/schedules/driver_schedule_v3.json` | Source schedule produced by the data workflow. |
-| Demo’s v3 schedule copy | `locations/demo/site schedule demo/public/data/schedules/driver_schedule_v3.json` | The app loads this copy. Its SHA-256 matched the canonical file on October 15. |
-| Demo index and comparison refresh | `locations/demo/site schedule demo/scripts/build-site-index.mjs` | `npm run data:refresh` reads the canonical schedule and raw SWMD CSV, then writes the site index and comparison/coverage reports. It does **not** copy the schedule JSON into the demo folder. |
-| Detailed data handoff | `locations/HANDOFF.md` | Data workflow, current counts, data-quality flags, and review items. |
-| Mapping audit and research | `locations/data/csvs/mapping/` | Start with `mapping_audit_swmd_v3.csv` and `schedule_area_research_v3.csv`. |
-| GSO review questionnaire | `locations/questionnaire/GSO_site_schedule_questionnaire_draft.md` | Draft questions for confirming ambiguous routes and site assignments. |
-| Waste-management app clone | `bwms-clone/` | Separate Nuxt/Vue demonstration app; start it with `npm run dev` from that folder. |
-| Other presentation/prototype outputs | `output/` | Includes `Baguio_Waste_Collection_Story_v4.pptx` and `dumping-records-prototype.html`. |
+| Weekly schedule and site-map demo | `locations/demo/site schedule demo/` | React + Vite; uses the v3 schedule and SWMD site index. |
+| Mapping data and audit history | `locations/HANDOFF.md` | Contains the schedule-mapping workflow, review counts, and unresolved data questions. |
+| GSO site-review questionnaire | `locations/questionnaire/GSO_site_schedule_questionnaire_draft.md` | Draft for confirming ambiguous routes and collection-site assignments. |
+| Waste-management app clone | `bwms-clone/` | Separate Nuxt/Vue demonstration app. |
+| Presentation and prototype outputs | `output/` | Includes the waste-collection presentation and dumping-records prototype. |
 
-## When schedule or map data changes
-
-Keep the canonical schedule and the demo copy in sync. After updating `locations/data/jsons/schedules/driver_schedule_v3.json`, copy it to `locations/demo/site schedule demo/public/data/schedules/driver_schedule_v3.json`, then run this from `locations/demo/site schedule demo`:
-
-```powershell
-npm run data:refresh
-```
-
-That refreshes the SWMD site index and the comparison/coverage reports used by the demo. The source CSV inventory and data flow are documented in `locations/data/csvs/README.md`.
-
-## Important open data questions
-
-- The v3 mapping still has partial and unresolved site assignments. Treat the audit as a review aid, not confirmation from GSO.
-- Preserve the original schedule time values until GSO clarifies `3pm-12nn` versus `3pm-12mn`.
-- Confirm ambiguous area coverage and range-style routes with GSO before changing site assignments.
-- `locations/HANDOFF.md` contains the full list of known data issues and the suggested review-sheet structure.
-
-## Workspace note
-
-Git status checks at the workspace root, `locations`, and `bwms-clone` returned “not a git repository.” No Git diff or history is available here to identify session changes; use the file timestamps and this handoff as the resume point.
+Preserve unresolved mapping labels and schedule times until the data owner confirms them. Treat low-confidence coordinate and route mappings as review candidates rather than official assignments.
