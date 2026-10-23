@@ -20,6 +20,15 @@ npm run dev
 
 Open the local URL printed by Vite (normally <http://127.0.0.1:5173>).
 
+## Source organization
+
+- `src/app` composes the application and connects feature data to the page components.
+- `src/layouts` contains the shared header and navigation.
+- `src/features/barangays`, `src/features/barangay-review`, `src/features/activity-log`, and `src/features/dashboard` hold their own UI and workflows. Barangay-review actions and controller state live alongside that feature.
+- `src/features/json-library` owns JSON import/export actions and browser persistence.
+- `src/shared/ui` contains reusable primitives such as dialogs and metric cards; `src/shared/utils` contains shared formatting helpers.
+- `src/styles/global.css` contains the app-wide styles; `src/main.jsx` is the Vite entry point.
+
 ## Review workflow
 
 - The barangay list shows the number of mapped site records and each barangay's confirmation status. Open a row to review its map.

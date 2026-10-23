@@ -1,6 +1,6 @@
 # Baguio project handoff
 
-**Updated:** Thursday, October 22, 2026 (Asia/Manila)
+**Updated:** Friday, October 23, 2026 (Asia/Manila)
 
 ## Current focus: Personal field collection tool
 
@@ -17,6 +17,7 @@ The active app is `locations/demo/barangay sites demo/`, a React, Vite, and Leaf
 - Firing lines support drawing and editing nodes. Right-clicking a node opens actions to disconnect the next segment, delete the selected node, or remove the line. Backspace deletes the selected node; Ctrl+Z undoes supported recent edits. The Pins panel minimizes during firing-line drawing/editing and expands after saving or cancelling.
 - The map uses OpenStreetMap tiles. Google Street View editing needs a Maps API key; map links and pasted coordinates remain available without one.
 - Review state persists in browser storage and can be exported as JSON. The prototype does not write edits back to its input JSON.
+- The prototype source is organized into app composition, layouts, feature modules, shared UI/utilities, and global styles. The demo README describes the folder structure.
 
 ### Start the prototype
 
@@ -42,10 +43,13 @@ The generator reads the annotated SWMD CSV and writes `data/jsons/barangays/bara
 
 | Area | File or folder |
 | --- | --- |
-| Prototype UI and map workflows | `locations/demo/barangay sites demo/src/App.jsx` |
-| Browser review persistence and JSON workspaces | `locations/demo/barangay sites demo/src/data/reviewData.js` |
-| Prototype styles | `locations/demo/barangay sites demo/src/styles.css` |
-| Map coordinate parsing | `locations/demo/barangay sites demo/src/data/mapCoordinates.js` |
+| Prototype composition | `locations/demo/barangay sites demo/src/app/App.jsx` |
+| Barangay review state and actions | `locations/demo/barangay sites demo/src/features/barangay-review/hooks/useBarangayReviewController.js` |
+| Map and site-review components | `locations/demo/barangay sites demo/src/features/barangay-review/components/` |
+| Browser review persistence and JSON workspaces | `locations/demo/barangay sites demo/src/features/json-library/services/reviewRepository.js` |
+| Shared layouts and UI | `locations/demo/barangay sites demo/src/layouts/` and `src/shared/` |
+| Prototype styles | `locations/demo/barangay sites demo/src/styles/global.css` |
+| Map coordinate parsing | `locations/demo/barangay sites demo/src/features/barangay-review/data/mapCoordinates.js` |
 | Source demo data | `locations/data/jsons/barangays/barangay_sites.json` |
 | Source JSON schema example | `locations/data/jsons/examples/barangay_sites_format.json` |
 | JSON generator | `locations/scripts/json_generation/generate_barangay_sites_json.py` |
