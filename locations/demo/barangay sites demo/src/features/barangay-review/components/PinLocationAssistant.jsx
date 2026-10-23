@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { parseMapCoordinates } from "../data/mapCoordinates.js";
+import { resolveMapCoordinates } from "../data/mapCoordinates.js";
 import GoogleStreetViewEditor from "./GoogleStreetViewEditor.jsx";
 
 function validPosition(latitude, longitude) {
@@ -16,6 +16,7 @@ export default function PinLocationAssistant({ pinId, latitude, longitude, onCoo
   const [locationInput, setLocationInput] = useState("");
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [isResolvingLocation, setIsResolvingLocation] = useState(false);
   const [showEmbeddedStreetView, setShowEmbeddedStreetView] = useState(false);
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY?.trim() ?? "";
   const latitudeNumber = Number(latitude);
@@ -27,18 +28,25 @@ export default function PinLocationAssistant({ pinId, latitude, longitude, onCoo
     ? `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${latitudeNumber},${longitudeNumber}`
     : "";
 
-  function applyMapsLocation() {
-    const coordinates = parseMapCoordinates(locationInput);
-    if (!coordinates) {
-      setError("Paste a Google Maps link that contains coordinates, or enter latitude, longitude. Short links do not include coordinates.");
-      setMessage("");
-      return;
-    }
-
-    onCoordinatesChange(coordinates);
-    setShowEmbeddedStreetView(false);
+  async function applyMapsLocation() {
+    setIsResolvingLocation(true);
     setError("");
-    setMessage(`Pin moved to ${positionText(coordinates.latitude, coordinates.longitude)}. Save the pin to record this location.`);
+    setMessage("");
+    try {
+      const coordinates = await resolveMapCoordinates(locationInput);
+      if (!coordinates) {
+        setError("Paste a Google Maps share link or enter latitude, longitude.");
+        return;
+      }
+
+      onCoordinatesChange(coordinates);
+      setShowEmbeddedStreetView(false);
+      setMessage(`Pin moved to ${positionText(coordinates.latitude, coordinates.longitude)}. Save the pin to record this location.`);
+    } catch (resolveError) {
+      setError(resolveError instanceof Error ? resolveError.message : "Could not resolve this Google Maps share link.");
+    } finally {
+      setIsResolvingLocation(false);
+    }
   }
 
   function updateFromStreetView(position) {
@@ -53,10 +61,9 @@ export default function PinLocationAssistant({ pinId, latitude, longitude, onCoo
 
   return (
     <section className="street-view-handoff" aria-label="Improve collection-site pin accuracy">
-      <p className="street-view-title">Improve pin accuracy with Street View</p>
       {streetViewUrl ? (
-        <a className="street-view-maps-link" href={streetViewUrl} target="_blank" rel="noreferrer">
-          Open this pin in Google Street View <span aria-hidden="true">↗</span>
+        <a className="quiet-small-button street-view-maps-link" href={streetViewUrl} target="_blank" rel="noreferrer">
+          Open this pin in Google Street View
         </a>
       ) : (
         <p className="imagery-note">Enter valid coordinates to open this pin in Street View.</p>
@@ -88,9 +95,8 @@ export default function PinLocationAssistant({ pinId, latitude, longitude, onCoo
         </>
       ) : null}
 
-      <details className="manual-street-view-fallback" open={!apiKey}>
-        <summary>Paste a Google Maps link or coordinates</summary>
-        <label className="street-view-input-label" htmlFor={`pin-maps-location-${pinId}`}>Google Maps link or latitude, longitude</label>
+      <div className="manual-street-view-fallback">
+        <label className="street-view-input-label" htmlFor={`pin-maps-location-${pinId}`}>Google Maps share link or latitude, longitude</label>
         <textarea
           id={`pin-maps-location-${pinId}`}
           rows={2}
@@ -100,13 +106,12 @@ export default function PinLocationAssistant({ pinId, latitude, longitude, onCoo
             setError("");
             setMessage("");
           }}
-          placeholder="16.4021, 120.5960 or paste a Maps link with coordinates"
+          placeholder="Paste a phone Share link or enter 16.4021, 120.5960"
         />
-        <button type="button" className="quiet-small-button" onClick={applyMapsLocation}>Use these coordinates</button>
+        <button type="button" className="quiet-small-button" onClick={applyMapsLocation} disabled={isResolvingLocation} aria-busy={isResolvingLocation}>{isResolvingLocation ? "Resolving Maps link…" : "Use this location"}</button>
         {error && <p className="form-error" role="alert">{error}</p>}
         {message && <p className="inline-save-status" role="status">{message}</p>}
-      </details>
-      <p className="imagery-note">Street View coverage varies. Pin changes remain a draft until you save.</p>
+      </div>
     </section>
   );
 }

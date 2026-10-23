@@ -8,7 +8,7 @@ export default function CollectionMapCard({ data, ui, actions, refs }) {
   const { pinDragStartRef, pinMoveUndoRef, reviewUndoRef, lineDraftUndoRef } = refs;
   return (
             <section className="map-card" aria-label={`${selectedBarangay.name} collection-site map`}>
-              <div className="map-card-heading"><div><p className="eyebrow">Site locations</p><h2>Collection map</h2></div><span className="map-count-card"><strong className="map-count-number">{formatNumber(mappedSiteCount)}</strong> mapped</span></div>
+              <div className="map-card-heading"><div><h2>Collection map</h2></div><span className="map-count-card"><strong className="map-count-number">{formatNumber(mappedSiteCount)}</strong> mapped</span></div>
               <MapModeNotice
                 mode={mode}
                 linePointCount={linePoints.length}

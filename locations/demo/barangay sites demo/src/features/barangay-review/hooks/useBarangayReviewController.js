@@ -67,6 +67,7 @@ export function useBarangayReviewController(sourceUrl) {
   const [lineNodeLocationInput, setLineNodeLocationInput] = useState("");
   const [lineNodeLocationError, setLineNodeLocationError] = useState("");
   const [lineNodeLocationMessage, setLineNodeLocationMessage] = useState("");
+  const [isResolvingLineNodeLocation, setIsResolvingLineNodeLocation] = useState(false);
   const [linePoints, setLinePoints] = useState([]);
   const [pinSearch, setPinSearch] = useState("");
   const [pendingDelete, setPendingDelete] = useState(null);
@@ -428,6 +429,7 @@ export function useBarangayReviewController(sourceUrl) {
     setLineDraft,
     setLineNodeLocationError,
     setLineNodeLocationInput,
+    setIsResolvingLineNodeLocation,
     setLineNodeLocationMessage,
     setLinePoints,
     setMapFocus,
@@ -559,6 +561,8 @@ export function useBarangayReviewController(sourceUrl) {
     setLineNodeLocationInput,
     lineNodeLocationError,
     setLineNodeLocationError,
+    isResolvingLineNodeLocation,
+    setIsResolvingLineNodeLocation,
     lineNodeLocationMessage,
     setLineNodeLocationMessage,
     linePoints,

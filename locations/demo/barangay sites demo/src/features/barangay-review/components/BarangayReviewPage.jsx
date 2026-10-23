@@ -13,9 +13,7 @@ export default function BarangayReviewPage({ data, ui, actions, refs, helpers })
         <section className="map-view barangay-map-view" aria-labelledby="barangay-map-title">
           <div className="map-page-heading">
             <div>
-              <p className="eyebrow">Field collection</p>
               <h1 id="barangay-map-title">{selectedBarangay.name}</h1>
-              <p className="map-page-subtitle">Capture collection sites and pickup/drop-off details for this barangay. Use a GPS pin or place one manually on the map.</p>
             </div>
             <div className="barangay-review-actions">
               <button className="secondary-action" type="button" onClick={openDetailsEditor}><span aria-hidden="true">✎</span>Update barangay details</button>

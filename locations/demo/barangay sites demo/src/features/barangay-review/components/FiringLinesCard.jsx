@@ -4,7 +4,7 @@ import { formatNumber } from "../../../shared/utils/reviewFormatting.js";
 
 export default function FiringLinesCard({ data, ui, actions }) {
   const { selectedBarangay, selectedLine, selectedLineNode } = data;
-  const { mode, lineDraft, selectedLineId, selectedLineNodeIndex, showLineNodeStreetView, lineNodeLocationInput, lineNodeLocationError, lineNodeLocationMessage } = ui;
+  const { mode, lineDraft, selectedLineId, selectedLineNodeIndex, showLineNodeStreetView, lineNodeLocationInput, lineNodeLocationError, lineNodeLocationMessage, isResolvingLineNodeLocation } = ui;
   const { beginLineDrawing, saveLine, cancelMapMode, setLineDraft, finishLineNodePlacement, beginLineNodePlacement, deleteSelectedLineNode, setShowLineNodeStreetView, setLineNodeLocationInput, setLineNodeLocationError, setLineNodeLocationMessage, applyLineNodeLocation, handleLineNodeStreetViewPosition, beginEditLine, requestDelete, selectLine } = actions;
   return (
               <section className="review-panel line-manager-panel">
@@ -65,8 +65,8 @@ export default function FiringLinesCard({ data, ui, actions }) {
                             </>
                           ) : null}
                           <details className="manual-street-view-fallback" open={!import.meta.env.VITE_GOOGLE_MAPS_API_KEY?.trim()}>
-                            <summary>Paste a Google Maps link or coordinates</summary>
-                            <label className="street-view-input-label" htmlFor={`line-node-location-${lineDraft.id}-${selectedLineNodeIndex}`}>Google Maps link or latitude, longitude</label>
+                            <summary>Paste a Google Maps share link or coordinates</summary>
+                            <label className="street-view-input-label" htmlFor={`line-node-location-${lineDraft.id}-${selectedLineNodeIndex}`}>Google Maps share link or latitude, longitude</label>
                             <textarea
                               id={`line-node-location-${lineDraft.id}-${selectedLineNodeIndex}`}
                               rows={2}
@@ -76,9 +76,9 @@ export default function FiringLinesCard({ data, ui, actions }) {
                                 setLineNodeLocationError("");
                                 setLineNodeLocationMessage("");
                               }}
-                              placeholder="16.4021, 120.5960 or paste a Maps link with coordinates"
+                              placeholder="Paste a phone Share link or enter 16.4021, 120.5960"
                             />
-                            <button type="button" className="quiet-small-button" onClick={applyLineNodeLocation}>Use these coordinates</button>
+                            <button type="button" className="quiet-small-button" onClick={applyLineNodeLocation} disabled={isResolvingLineNodeLocation} aria-busy={isResolvingLineNodeLocation}>{isResolvingLineNodeLocation ? "Resolving Maps link…" : "Use this location"}</button>
                             {lineNodeLocationError && <p className="form-error" role="alert">{lineNodeLocationError}</p>}
                             {lineNodeLocationMessage && <p className="inline-save-status" role="status">{lineNodeLocationMessage}</p>}
                           </details>

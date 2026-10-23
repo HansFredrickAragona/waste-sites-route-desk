@@ -49,3 +49,32 @@ export function parseMapCoordinates(input) {
 
   return null;
 }
+
+export async function resolveMapCoordinates(input) {
+  const directCoordinates = parseMapCoordinates(input);
+  if (directCoordinates) return directCoordinates;
+
+  const value = input.trim();
+  let url;
+  try {
+    url = new URL(/^https?:\/\//i.test(value) ? value : `https://${value}`);
+  } catch {
+    return null;
+  }
+
+  if (!["maps.app.goo.gl", "goo.gl"].includes(url.hostname.toLowerCase())) return null;
+
+  const response = await fetch("/api/resolve-google-maps-link", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify({ url: url.href }),
+  });
+  const result = await response.json().catch(() => null);
+  if (!response.ok) {
+    throw new Error(result?.message || "Could not resolve this Google Maps share link.");
+  }
+
+  const latitude = Number(result?.latitude);
+  const longitude = Number(result?.longitude);
+  return validCoordinates(latitude, longitude) ? { latitude, longitude } : null;
+}

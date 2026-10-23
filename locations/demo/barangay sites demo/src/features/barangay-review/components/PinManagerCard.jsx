@@ -1,5 +1,7 @@
 import PinLocationAssistant from "./PinLocationAssistant.jsx";
 import AnimatedSize from "../../../shared/ui/AnimatedSize.jsx";
+import ScheduleDayField from "./ScheduleDayField.jsx";
+import ScheduleTimeRangeField from "./ScheduleTimeRangeField.jsx";
 import { formatNumber, hasMapCoordinates } from "../../../shared/utils/reviewFormatting.js";
 
 export default function PinManagerCard({ data, ui, actions, helpers }) {
@@ -10,7 +12,7 @@ export default function PinManagerCard({ data, ui, actions, helpers }) {
   return (
               <section className={`review-panel pin-manager-panel${pinManagerCollapsed ? " pin-manager-panel--collapsed" : ""}`}>
                 <div className="tools-heading">
-                  <div><p className="eyebrow">Collection sites</p><h2>Pins <span>{formatNumber(selectedBarangay.pins.length)}</span></h2></div>
+                  <div><h2>Pins <span>{formatNumber(selectedBarangay.pins.length)}</span></h2></div>
                   <div className="pin-manager-heading-actions">
                     {!pinManagerCollapsed && <button className="small-action" type="button" onClick={beginPinFromCurrentLocation} disabled={isLocatingCurrentPosition} aria-busy={isLocatingCurrentPosition}>{isLocatingCurrentPosition ? "Locating…" : "⌖ Add GPS pin"}</button>}
                     {!pinManagerCollapsed && <button className={`small-action${mode === "place-pin" ? " small-action--active" : ""}`} type="button" onClick={beginPinPlacement} aria-pressed={mode === "place-pin"}>＋ Add pin</button>}
@@ -31,10 +33,11 @@ export default function PinManagerCard({ data, ui, actions, helpers }) {
                   pinEditorOpen ? (
                     <form className="pin-editor pin-editor-form" onSubmit={savePin}>
                       <header className="pin-editor-header">
-                        <div><p className="eyebrow">{pinDraft.isNew ? "New collection site" : "Edit collection site"}</p><h2 id="pin-editor-title">{pinDraft.isNew ? "Add a collection-site pin" : pinDraft.name}</h2><p className="pin-editor-context">{selectedBarangay.name}</p></div>
+                        <div><h2 id="pin-editor-title">{pinDraft.isNew ? "Add a collection-site pin" : pinDraft.name}</h2><p className="pin-editor-context">{selectedBarangay.name}</p></div>
                         <button className="icon-close" type="button" aria-label="Cancel pin editing" onClick={cancelMapMode}>×</button>
                       </header>
                       <div className="pin-editor-body">
+                        <div className="pin-editor-column pin-editor-column--site">
                         <section className="pin-editor-section pin-editor-site-section" aria-labelledby="pin-site-details-title">
                           <div className="pin-editor-section-heading"><h3 id="pin-site-details-title">Site details</h3><span>Required fields</span></div>
                           <label className="field-label">Site name<input autoFocus value={pinDraft.name} onChange={(event) => setPinDraft((current) => ({ ...current, name: event.target.value }))} placeholder="e.g. Site 3, Riverside drop-off" /></label>
@@ -46,11 +49,31 @@ export default function PinManagerCard({ data, ui, actions, helpers }) {
                               .map((status) => <option key={status} value={status}>{status}</option>)}
                           </select></label>
                         </section>
+                        <section className="pin-editor-section pin-editor-schedule-section" aria-labelledby="pin-schedule-title">
+                          <div className="pin-editor-section-heading"><h3 id="pin-schedule-title">Collection schedule</h3><span>Optional</span></div>
+                          <div className="site-schedule-editor">
+                            <fieldset className="site-schedule-group">
+                              <legend>Pickup</legend>
+                              <div className="site-schedule-fields">
+                                <ScheduleDayField value={scheduleFieldValue(pinDraft.schedule ?? pinDraft.sourceSchedule, "pick-up", "day")} onChange={(value) => setPinDraft((current) => current ? ({ ...current, schedule: updateScheduleField(current.schedule ?? current.sourceSchedule, "pick-up", "day", value) }) : current)} />
+                                <ScheduleTimeRangeField label="Pickup" value={scheduleFieldValue(pinDraft.schedule ?? pinDraft.sourceSchedule, "pick-up", "time")} onChange={(value) => setPinDraft((current) => current ? ({ ...current, schedule: updateScheduleField(current.schedule ?? current.sourceSchedule, "pick-up", "time", value) }) : current)} />
+                              </div>
+                            </fieldset>
+                            <fieldset className="site-schedule-group">
+                              <legend>Drop-off</legend>
+                              <div className="site-schedule-fields">
+                                <ScheduleDayField value={scheduleFieldValue(pinDraft.schedule ?? pinDraft.sourceSchedule, "drop-off", "day")} onChange={(value) => setPinDraft((current) => current ? ({ ...current, schedule: updateScheduleField(current.schedule ?? current.sourceSchedule, "drop-off", "day", value) }) : current)} />
+                                <ScheduleTimeRangeField label="Drop-off" value={scheduleFieldValue(pinDraft.schedule ?? pinDraft.sourceSchedule, "drop-off", "time")} onChange={(value) => setPinDraft((current) => current ? ({ ...current, schedule: updateScheduleField(current.schedule ?? current.sourceSchedule, "drop-off", "time", value) }) : current)} />
+                              </div>
+                            </fieldset>
+                          </div>
+                        </section>
+                        </div>
+                        <div className="pin-editor-column pin-editor-column--location">
                         <section className="pin-editor-section pin-editor-location-section" aria-labelledby="pin-location-title">
                           <div className="pin-editor-section-heading"><h3 id="pin-location-title">Location</h3><span>Drag the pin or enter coordinates</span></div>
                           <div className="coordinate-fields"><label className="field-label">Latitude<input type="number" step="any" value={pinDraft.latitude} onChange={(event) => setPinDraft((current) => ({ ...current, latitude: event.target.value }))} /></label><label className="field-label">Longitude<input type="number" step="any" value={pinDraft.longitude} onChange={(event) => setPinDraft((current) => ({ ...current, longitude: event.target.value }))} /></label></div>
                           {pinDraft.location?.source === "device_gps" && <p className="field-help gps-capture-note">GPS location captured{Number.isFinite(pinDraft.location.accuracy_m) ? ` · about ±${pinDraft.location.accuracy_m} m` : ""}. A Google Maps link will be saved with this pin.</p>}
-                          <div className="pin-location-map-adjust"><span>Want to place it more precisely on the map?</span><button className="quiet-small-button" type="button" disabled={!hasMapCoordinates(pinDraft)} onClick={() => { setPinEditorOpen(false); setMapFocus({ type: "point", point: [Number(pinDraft.latitude), Number(pinDraft.longitude)], zoom: 19 }); }}>Adjust pin on map</button></div>
                           <PinLocationAssistant
                             pinId={pinDraft.id}
                             latitude={pinDraft.latitude}
@@ -62,34 +85,13 @@ export default function PinManagerCard({ data, ui, actions, helpers }) {
                             }) : current)}
                           />
                         </section>
-                        <section className="pin-editor-section pin-editor-schedule-section" aria-labelledby="pin-schedule-title">
-                          <div className="pin-editor-section-heading"><h3 id="pin-schedule-title">Collection schedule</h3><span>Optional</span></div>
-                          <div className="site-schedule-editor">
-                            <fieldset className="site-schedule-group">
-                              <legend>Pickup</legend>
-                              <label className="field-label">Date<input type="date" value={scheduleFieldValue(pinDraft.schedule ?? pinDraft.sourceSchedule, "pick-up", "date")} onChange={(event) => setPinDraft((current) => current ? ({ ...current, schedule: updateScheduleField(current.schedule ?? current.sourceSchedule, "pick-up", "date", event.target.value) }) : current)} /></label>
-                              <div className="site-schedule-fields">
-                                <label className="field-label">Day<input value={scheduleFieldValue(pinDraft.schedule ?? pinDraft.sourceSchedule, "pick-up", "day")} onChange={(event) => setPinDraft((current) => current ? ({ ...current, schedule: updateScheduleField(current.schedule ?? current.sourceSchedule, "pick-up", "day", event.target.value) }) : current)} placeholder="Monday" /></label>
-                                <label className="field-label">Time<input value={scheduleFieldValue(pinDraft.schedule ?? pinDraft.sourceSchedule, "pick-up", "time")} onChange={(event) => setPinDraft((current) => current ? ({ ...current, schedule: updateScheduleField(current.schedule ?? current.sourceSchedule, "pick-up", "time", event.target.value) }) : current)} placeholder="5:00 AM - 7:00 AM" /></label>
-                              </div>
-                            </fieldset>
-                            <fieldset className="site-schedule-group">
-                              <legend>Drop-off</legend>
-                              <label className="field-label">Date<input type="date" value={scheduleFieldValue(pinDraft.schedule ?? pinDraft.sourceSchedule, "drop-off", "date")} onChange={(event) => setPinDraft((current) => current ? ({ ...current, schedule: updateScheduleField(current.schedule ?? current.sourceSchedule, "drop-off", "date", event.target.value) }) : current)} /></label>
-                              <div className="site-schedule-fields">
-                                <label className="field-label">Day<input value={scheduleFieldValue(pinDraft.schedule ?? pinDraft.sourceSchedule, "drop-off", "day")} onChange={(event) => setPinDraft((current) => current ? ({ ...current, schedule: updateScheduleField(current.schedule ?? current.sourceSchedule, "drop-off", "day", event.target.value) }) : current)} placeholder="Monday" /></label>
-                                <label className="field-label">Time<input value={scheduleFieldValue(pinDraft.schedule ?? pinDraft.sourceSchedule, "drop-off", "time")} onChange={(event) => setPinDraft((current) => current ? ({ ...current, schedule: updateScheduleField(current.schedule ?? current.sourceSchedule, "drop-off", "time", event.target.value) }) : current)} placeholder="5:00 AM - 7:00 AM" /></label>
-                              </div>
-                            </fieldset>
-                          </div>
-                        </section>
-                        <details open className="pin-editor-notes">
-                          <summary><span>Remarks and review note</span><small>{pinDraft.remarks || pinDraft.sourceRemarks || pinDraft.notes ? "Existing notes" : "Optional"}</small></summary>
+                        <div className="pin-editor-notes">
                           <div className="pin-editor-notes-fields">
-                            <label className="field-label">Site remarks<textarea value={pinDraft.remarks ?? pinDraft.sourceRemarks ?? ""} onChange={(event) => setPinDraft((current) => ({ ...current, remarks: event.target.value }))} rows="2" placeholder="Add site remarks" /></label>
-                            <label className="field-label">Review note<textarea value={pinDraft.notes} onChange={(event) => setPinDraft((current) => ({ ...current, notes: event.target.value }))} rows="2" placeholder="Add a note from the discussion" /></label>
+                            <label className="field-label">Site remarks<textarea value={pinDraft.remarks ?? pinDraft.sourceRemarks ?? ""} onChange={(event) => setPinDraft((current) => ({ ...current, remarks: event.target.value }))} rows="4" placeholder="Add site remarks" /></label>
+                            <label className="field-label">Review note<textarea value={pinDraft.notes} onChange={(event) => setPinDraft((current) => ({ ...current, notes: event.target.value }))} rows="4" placeholder="Add a note from the discussion" /></label>
                           </div>
-                        </details>
+                        </div>
+                        </div>
                       </div>
                       <footer className="editor-actions pin-editor-actions"><button className="quiet-small-button" type="button" onClick={cancelMapMode}>Cancel</button><button className="primary-small-button" type="submit">{pinDraft.isNew ? "Save pin" : "Save changes"}</button></footer>
                     </form>

@@ -2,12 +2,45 @@ export function coordinateText(latitude, longitude) {
   return `${Number(latitude).toFixed(6)}, ${Number(longitude).toFixed(6)}`;
 }
 
+export const SCHEDULE_DAYS = [
+  { code: "MON", shortLabel: "MON", label: "Monday" },
+  { code: "TUES", shortLabel: "Tues", label: "Tuesday" },
+  { code: "WED", shortLabel: "Wed", label: "Wednesday" },
+  { code: "THURS", shortLabel: "Thurs", label: "Thursday" },
+  { code: "FRI", shortLabel: "Fri", label: "Friday" },
+  { code: "SAT", shortLabel: "Sat", label: "Saturday" },
+  { code: "SUN", shortLabel: "Sun", label: "Sunday" },
+];
+
+export function scheduleDayCode(value) {
+  const normalized = String(value ?? "").trim().toUpperCase().replace(/[^A-Z]/g, "");
+  if (!normalized) return "";
+  const match = SCHEDULE_DAYS.find(({ code, label }) => {
+    const fullName = label.toUpperCase();
+    return normalized === code || normalized === fullName || fullName.startsWith(normalized);
+  });
+  return match?.code ?? "";
+}
+
 export function sourceScheduleRows(schedule) {
   if (!Array.isArray(schedule)) return [];
   return schedule.flatMap((entry) => Object.entries(entry ?? {}).map(([kind, timing]) => ({
     label: kind.replace(/-/g, " "),
-    value: [timing?.date, timing?.day, timing?.time].filter(Boolean).join(" · ") || "Not provided",
+    value: [SCHEDULE_DAYS.find(({ code }) => code === scheduleDayCode(timing?.day))?.shortLabel ?? timing?.day, timing?.time].filter(Boolean).join(" · ") || "Not provided",
   })));
+}
+
+export function scheduleWithoutDates(schedule) {
+  if (!Array.isArray(schedule)) return [];
+  return schedule.map((entry) => {
+    if (!entry || typeof entry !== "object" || Array.isArray(entry)) return entry;
+    return Object.fromEntries(Object.entries(entry).map(([kind, timing]) => [
+      kind,
+      timing && typeof timing === "object" && !Array.isArray(timing)
+        ? Object.fromEntries(Object.entries(timing).filter(([field]) => field !== "date"))
+        : timing,
+    ]));
+  });
 }
 
 export function scheduleFieldValue(schedule, kind, field) {

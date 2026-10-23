@@ -1,7 +1,7 @@
 import { createId } from "../../json-library/services/reviewRepository.js";
-import { parseMapCoordinates } from "../data/mapCoordinates.js";
+import { resolveMapCoordinates } from "../data/mapCoordinates.js";
 import { hasMapCoordinates } from "../../../shared/utils/reviewFormatting.js";
-import { coordinateText, formatStatusUpdatedAt } from "../utils/pinFormHelpers.js";
+import { coordinateText, formatStatusUpdatedAt, scheduleWithoutDates } from "../utils/pinFormHelpers.js";
 
 export function createMapEditingActions(context) {
   const {
@@ -26,6 +26,7 @@ export function createMapEditingActions(context) {
     setLineDraft,
     setLineNodeLocationError,
     setLineNodeLocationInput,
+    setIsResolvingLineNodeLocation,
     setLineNodeLocationMessage,
     setLinePoints,
     setMapFocus,
@@ -421,7 +422,7 @@ export function createMapEditingActions(context) {
       sourceStatusLabel: statusType,
       sourceStatus: /^removed\b/i.test(statusType) ? "removed" : savingNew && /^new\b/i.test(statusType) ? "new" : "active",
       statusLastUpdated,
-      schedule: Array.isArray(pinDraft.schedule) ? pinDraft.schedule : pinDraft.sourceSchedule ?? [],
+      schedule: scheduleWithoutDates(Array.isArray(pinDraft.schedule) ? pinDraft.schedule : pinDraft.sourceSchedule ?? []),
       remarks,
       purok: pinDraft.purok || "",
       notes: pinDraft.notes.trim(),
@@ -529,17 +530,25 @@ export function createMapEditingActions(context) {
     setLineNodeLocationError("");
   }
 
-  function applyLineNodeLocation() {
-    const coordinates = parseMapCoordinates(lineNodeLocationInput);
-    if (!coordinates || !Number.isInteger(selectedLineNodeIndex)) {
-      setLineNodeLocationError("Paste a Google Maps link that contains coordinates, or enter latitude, longitude.");
-      setLineNodeLocationMessage("");
-      return;
-    }
-    updateLineNodePosition(selectedLineNodeIndex, coordinates.latitude, coordinates.longitude);
-    setShowLineNodeStreetView(false);
+  async function applyLineNodeLocation() {
+    if (!Number.isInteger(selectedLineNodeIndex)) return;
+    setIsResolvingLineNodeLocation(true);
     setLineNodeLocationError("");
-    setLineNodeLocationMessage(`Node moved to ${coordinateText(coordinates.latitude, coordinates.longitude)}. Save the firing line to record this change.`);
+    setLineNodeLocationMessage("");
+    try {
+      const coordinates = await resolveMapCoordinates(lineNodeLocationInput);
+      if (!coordinates) {
+        setLineNodeLocationError("Paste a Google Maps share link or enter latitude, longitude.");
+        return;
+      }
+      updateLineNodePosition(selectedLineNodeIndex, coordinates.latitude, coordinates.longitude);
+      setShowLineNodeStreetView(false);
+      setLineNodeLocationMessage(`Node moved to ${coordinateText(coordinates.latitude, coordinates.longitude)}. Save the firing line to record this change.`);
+    } catch (resolveError) {
+      setLineNodeLocationError(resolveError instanceof Error ? resolveError.message : "Could not resolve this Google Maps share link.");
+    } finally {
+      setIsResolvingLineNodeLocation(false);
+    }
   }
 
   function beginLineNodePlacement() {
