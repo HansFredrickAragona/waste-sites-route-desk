@@ -575,7 +575,9 @@ input:focus-visible, textarea:focus-visible { outline: 3px solid #87bea4; outlin
 .pin-manager-heading-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 6px; }
 .pin-manager-panel--collapsed { padding-bottom: 12px; }
 .pin-manager-panel--collapsed .tools-heading { margin-bottom: 0; }
-.pin-manager-panel--collapsed > :not(.tools-heading) { display: none; }
+.card-size-transition { min-width: 0; overflow: clip; transition: height .34s cubic-bezier(.22, .61, .36, 1), opacity .2s ease; }
+.card-size-transition__content { display: flow-root; min-width: 0; }
+.card-size-transition--collapsed { opacity: 0; pointer-events: none; }
 .pin-detail-card, .pin-editor, .line-detail-card, .line-editor { display: grid; gap: 8px; margin-bottom: 10px; padding: 10px; border: 1px solid #e3eae3; border-radius: 9px; background: #fff; }
 .pin-detail-card h3, .pin-editor h3, .line-detail-card h3, .line-editor h3 { margin: 0; color: #33493a; font-size: 13px; line-height: 1.35; overflow-wrap: anywhere; }
 .pin-detail-topline, .line-detail-topline { display: flex; align-items: center; gap: 6px; }
@@ -1326,14 +1328,31 @@ button.kpi-detail-row:focus-visible { outline: 3px solid #79a987; outline-offset
 .export-change-group > p { margin: 0; padding: 10px 12px; color: #8b978f; font-size: 11px; }
 .export-confirmation-actions { margin-top: 0; padding: 12px 19px; border-top: 1px solid #e7ece6; background: #fbfcfa; }
 
-.barangay-map-layout--pin-editing { grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); }
-.barangay-map-layout--pin-editing .map-side-panel.barangay-tools-panel { height: min(66vh, 690px); max-height: min(66vh, 690px); overflow-y: auto; }
+@media (min-width: 901px) {
+  .barangay-map-layout { display: flex; }
+  .barangay-map-layout > .map-card { flex: 1 1 0; min-width: 0; }
+  .barangay-map-layout > .map-side-panel.barangay-tools-panel {
+    flex: 0 1 390px;
+    min-width: 330px;
+    transition: flex-basis .38s cubic-bezier(.22, .61, .36, 1), flex-grow .38s cubic-bezier(.22, .61, .36, 1), min-width .38s cubic-bezier(.22, .61, .36, 1);
+  }
+  .barangay-map-layout--pin-editing > .map-side-panel.barangay-tools-panel { flex: 2 1 0px; min-width: 0; }
+}
+@media (min-width: 901px) and (max-width: 1100px) {
+  .barangay-map-layout > .map-side-panel.barangay-tools-panel { flex-basis: 350px; min-width: 300px; }
+  .barangay-map-layout--pin-editing > .map-side-panel.barangay-tools-panel { flex-basis: 0px; min-width: 0; }
+}
+.barangay-map-layout--pin-editing .map-side-panel.barangay-tools-panel { height: min(calc(max(min(66vh, 690px), 440px) + 88px), calc(100vh - 100px)); max-height: min(calc(max(min(66vh, 690px), 440px) + 88px), calc(100vh - 100px)); overflow-y: auto; overscroll-behavior: contain; }
+.barangay-map-layout--pin-editing .map-side-panel.barangay-tools-panel > .review-panel { flex: 0 0 auto; }
+.barangay-map-layout--pin-editing .pin-content-size-transition:not(.card-size-transition--collapsed) { height: auto !important; overflow: visible; transition: opacity .2s ease; }
 .pin-editor-form { gap: 0; margin: 0 0 10px; padding: 0; overflow: visible; border: 1px solid #e3eae3; border-radius: 9px; background: #fff; }
 .pin-editor-header { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 17px 22px; border-bottom: 1px solid #e7ece6; background: #fbfcfa; }
 .pin-editor-header .eyebrow { margin: 0 0 4px; color: #718579; font-size: 9px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
 .pin-editor-header h2 { margin: 0; color: #304638; font-size: 19px; line-height: 1.25; }
 .pin-editor-context { margin: 4px 0 0; color: #859188; font-size: 11px; }
-.pin-editor-body { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); align-content: start; gap: 13px; min-height: 0; padding: 17px 20px; overflow-y: auto; overscroll-behavior: contain; }
+.pin-editor-body { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); grid-template-areas: "site location" "schedule location" "notes location"; align-content: start; gap: 13px; min-height: 0; padding: 17px 20px; overflow: visible; }
+.pin-editor-site-section { grid-area: site; }
+.pin-editor-location-section { grid-area: location; }
 .pin-editor-section { display: grid; align-content: start; gap: 12px; min-width: 0; padding: 14px; border: 1px solid #e2eae2; border-radius: 10px; background: #fff; }
 .pin-editor-section-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding-bottom: 8px; border-bottom: 1px solid #edf1ed; }
 .pin-editor-section-heading h3 { margin: 0; color: #3c5544; font-size: 13px; }
@@ -1348,11 +1367,11 @@ button.kpi-detail-row:focus-visible { outline: 3px solid #79a987; outline-offset
 .pin-editor-form .site-schedule-group { gap: 9px; padding: 11px; border-radius: 8px; }
 .pin-editor-form .site-schedule-group legend { font-size: 10px; }
 .pin-editor-form .site-schedule-fields { gap: 8px; }
-.pin-editor-schedule-section, .pin-editor-notes { grid-column: 1 / -1; }
+.pin-editor-schedule-section { grid-area: schedule; }
 .pin-editor-form .street-view-handoff { gap: 9px; margin-top: 0; padding: 11px; }
 .pin-editor-form .street-view-title { font-size: 11px; }
 .pin-editor-form .manual-street-view-fallback { gap: 8px; }
-.pin-editor-notes { min-width: 0; border: 1px solid #e2eae2; border-radius: 10px; background: #fbfcfa; }
+.pin-editor-notes { grid-area: notes; min-width: 0; border: 1px solid #e2eae2; border-radius: 10px; background: #fbfcfa; }
 .pin-editor-notes summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 45px; padding: 10px 14px; color: #455d4c; font-size: 11px; font-weight: 800; cursor: pointer; list-style-position: inside; }
 .pin-editor-notes summary small { margin-left: auto; color: #8a968d; font-size: 9px; font-weight: 600; }
 .pin-editor-notes-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding: 0 14px 14px; }
@@ -1365,8 +1384,7 @@ button.kpi-detail-row:focus-visible { outline: 3px solid #79a987; outline-offset
 .pin-map-edit-card .pin-detail-actions { flex-wrap: wrap; }
 
 @media (max-width: 760px) {
-  .pin-editor-body { grid-template-columns: minmax(0, 1fr); padding: 13px; }
-  .pin-editor-schedule-section, .pin-editor-notes { grid-column: auto; }
+  .pin-editor-body { grid-template-columns: minmax(0, 1fr); grid-template-areas: "site" "location" "schedule" "notes"; padding: 13px; }
 }
 
 @media (max-width: 720px) {

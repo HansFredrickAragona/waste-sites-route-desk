@@ -1,4 +1,5 @@
 import PinLocationAssistant from "./PinLocationAssistant.jsx";
+import AnimatedSize from "../../../shared/ui/AnimatedSize.jsx";
 import { formatNumber, hasMapCoordinates } from "../../../shared/utils/reviewFormatting.js";
 
 export default function PinManagerCard({ data, ui, actions, helpers }) {
@@ -24,6 +25,8 @@ export default function PinManagerCard({ data, ui, actions, helpers }) {
                     </button>
                   </div>
                 </div>
+                <AnimatedSize className="pin-content-size-transition" collapsed={pinManagerCollapsed}>
+                  <>
                 {pinDraft ? (
                   pinEditorOpen ? (
                     <form className="pin-editor pin-editor-form" onSubmit={savePin}>
@@ -32,7 +35,7 @@ export default function PinManagerCard({ data, ui, actions, helpers }) {
                         <button className="icon-close" type="button" aria-label="Cancel pin editing" onClick={cancelMapMode}>×</button>
                       </header>
                       <div className="pin-editor-body">
-                        <section className="pin-editor-section" aria-labelledby="pin-site-details-title">
+                        <section className="pin-editor-section pin-editor-site-section" aria-labelledby="pin-site-details-title">
                           <div className="pin-editor-section-heading"><h3 id="pin-site-details-title">Site details</h3><span>Required fields</span></div>
                           <label className="field-label">Site name<input autoFocus value={pinDraft.name} onChange={(event) => setPinDraft((current) => ({ ...current, name: event.target.value }))} placeholder="e.g. Site 3, Riverside drop-off" /></label>
                           <label className="field-label">Assigned purok<input list="barangay-purok-options" value={pinDraft.purok} onChange={(event) => setPinDraft((current) => ({ ...current, purok: event.target.value }))} placeholder="e.g. Purok 1" /><datalist id="barangay-purok-options">{selectedBarangay.puroks.map((purok) => <option key={purok} value={purok} />)}</datalist></label>
@@ -43,7 +46,7 @@ export default function PinManagerCard({ data, ui, actions, helpers }) {
                               .map((status) => <option key={status} value={status}>{status}</option>)}
                           </select></label>
                         </section>
-                        <section className="pin-editor-section" aria-labelledby="pin-location-title">
+                        <section className="pin-editor-section pin-editor-location-section" aria-labelledby="pin-location-title">
                           <div className="pin-editor-section-heading"><h3 id="pin-location-title">Location</h3><span>Drag the pin or enter coordinates</span></div>
                           <div className="coordinate-fields"><label className="field-label">Latitude<input type="number" step="any" value={pinDraft.latitude} onChange={(event) => setPinDraft((current) => ({ ...current, latitude: event.target.value }))} /></label><label className="field-label">Longitude<input type="number" step="any" value={pinDraft.longitude} onChange={(event) => setPinDraft((current) => ({ ...current, longitude: event.target.value }))} /></label></div>
                           {pinDraft.location?.source === "device_gps" && <p className="field-help gps-capture-note">GPS location captured{Number.isFinite(pinDraft.location.accuracy_m) ? ` · about ±${pinDraft.location.accuracy_m} m` : ""}. A Google Maps link will be saved with this pin.</p>}
@@ -80,7 +83,7 @@ export default function PinManagerCard({ data, ui, actions, helpers }) {
                             </fieldset>
                           </div>
                         </section>
-                        <details className="pin-editor-notes">
+                        <details open className="pin-editor-notes">
                           <summary><span>Remarks and review note</span><small>{pinDraft.remarks || pinDraft.sourceRemarks || pinDraft.notes ? "Existing notes" : "Optional"}</small></summary>
                           <div className="pin-editor-notes-fields">
                             <label className="field-label">Site remarks<textarea value={pinDraft.remarks ?? pinDraft.sourceRemarks ?? ""} onChange={(event) => setPinDraft((current) => ({ ...current, remarks: event.target.value }))} rows="2" placeholder="Add site remarks" /></label>
@@ -132,6 +135,8 @@ export default function PinManagerCard({ data, ui, actions, helpers }) {
                   ))}
                   {visiblePins.length === 0 && <li className="site-list-empty">No sites match this search.</li>}
                 </ul>
+                  </>
+                </AnimatedSize>
               </section>
 
 

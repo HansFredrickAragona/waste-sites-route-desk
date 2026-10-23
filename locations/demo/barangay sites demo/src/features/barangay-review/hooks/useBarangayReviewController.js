@@ -643,5 +643,9 @@ export function useBarangayReviewController(sourceUrl) {
     mappedSiteCount,
     unlocatedSiteCount,
     removedSiteCount,
+    coordinateText,
+    sourceScheduleRows,
+    scheduleFieldValue,
+    updateScheduleField,
   };
 }

@@ -1,4 +1,5 @@
 import GoogleStreetViewEditor from "./GoogleStreetViewEditor.jsx";
+import AnimatedSize from "../../../shared/ui/AnimatedSize.jsx";
 import { formatNumber } from "../../../shared/utils/reviewFormatting.js";
 
 export default function FiringLinesCard({ data, ui, actions }) {
@@ -8,6 +9,8 @@ export default function FiringLinesCard({ data, ui, actions }) {
   return (
               <section className="review-panel line-manager-panel">
                 <div className="tools-heading"><div><p className="eyebrow">Route features</p><h2>Firing lines <span>{formatNumber(selectedBarangay.firingLines.length)}</span></h2></div><button className={`small-action small-action--line${mode === "draw-line" ? " small-action--active" : ""}`} type="button" onClick={beginLineDrawing} aria-pressed={mode === "draw-line"}>{mode === "draw-line" ? "Cancel line" : "＋ Add line"}</button></div>
+                <AnimatedSize className="line-content-size-transition">
+                  <>
                 {lineDraft ? (
                   <form className="line-editor" onSubmit={saveLine}>
                     <div className="editor-topline"><div><p className="eyebrow">{lineDraft.isNew ? "New feature" : "Edit feature"}</p><h3>{lineDraft.name}</h3></div><button className="icon-close icon-close--small" type="button" aria-label="Cancel line editing" onClick={cancelMapMode}>×</button></div>
@@ -105,6 +108,8 @@ export default function FiringLinesCard({ data, ui, actions }) {
                     </li>
                   ))}
                 </ul>
+                  </>
+                </AnimatedSize>
               </section>
   );
 }
