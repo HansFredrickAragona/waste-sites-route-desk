@@ -104,6 +104,7 @@ export function buildInitialReview(siteRecords, jsonSource = BUNDLED_JSON_SOURCE
       puroks: [...new Set(records.flatMap((site) => explicitPurokNames(site?.barangay?.purok)))],
       notes: "",
       confirmed: false,
+      confirmationContact: null,
       pins,
       firingLines: [],
     };
@@ -149,6 +150,14 @@ export function normalizeReviewData(value) {
     puroks: Array.isArray(item.puroks) ? [...new Set(item.puroks.filter((name) => typeof name === "string" && name.trim()).map((name) => name.trim()))] : [],
     notes: typeof item.notes === "string" ? item.notes : "",
     confirmed: item.confirmed === true,
+    confirmationContact: item.confirmationContact && typeof item.confirmationContact === "object" && !Array.isArray(item.confirmationContact)
+      ? {
+        name: typeof item.confirmationContact.name === "string" ? item.confirmationContact.name : "",
+        position: typeof item.confirmationContact.position === "string" ? item.confirmationContact.position : "",
+        phone: typeof item.confirmationContact.phone === "string" ? item.confirmationContact.phone : "",
+        email: typeof item.confirmationContact.email === "string" ? item.confirmationContact.email : "",
+      }
+      : null,
     pins: Array.isArray(item.pins) ? item.pins.filter((pin) => pin && typeof pin === "object").map((pin, pinIndex) => ({
       ...pin,
       id: typeof pin.id === "string" ? pin.id : `pin-import-${index + 1}-${pinIndex + 1}`,

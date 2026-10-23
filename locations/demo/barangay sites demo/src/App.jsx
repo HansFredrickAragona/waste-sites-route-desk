@@ -79,6 +79,9 @@ function summarizeReviewChanges(activityLog) {
     "Updated firing line": "edited",
     "Disconnected firing-line segment": "edited",
     "Updated barangay details": "edited",
+    "Confirmed barangay information": "edited",
+    "Reopened barangay review": "edited",
+    "Updated confirmation contact": "edited",
   };
   const chronological = [...activityLog].reverse();
   const reversibleChanges = [];
@@ -258,13 +261,26 @@ function FocusMap({ focus }) {
   useEffect(() => {
     if (!focus) return;
     if (focus.type === "point") {
-      map.flyTo(focus.point, 17, { duration: 0.6 });
+      map.flyTo(focus.point, focus.zoom ?? 17, { duration: 0.6 });
     } else if (focus.type === "bounds" && focus.points.length === 1) {
-      map.flyTo(focus.points[0], 15, { duration: 0.6 });
+      map.flyTo(focus.points[0], focus.maxZoom ?? 15, { duration: 0.6 });
     } else if (focus.type === "bounds" && focus.points.length > 1) {
-      map.flyToBounds(L.latLngBounds(focus.points), { padding: [32, 32], maxZoom: 16, duration: 0.6 });
+      map.flyToBounds(L.latLngBounds(focus.points), { padding: [32, 32], maxZoom: focus.maxZoom ?? 16, duration: 0.6 });
     }
   }, [focus, map]);
+
+  return null;
+}
+
+function MapResizeObserver() {
+  const map = useMap();
+
+  useEffect(() => {
+    const container = map.getContainer();
+    const observer = new ResizeObserver(() => map.invalidateSize({ pan: false }));
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [map]);
 
   return null;
 }
@@ -316,6 +332,7 @@ function BarangayMap({
         url={TILE_URL}
         maxZoom={19}
       />
+      <MapResizeObserver />
       <FitBarangay barangay={barangay} />
       <FocusMap focus={focus} />
       {deviceLocation && (
@@ -520,6 +537,8 @@ function App() {
   const [showActivity, setShowActivity] = useState(false);
   const [showBarangayDetails, setShowBarangayDetails] = useState(false);
   const [barangayDetailsDraft, setBarangayDetailsDraft] = useState({ name: "", puroks: "", notes: "" });
+  const [showConfirmationContact, setShowConfirmationContact] = useState(false);
+  const [confirmationContactDraft, setConfirmationContactDraft] = useState({ name: "", position: "", phone: "", email: "" });
   const [showExportConfirmation, setShowExportConfirmation] = useState(false);
   const [exportFilename, setExportFilename] = useState("");
   const [mode, setMode] = useState("browse");
@@ -527,6 +546,7 @@ function App() {
   const [selectedLineId, setSelectedLineId] = useState(null);
   const [pinManagerCollapsed, setPinManagerCollapsed] = useState(false);
   const [pinDraft, setPinDraft] = useState(null);
+  const [pinEditorOpen, setPinEditorOpen] = useState(false);
   const [isLocatingCurrentPosition, setIsLocatingCurrentPosition] = useState(false);
   const [mapFocus, setMapFocus] = useState(null);
   const [deviceLocation, setDeviceLocation] = useState(null);
@@ -890,13 +910,57 @@ function App() {
     setShowBarangayDetails(false);
   }
 
-  function setConfirmed(confirmed) {
+  function openConfirmationContactEditor() {
+    if (!selectedBarangay) return;
+    const contact = selectedBarangay.confirmationContact ?? {};
+    setConfirmationContactDraft({
+      name: contact.name ?? "",
+      position: contact.position ?? "",
+      phone: contact.phone ?? "",
+      email: contact.email ?? "",
+    });
+    setShowConfirmationContact(true);
+  }
+
+  function saveConfirmationContact(event) {
+    event.preventDefault();
+    if (!selectedBarangay) return;
+    const contact = Object.fromEntries(Object.entries(confirmationContactDraft).map(([key, value]) => [key, value.trim()]));
+    if (!contact.name) {
+      setNotice({ kind: "error", text: "Enter the name of the official you spoke with." });
+      return;
+    }
+
+    if (!selectedBarangay.confirmed) {
+      setConfirmed(true, contact);
+    } else {
+      const currentContact = selectedBarangay.confirmationContact ?? {};
+      const changed = Object.keys(contact).some((key) => (currentContact[key] ?? "") !== contact[key]);
+      if (changed) {
+        commitBarangay(selectedBarangay.id, (current) => ({ ...current, confirmationContact: contact }), {
+          action: "Updated confirmation contact",
+          itemType: "Barangay confirmation",
+          itemName: selectedBarangay.name,
+          details: `Contact details updated for ${contact.name}${contact.position ? `, ${contact.position}` : ""}`,
+        });
+      }
+    }
+    setShowConfirmationContact(false);
+  }
+
+  function setConfirmed(confirmed, confirmationContact = selectedBarangay?.confirmationContact ?? null) {
     if (!selectedBarangay || confirmed === selectedBarangay.confirmed) return;
-    commitBarangay(selectedBarangay.id, (current) => ({ ...current, confirmed }), {
+    commitBarangay(selectedBarangay.id, (current) => ({
+      ...current,
+      confirmed,
+      ...(confirmed ? { confirmationContact } : {}),
+    }), {
       action: confirmed ? "Confirmed barangay information" : "Reopened barangay review",
       itemType: "Barangay confirmation",
       itemName: selectedBarangay.name,
-      details: confirmed ? "Marked confirmed" : "Marked unconfirmed",
+      details: confirmed
+        ? `Confirmed by ${confirmationContact?.name ?? "an official"}${confirmationContact?.position ? `, ${confirmationContact.position}` : ""}`
+        : "Marked unconfirmed",
     });
   }
 
@@ -909,6 +973,7 @@ function App() {
     locationRequestRef.current += 1;
     setIsLocatingCurrentPosition(false);
     setPinDraft(null);
+    setPinEditorOpen(false);
     setSelectedPinId(null);
     setSelectedLineId(null);
     setLineDraft(null);
@@ -956,6 +1021,7 @@ function App() {
       sourcePuroks: [],
       notes: "",
     });
+    setPinEditorOpen(true);
     setSelectedPinId(id);
     setSelectedLineId(null);
     setLineDraft(null);
@@ -964,7 +1030,7 @@ function App() {
     setLinePoints([]);
     setMode("browse");
     setPinManagerCollapsed(false);
-    setMapFocus(locationCapture ? { type: "point", point: [latitude, longitude] } : null);
+    setMapFocus({ type: "point", point: [latitude, longitude], zoom: 19 });
   }
 
   function beginPinFromCurrentLocation() {
@@ -1120,11 +1186,15 @@ function App() {
       remarks: pin.remarks ?? pin.sourceRemarks ?? "",
       isNew: false,
     });
+    setPinEditorOpen(true);
     setLineDraft(null);
     setSelectedLineNodeIndex(null);
     setShowLineNodeStreetView(false);
     setMode("browse");
     setPinManagerCollapsed(false);
+    if (hasMapCoordinates(pin)) {
+      setMapFocus({ type: "point", point: [Number(pin.latitude), Number(pin.longitude)], zoom: 19 });
+    }
   }
 
   function handleMapClick(point) {
@@ -1182,6 +1252,7 @@ function App() {
     if (pinDraft?.isNew) setSelectedPinId(null);
     if (lineDraft?.isNew) setSelectedLineId(null);
     setPinDraft(null);
+    setPinEditorOpen(false);
     setLineDraft(null);
     setSelectedLineNodeIndex(null);
     setShowLineNodeStreetView(false);
@@ -1204,6 +1275,10 @@ function App() {
     setPinDraft(null);
     setLineDraft(null);
     setMode("browse");
+    const pin = selectedBarangay?.pins.find((item) => item.id === pinId);
+    if (hasMapCoordinates(pin)) {
+      setMapFocus({ type: "point", point: [Number(pin.latitude), Number(pin.longitude)], zoom: 19 });
+    }
   }
 
   function selectLine(lineId) {
@@ -1220,6 +1295,10 @@ function App() {
     setSelectedLineNodeIndex(null);
     setShowLineNodeStreetView(false);
     setMode("browse");
+    const line = selectedBarangay?.firingLines.find((item) => item.id === lineId);
+    if (line?.coordinates?.length) {
+      setMapFocus({ type: "bounds", points: line.coordinates, maxZoom: 18 });
+    }
   }
 
   function savePin(event) {
@@ -1284,6 +1363,7 @@ function App() {
     });
     setSelectedPinId(nextPin.id);
     setPinDraft(null);
+    setPinEditorOpen(false);
     setMode("browse");
   }
 
@@ -1339,6 +1419,9 @@ function App() {
     setLineNodeLocationMessage("");
     setMode("edit-line");
     setPinManagerCollapsed(true);
+    if (line.coordinates.length) {
+      setMapFocus({ type: "bounds", points: line.coordinates, maxZoom: 18 });
+    }
   }
 
   function selectLineNode(pointIndex) {
@@ -1794,9 +1877,10 @@ function App() {
               <button className="secondary-action" type="button" onClick={openDetailsEditor}><span aria-hidden="true">✎</span>Update barangay details</button>
               <label className={`confirmation-control${selectedBarangay.confirmed ? " confirmation-control--on" : ""}`}>
                 <span className="confirmation-copy"><strong>{selectedBarangay.confirmed ? "Information confirmed" : "Not yet confirmed"}</strong><small>Barangay review status</small></span>
-                <input type="checkbox" checked={selectedBarangay.confirmed} onChange={(event) => setConfirmed(event.target.checked)} aria-label={`Mark ${selectedBarangay.name} information confirmed`} />
+                <input type="checkbox" checked={selectedBarangay.confirmed} onChange={(event) => event.target.checked ? openConfirmationContactEditor() : setConfirmed(false)} aria-label={`Mark ${selectedBarangay.name} information confirmed`} />
                 <span className="confirmation-switch" aria-hidden="true"><i /></span>
               </label>
+              {selectedBarangay.confirmed && <button className="confirmation-contact-edit" type="button" onClick={openConfirmationContactEditor}>{selectedBarangay.confirmationContact?.name ? "Edit contact" : "Add contact"}</button>}
             </div>
           </div>
 
@@ -1815,7 +1899,7 @@ function App() {
             <p>Filters are visual placeholders for this demo.</p>
           </section>
 
-          <div className="map-layout barangay-map-layout">
+          <div className={`map-layout barangay-map-layout${pinDraft ? " barangay-map-layout--pin-editing" : ""}`}>
             <section className="map-card" aria-label={`${selectedBarangay.name} collection-site map`}>
               <div className="map-card-heading"><div><p className="eyebrow">Site locations</p><h2>Collection map</h2></div><span className="map-count-card"><strong className="map-count-number">{formatNumber(mappedSiteCount)}</strong> mapped</span></div>
               <MapModeNotice
@@ -1897,7 +1981,7 @@ function App() {
                   disabled={!selectedPinHasMapCoordinates && mapPinPoints.length === 0}
                   onClick={() => {
                     if (selectedPinHasMapCoordinates) {
-                      setMapFocus({ type: "point", point: [Number(selectedPinForMap.latitude), Number(selectedPinForMap.longitude)] });
+                      setMapFocus({ type: "point", point: [Number(selectedPinForMap.latitude), Number(selectedPinForMap.longitude)], zoom: 19 });
                     } else {
                       setMapFocus({ type: "bounds", points: mapPinPoints });
                     }
@@ -1934,50 +2018,80 @@ function App() {
                   </div>
                 </div>
                 {pinDraft ? (
-                  <form className="pin-editor" onSubmit={savePin}>
-                    <div className="editor-topline"><div><p className="eyebrow">{pinDraft.isNew ? "New site" : "Edit site"}</p><h3>{pinDraft.isNew ? "Collection-site pin" : pinDraft.name}</h3></div><button className="icon-close icon-close--small" type="button" aria-label="Cancel pin editing" onClick={cancelMapMode}>×</button></div>
-                    <label className="field-label">Site name<input autoFocus value={pinDraft.name} onChange={(event) => setPinDraft((current) => ({ ...current, name: event.target.value }))} placeholder="e.g. Site 3, Riverside drop-off" /></label>
-                    <label className="field-label">Assigned purok<input list="barangay-purok-options" value={pinDraft.purok} onChange={(event) => setPinDraft((current) => ({ ...current, purok: event.target.value }))} placeholder="e.g. Purok 1" /><datalist id="barangay-purok-options">{selectedBarangay.puroks.map((purok) => <option key={purok} value={purok} />)}</datalist></label>
-                    <div className="coordinate-fields"><label className="field-label">Latitude<input type="number" step="any" value={pinDraft.latitude} onChange={(event) => setPinDraft((current) => ({ ...current, latitude: event.target.value }))} /></label><label className="field-label">Longitude<input type="number" step="any" value={pinDraft.longitude} onChange={(event) => setPinDraft((current) => ({ ...current, longitude: event.target.value }))} /></label></div>
-                    {pinDraft.location?.source === "device_gps" && <p className="field-help gps-capture-note">GPS location captured{Number.isFinite(pinDraft.location.accuracy_m) ? ` · about ±${pinDraft.location.accuracy_m} m` : ""}. A Google Maps link will be saved with this pin.</p>}
-                    <div className="site-schedule-editor">
-                      <fieldset className="site-schedule-group">
-                        <legend>Pickup schedule</legend>
-                        <label className="field-label">Date<input type="date" value={scheduleFieldValue(pinDraft.schedule ?? pinDraft.sourceSchedule, "pick-up", "date")} onChange={(event) => setPinDraft((current) => current ? ({ ...current, schedule: updateScheduleField(current.schedule ?? current.sourceSchedule, "pick-up", "date", event.target.value) }) : current)} /></label>
-                        <div className="site-schedule-fields">
-                          <label className="field-label">Day<input value={scheduleFieldValue(pinDraft.schedule ?? pinDraft.sourceSchedule, "pick-up", "day")} onChange={(event) => setPinDraft((current) => current ? ({ ...current, schedule: updateScheduleField(current.schedule ?? current.sourceSchedule, "pick-up", "day", event.target.value) }) : current)} placeholder="Monday" /></label>
-                          <label className="field-label">Time<input value={scheduleFieldValue(pinDraft.schedule ?? pinDraft.sourceSchedule, "pick-up", "time")} onChange={(event) => setPinDraft((current) => current ? ({ ...current, schedule: updateScheduleField(current.schedule ?? current.sourceSchedule, "pick-up", "time", event.target.value) }) : current)} placeholder="5:00 AM - 7:00 AM" /></label>
-                        </div>
-                      </fieldset>
-                      <fieldset className="site-schedule-group">
-                        <legend>Drop-off schedule</legend>
-                        <label className="field-label">Date<input type="date" value={scheduleFieldValue(pinDraft.schedule ?? pinDraft.sourceSchedule, "drop-off", "date")} onChange={(event) => setPinDraft((current) => current ? ({ ...current, schedule: updateScheduleField(current.schedule ?? current.sourceSchedule, "drop-off", "date", event.target.value) }) : current)} /></label>
-                        <div className="site-schedule-fields">
-                          <label className="field-label">Day<input value={scheduleFieldValue(pinDraft.schedule ?? pinDraft.sourceSchedule, "drop-off", "day")} onChange={(event) => setPinDraft((current) => current ? ({ ...current, schedule: updateScheduleField(current.schedule ?? current.sourceSchedule, "drop-off", "day", event.target.value) }) : current)} placeholder="Monday" /></label>
-                          <label className="field-label">Time<input value={scheduleFieldValue(pinDraft.schedule ?? pinDraft.sourceSchedule, "drop-off", "time")} onChange={(event) => setPinDraft((current) => current ? ({ ...current, schedule: updateScheduleField(current.schedule ?? current.sourceSchedule, "drop-off", "time", event.target.value) }) : current)} placeholder="5:00 AM - 7:00 AM" /></label>
-                        </div>
-                      </fieldset>
+                  pinEditorOpen ? (
+                    <form className="pin-editor pin-editor-form" onSubmit={savePin}>
+                      <header className="pin-editor-header">
+                        <div><p className="eyebrow">{pinDraft.isNew ? "New collection site" : "Edit collection site"}</p><h2 id="pin-editor-title">{pinDraft.isNew ? "Add a collection-site pin" : pinDraft.name}</h2><p className="pin-editor-context">{selectedBarangay.name}</p></div>
+                        <button className="icon-close" type="button" aria-label="Cancel pin editing" onClick={cancelMapMode}>×</button>
+                      </header>
+                      <div className="pin-editor-body">
+                        <section className="pin-editor-section" aria-labelledby="pin-site-details-title">
+                          <div className="pin-editor-section-heading"><h3 id="pin-site-details-title">Site details</h3><span>Required fields</span></div>
+                          <label className="field-label">Site name<input autoFocus value={pinDraft.name} onChange={(event) => setPinDraft((current) => ({ ...current, name: event.target.value }))} placeholder="e.g. Site 3, Riverside drop-off" /></label>
+                          <label className="field-label">Assigned purok<input list="barangay-purok-options" value={pinDraft.purok} onChange={(event) => setPinDraft((current) => ({ ...current, purok: event.target.value }))} placeholder="e.g. Purok 1" /><datalist id="barangay-purok-options">{selectedBarangay.puroks.map((purok) => <option key={purok} value={purok} />)}</datalist></label>
+                          <label className="field-label">Status type<select value={pinDraft.statusType ?? pinDraft.sourceStatusLabel ?? ""} onChange={(event) => setPinDraft((current) => ({ ...current, statusType: event.target.value }))}>
+                            <option value="">Select a status type</option>
+                            {[pinDraft.statusType ?? pinDraft.sourceStatusLabel, "Existing", "Corrected/Adjusted", "Removed collection point", "Unverified / For Checking", "With remarks", "New"]
+                              .filter((status, index, statuses) => status && statuses.indexOf(status) === index)
+                              .map((status) => <option key={status} value={status}>{status}</option>)}
+                          </select></label>
+                        </section>
+                        <section className="pin-editor-section" aria-labelledby="pin-location-title">
+                          <div className="pin-editor-section-heading"><h3 id="pin-location-title">Location</h3><span>Drag the pin or enter coordinates</span></div>
+                          <div className="coordinate-fields"><label className="field-label">Latitude<input type="number" step="any" value={pinDraft.latitude} onChange={(event) => setPinDraft((current) => ({ ...current, latitude: event.target.value }))} /></label><label className="field-label">Longitude<input type="number" step="any" value={pinDraft.longitude} onChange={(event) => setPinDraft((current) => ({ ...current, longitude: event.target.value }))} /></label></div>
+                          {pinDraft.location?.source === "device_gps" && <p className="field-help gps-capture-note">GPS location captured{Number.isFinite(pinDraft.location.accuracy_m) ? ` · about ±${pinDraft.location.accuracy_m} m` : ""}. A Google Maps link will be saved with this pin.</p>}
+                          <div className="pin-location-map-adjust"><span>Want to place it more precisely on the map?</span><button className="quiet-small-button" type="button" disabled={!hasMapCoordinates(pinDraft)} onClick={() => { setPinEditorOpen(false); setMapFocus({ type: "point", point: [Number(pinDraft.latitude), Number(pinDraft.longitude)], zoom: 19 }); }}>Adjust pin on map</button></div>
+                          <PinLocationAssistant
+                            pinId={pinDraft.id}
+                            latitude={pinDraft.latitude}
+                            longitude={pinDraft.longitude}
+                            onCoordinatesChange={({ latitude, longitude }) => setPinDraft((current) => current ? ({
+                              ...current,
+                              latitude: Number(latitude.toFixed(6)),
+                              longitude: Number(longitude.toFixed(6)),
+                            }) : current)}
+                          />
+                        </section>
+                        <section className="pin-editor-section pin-editor-schedule-section" aria-labelledby="pin-schedule-title">
+                          <div className="pin-editor-section-heading"><h3 id="pin-schedule-title">Collection schedule</h3><span>Optional</span></div>
+                          <div className="site-schedule-editor">
+                            <fieldset className="site-schedule-group">
+                              <legend>Pickup</legend>
+                              <label className="field-label">Date<input type="date" value={scheduleFieldValue(pinDraft.schedule ?? pinDraft.sourceSchedule, "pick-up", "date")} onChange={(event) => setPinDraft((current) => current ? ({ ...current, schedule: updateScheduleField(current.schedule ?? current.sourceSchedule, "pick-up", "date", event.target.value) }) : current)} /></label>
+                              <div className="site-schedule-fields">
+                                <label className="field-label">Day<input value={scheduleFieldValue(pinDraft.schedule ?? pinDraft.sourceSchedule, "pick-up", "day")} onChange={(event) => setPinDraft((current) => current ? ({ ...current, schedule: updateScheduleField(current.schedule ?? current.sourceSchedule, "pick-up", "day", event.target.value) }) : current)} placeholder="Monday" /></label>
+                                <label className="field-label">Time<input value={scheduleFieldValue(pinDraft.schedule ?? pinDraft.sourceSchedule, "pick-up", "time")} onChange={(event) => setPinDraft((current) => current ? ({ ...current, schedule: updateScheduleField(current.schedule ?? current.sourceSchedule, "pick-up", "time", event.target.value) }) : current)} placeholder="5:00 AM - 7:00 AM" /></label>
+                              </div>
+                            </fieldset>
+                            <fieldset className="site-schedule-group">
+                              <legend>Drop-off</legend>
+                              <label className="field-label">Date<input type="date" value={scheduleFieldValue(pinDraft.schedule ?? pinDraft.sourceSchedule, "drop-off", "date")} onChange={(event) => setPinDraft((current) => current ? ({ ...current, schedule: updateScheduleField(current.schedule ?? current.sourceSchedule, "drop-off", "date", event.target.value) }) : current)} /></label>
+                              <div className="site-schedule-fields">
+                                <label className="field-label">Day<input value={scheduleFieldValue(pinDraft.schedule ?? pinDraft.sourceSchedule, "drop-off", "day")} onChange={(event) => setPinDraft((current) => current ? ({ ...current, schedule: updateScheduleField(current.schedule ?? current.sourceSchedule, "drop-off", "day", event.target.value) }) : current)} placeholder="Monday" /></label>
+                                <label className="field-label">Time<input value={scheduleFieldValue(pinDraft.schedule ?? pinDraft.sourceSchedule, "drop-off", "time")} onChange={(event) => setPinDraft((current) => current ? ({ ...current, schedule: updateScheduleField(current.schedule ?? current.sourceSchedule, "drop-off", "time", event.target.value) }) : current)} placeholder="5:00 AM - 7:00 AM" /></label>
+                              </div>
+                            </fieldset>
+                          </div>
+                        </section>
+                        <details className="pin-editor-notes">
+                          <summary><span>Remarks and review note</span><small>{pinDraft.remarks || pinDraft.sourceRemarks || pinDraft.notes ? "Existing notes" : "Optional"}</small></summary>
+                          <div className="pin-editor-notes-fields">
+                            <label className="field-label">Site remarks<textarea value={pinDraft.remarks ?? pinDraft.sourceRemarks ?? ""} onChange={(event) => setPinDraft((current) => ({ ...current, remarks: event.target.value }))} rows="2" placeholder="Add site remarks" /></label>
+                            <label className="field-label">Review note<textarea value={pinDraft.notes} onChange={(event) => setPinDraft((current) => ({ ...current, notes: event.target.value }))} rows="2" placeholder="Add a note from the discussion" /></label>
+                          </div>
+                        </details>
+                      </div>
+                      <footer className="editor-actions pin-editor-actions"><button className="quiet-small-button" type="button" onClick={cancelMapMode}>Cancel</button><button className="primary-small-button" type="submit">{pinDraft.isNew ? "Save pin" : "Save changes"}</button></footer>
+                    </form>
+                  ) : (
+                    <div className="pin-map-edit-card">
+                      <div className="pin-detail-topline"><span className="pin-status-dot" /><span className="eyebrow">Pin location draft</span></div>
+                      <h3>{pinDraft.name}</h3>
+                      <p>Drag the selected pin on the map to adjust its placement. Your changes are still a draft.</p>
+                      {hasMapCoordinates(pinDraft) && <code>{coordinateText(pinDraft.latitude, pinDraft.longitude)}</code>}
+                      <div className="pin-detail-actions"><button className="primary-small-button" type="button" onClick={() => setPinEditorOpen(true)}>Return to pin editor</button><button className="quiet-small-button" type="button" onClick={cancelMapMode}>Cancel edit</button></div>
                     </div>
-                    <label className="field-label">Status type<select value={pinDraft.statusType ?? pinDraft.sourceStatusLabel ?? ""} onChange={(event) => setPinDraft((current) => ({ ...current, statusType: event.target.value }))}>
-                      <option value="">Select a status type</option>
-                      {[pinDraft.statusType ?? pinDraft.sourceStatusLabel, "Existing", "Corrected/Adjusted", "Removed collection point", "Unverified / For Checking", "With remarks", "New"]
-                        .filter((status, index, statuses) => status && statuses.indexOf(status) === index)
-                        .map((status) => <option key={status} value={status}>{status}</option>)}
-                    </select></label>
-                    <label className="field-label">Remarks<textarea value={pinDraft.remarks ?? pinDraft.sourceRemarks ?? ""} onChange={(event) => setPinDraft((current) => ({ ...current, remarks: event.target.value }))} rows="2" placeholder="Add site remarks" /></label>
-                    <PinLocationAssistant
-                      pinId={pinDraft.id}
-                      latitude={pinDraft.latitude}
-                      longitude={pinDraft.longitude}
-                      onCoordinatesChange={({ latitude, longitude }) => setPinDraft((current) => current ? ({
-                        ...current,
-                        latitude: Number(latitude.toFixed(6)),
-                        longitude: Number(longitude.toFixed(6)),
-                      }) : current)}
-                    />
-                    <label className="field-label">Review note<textarea value={pinDraft.notes} onChange={(event) => setPinDraft((current) => ({ ...current, notes: event.target.value }))} rows="2" placeholder="Add a note from the discussion" /></label>
-                    <div className="editor-actions"><button className="primary-small-button" type="submit">{pinDraft.isNew ? "Save pin" : "Save changes"}</button><button className="quiet-small-button" type="button" onClick={cancelMapMode}>Cancel</button></div>
-                  </form>
+                  )
                 ) : selectedPin ? (
                   <div className="pin-detail-card">
                     <div className="pin-detail-topline"><span className={`pin-status-dot${selectedPin.sourceStatus === "removed" ? " pin-status-dot--removed" : ""}`} /><span className="eyebrow">{selectedPin.sourceStatusLabel || (selectedPin.sourceStatus === "removed" ? "Removed in source export" : selectedPin.sourceStatus === "new" ? "Added in this review" : "Site record")}</span></div>
@@ -2178,6 +2292,23 @@ function App() {
           <label className="field-label">Puroks<textarea value={barangayDetailsDraft.puroks} onChange={(event) => setBarangayDetailsDraft((current) => ({ ...current, puroks: event.target.value }))} rows="7" placeholder={"Purok 1\nPurok 2\nPurok 3"} /><small>Enter one purok per line. Commas are also accepted.</small></label>
           <label className="field-label">Barangay review notes<textarea value={barangayDetailsDraft.notes} onChange={(event) => setBarangayDetailsDraft((current) => ({ ...current, notes: event.target.value }))} rows="4" placeholder="Add details or questions raised during the review" /></label>
           <div className="dialog-actions"><button className="quiet-small-button" type="button" onClick={() => setShowBarangayDetails(false)}>Cancel</button><button className="primary-small-button" type="submit">Save details</button></div>
+        </form>
+      </DialogShell>
+
+      <DialogShell open={showConfirmationContact} onClose={() => setShowConfirmationContact(false)} titleId="confirmation-contact-title" className="confirmation-contact-dialog">
+        <header className="dialog-header">
+          <div className="dialog-heading-lockup"><span className="confirmation-contact-mark" aria-hidden="true">✓</span><div><p className="eyebrow">Barangay confirmation</p><h2 id="confirmation-contact-title">{selectedBarangay?.confirmed ? "Update contact details" : "Confirm barangay details"}</h2></div></div>
+          <button className="icon-close" type="button" aria-label="Close confirmation details" onClick={() => setShowConfirmationContact(false)}>×</button>
+        </header>
+        <form className="confirmation-contact-form" onSubmit={saveConfirmationContact}>
+          <p className="confirmation-contact-intro">Record who you spoke with so this review has a contact for the barangay confirmation.</p>
+          <label className="field-label">Official’s name<input autoFocus required value={confirmationContactDraft.name} onChange={(event) => setConfirmationContactDraft((current) => ({ ...current, name: event.target.value }))} placeholder="Name of the person you spoke with" /></label>
+          <div className="confirmation-contact-fields">
+            <label className="field-label">Position or role<input value={confirmationContactDraft.position} onChange={(event) => setConfirmationContactDraft((current) => ({ ...current, position: event.target.value }))} placeholder="e.g. Barangay Secretary" /></label>
+            <label className="field-label">Contact number<input type="tel" value={confirmationContactDraft.phone} onChange={(event) => setConfirmationContactDraft((current) => ({ ...current, phone: event.target.value }))} placeholder="Phone number" /></label>
+            <label className="field-label confirmation-contact-email">Email address<input type="email" value={confirmationContactDraft.email} onChange={(event) => setConfirmationContactDraft((current) => ({ ...current, email: event.target.value }))} placeholder="name@example.com" /></label>
+          </div>
+          <div className="dialog-actions"><button className="quiet-small-button" type="button" onClick={() => setShowConfirmationContact(false)}>Cancel</button><button className="primary-small-button" type="submit">{selectedBarangay?.confirmed ? "Save contact" : "Confirm barangay"}</button></div>
         </form>
       </DialogShell>
 
