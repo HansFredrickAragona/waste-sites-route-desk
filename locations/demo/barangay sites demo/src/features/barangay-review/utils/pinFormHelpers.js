@@ -3,13 +3,13 @@ export function coordinateText(latitude, longitude) {
 }
 
 export const SCHEDULE_DAYS = [
-  { code: "MON", shortLabel: "MON", label: "Monday" },
-  { code: "TUES", shortLabel: "Tues", label: "Tuesday" },
-  { code: "WED", shortLabel: "Wed", label: "Wednesday" },
-  { code: "THURS", shortLabel: "Thurs", label: "Thursday" },
-  { code: "FRI", shortLabel: "Fri", label: "Friday" },
-  { code: "SAT", shortLabel: "Sat", label: "Saturday" },
-  { code: "SUN", shortLabel: "Sun", label: "Sunday" },
+  { code: "MON", label: "Monday" },
+  { code: "TUES", label: "Tuesday" },
+  { code: "WED", label: "Wednesday" },
+  { code: "THURS", label: "Thursday" },
+  { code: "FRI", label: "Friday" },
+  { code: "SAT", label: "Saturday" },
+  { code: "SUN", label: "Sunday" },
 ];
 
 export function scheduleDayCode(value) {
@@ -26,7 +26,7 @@ export function sourceScheduleRows(schedule) {
   if (!Array.isArray(schedule)) return [];
   return schedule.flatMap((entry) => Object.entries(entry ?? {}).map(([kind, timing]) => ({
     label: kind.replace(/-/g, " "),
-    value: [SCHEDULE_DAYS.find(({ code }) => code === scheduleDayCode(timing?.day))?.shortLabel ?? timing?.day, timing?.time].filter(Boolean).join(" · ") || "Not provided",
+    value: [SCHEDULE_DAYS.find(({ code }) => code === scheduleDayCode(timing?.day))?.label ?? timing?.day, timing?.time].filter(Boolean).join(" · ") || "Not provided",
   })));
 }
 

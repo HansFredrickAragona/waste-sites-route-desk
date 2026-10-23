@@ -12,7 +12,7 @@ export default function ScheduleDayField({ value, onChange }) {
           <option value="">Select day</option>
           {SCHEDULE_DAYS.map((day) => <option key={day.code} value={day.code}>{day.label}</option>)}
         </select>
-        <span className="schedule-day-selected" aria-hidden="true">{selectedDay?.shortLabel ?? "Select day"}</span>
+        <span className="schedule-day-selected" aria-hidden="true">{selectedDay?.label ?? "Select day"}</span>
       </span>
     </label>
   );
