@@ -69,6 +69,65 @@ function formatTime(value) {
   return Number.isNaN(date.getTime()) ? "Time unavailable" : date.toLocaleString();
 }
 
+function summarizeReviewChanges(activityLog) {
+  const categoryByAction = {
+    "Added collection-site pin": "added",
+    "Added firing line": "added",
+    "Deleted collection-site pin": "removed",
+    "Deleted firing line": "removed",
+    "Updated collection-site pin": "edited",
+    "Updated firing line": "edited",
+    "Disconnected firing-line segment": "edited",
+    "Updated barangay details": "edited",
+  };
+  const chronological = [...activityLog].reverse();
+  const reversibleChanges = [];
+
+  chronological.forEach((entry) => {
+    if (entry.action?.startsWith("Undid: ")) {
+      const undoneAction = entry.action.slice("Undid: ".length);
+      for (let index = reversibleChanges.length - 1; index >= 0; index -= 1) {
+        const candidate = reversibleChanges[index];
+        if (candidate.action === undoneAction && candidate.itemName === entry.itemName && candidate.barangayId === entry.barangayId) {
+          reversibleChanges.splice(index, 1);
+          break;
+        }
+      }
+      return;
+    }
+    if (categoryByAction[entry.action]) reversibleChanges.push(entry);
+  });
+
+  const finalChanges = new Map();
+  reversibleChanges.forEach((entry) => {
+    const operation = categoryByAction[entry.action];
+    const itemKey = [entry.barangayId, entry.itemType, entry.itemName].join("|");
+    const previous = finalChanges.get(itemKey);
+    if (!previous) {
+      finalChanges.set(itemKey, { ...entry, category: operation });
+      return;
+    }
+    if (operation === "removed") {
+      if (previous.category === "added") finalChanges.delete(itemKey);
+      else finalChanges.set(itemKey, { ...entry, category: "removed" });
+      return;
+    }
+    if (operation === "added" && previous.category === "removed") {
+      finalChanges.set(itemKey, { ...entry, category: "edited" });
+      return;
+    }
+    const category = previous.category === "added" ? "added" : "edited";
+    finalChanges.set(itemKey, { ...entry, category });
+  });
+
+  return ["added", "removed", "edited"].reduce((summary, category) => {
+    summary[category] = [...finalChanges.values()]
+      .filter((entry) => entry.category === category)
+      .sort((left, right) => new Date(right.timestamp).getTime() - new Date(left.timestamp).getTime());
+    return summary;
+  }, { added: [], removed: [], edited: [] });
+}
+
 function coordinateText(latitude, longitude) {
   return `${Number(latitude).toFixed(6)}, ${Number(longitude).toFixed(6)}`;
 }
@@ -461,6 +520,8 @@ function App() {
   const [showActivity, setShowActivity] = useState(false);
   const [showBarangayDetails, setShowBarangayDetails] = useState(false);
   const [barangayDetailsDraft, setBarangayDetailsDraft] = useState({ name: "", puroks: "", notes: "" });
+  const [showExportConfirmation, setShowExportConfirmation] = useState(false);
+  const [exportFilename, setExportFilename] = useState("");
   const [mode, setMode] = useState("browse");
   const [selectedPinId, setSelectedPinId] = useState(null);
   const [selectedLineId, setSelectedLineId] = useState(null);
@@ -661,6 +722,8 @@ function App() {
     ? lineDraft.coordinates[selectedLineNodeIndex] ?? null
     : null;
   const activityLog = review?.activityLog ?? EMPTY_ACTIVITY;
+  const exportChangeSummary = summarizeReviewChanges(activityLog);
+  const exportChangeCount = exportChangeSummary.added.length + exportChangeSummary.removed.length + exportChangeSummary.edited.length;
   const activeJson = activeJsonId === BUNDLED_JSON_ID && !bundledJsonHidden
     ? { id: BUNDLED_JSON_ID, name: "barangay_sites.json", kind: "Bundled source" }
     : jsonLibrary.find((item) => item.id === activeJsonId) ?? null;
@@ -1564,18 +1627,39 @@ function App() {
     });
   }
 
+  function openExportConfirmation() {
+    if (!review || !activeJson) return;
+    const baseName = (activeJson.name || "barangay_sites.json")
+      .replace(/\.json$/i, "")
+      .replace(/[^a-z0-9_-]+/gi, "-")
+      .replace(/^-+|-+$/g, "") || "barangay-sites";
+    setExportFilename(`${baseName}-review-${new Date().toISOString().slice(0, 10)}.json`);
+    setShowExportConfirmation(true);
+  }
+
   function exportReview() {
     if (!review) return;
+    const safeBaseName = exportFilename.trim()
+      .replace(/[<>:"/\\|?*\u0000-\u001F]/g, "-")
+      .replace(/\s+/g, " ")
+      .replace(/[. ]+$/g, "")
+      .replace(/(?:\.json)+$/i, "")
+      .trim();
+    if (!safeBaseName) {
+      setNotice({ kind: "error", text: "Enter a file name before exporting." });
+      return;
+    }
+    const downloadName = `${safeBaseName}.json`;
     const exported = { ...review, exportedAt: new Date().toISOString() };
     const blob = new Blob([JSON.stringify(exported, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    const baseName = (activeJson?.name || "barangay_sites.json").replace(/\.json$/i, "").replace(/[^a-z0-9_-]+/gi, "-");
-    link.download = `${baseName}-review-${new Date().toISOString().slice(0, 10)}.json`;
+    link.download = downloadName;
     link.click();
     URL.revokeObjectURL(url);
-    setNotice({ kind: "success", text: "Review data exported as JSON." });
+    setShowExportConfirmation(false);
+    setNotice({ kind: "success", text: `${downloadName} exported as JSON.` });
   }
 
   const filteredBarangays = useMemo(() => {
@@ -1633,7 +1717,7 @@ function App() {
             <input ref={fileInputRef} className="hidden-file-input" type="file" multiple accept="application/json,.json" onChange={handleAddJson} aria-label="Add one or more barangay site or review JSON files" />
             <button className="secondary-action json-add-action" type="button" title="Add one or more raw site-record JSON files or review exports" onClick={() => fileInputRef.current?.click()}>Add JSON</button>
             <button className="json-delete-action" type="button" disabled={!canDeleteActiveJson} title={canDeleteActiveJson ? "Remove this JSON and its review copy from this browser. The source file on disk remains." : "Select a JSON file to delete it."} onClick={() => setShowJsonDeleteConfirmation(true)}>Delete JSON</button>
-            <button className="export-schedule-button" type="button" onClick={exportReview} disabled={!activeJson}>Export JSON <span aria-hidden="true">↓</span></button>
+            <button className="export-schedule-button" type="button" onClick={openExportConfirmation} disabled={!activeJson}>Export JSON <span aria-hidden="true">↓</span></button>
             <button className="secondary-action undo-action" type="button" disabled={undoCount === 0} aria-keyshortcuts="Control+Z Meta+Z" title="Undo the last pin move or saved review change (Ctrl+Z)" onClick={undoLastAction}>↶ Undo</button>
             <ActivityLogButton count={activityLog.length} onClick={() => setShowActivity(true)} />
           </div>
@@ -1874,15 +1958,12 @@ function App() {
                         </div>
                       </fieldset>
                     </div>
-                    <label className="field-label">Status type<input list="barangay-site-status-types" value={pinDraft.statusType ?? pinDraft.sourceStatusLabel ?? ""} onChange={(event) => setPinDraft((current) => ({ ...current, statusType: event.target.value }))} placeholder="e.g. Existing" /></label>
-                    <datalist id="barangay-site-status-types">
-                      <option value="Existing" />
-                      <option value="Corrected/Adjusted" />
-                      <option value="Removed collection point" />
-                      <option value="Unverified / For Checking" />
-                      <option value="With remarks" />
-                      <option value="New" />
-                    </datalist>
+                    <label className="field-label">Status type<select value={pinDraft.statusType ?? pinDraft.sourceStatusLabel ?? ""} onChange={(event) => setPinDraft((current) => ({ ...current, statusType: event.target.value }))}>
+                      <option value="">Select a status type</option>
+                      {[pinDraft.statusType ?? pinDraft.sourceStatusLabel, "Existing", "Corrected/Adjusted", "Removed collection point", "Unverified / For Checking", "With remarks", "New"]
+                        .filter((status, index, statuses) => status && statuses.indexOf(status) === index)
+                        .map((status) => <option key={status} value={status}>{status}</option>)}
+                    </select></label>
                     <label className="field-label">Remarks<textarea value={pinDraft.remarks ?? pinDraft.sourceRemarks ?? ""} onChange={(event) => setPinDraft((current) => ({ ...current, remarks: event.target.value }))} rows="2" placeholder="Add site remarks" /></label>
                     <PinLocationAssistant
                       pinId={pinDraft.id}
@@ -2061,6 +2142,34 @@ function App() {
         </div>
       </DialogShell>
 
+      <DialogShell open={showExportConfirmation} onClose={() => setShowExportConfirmation(false)} titleId="export-confirmation-title" className="export-confirmation-dialog">
+        <header className="dialog-header export-confirmation-header">
+          <div className="dialog-heading-lockup"><span className="export-confirmation-mark" aria-hidden="true">↓</span><div><h2 id="export-confirmation-title">Review JSON before export</h2><p>Check the changes and name the file you’ll download.</p></div></div>
+          <button className="icon-close" type="button" aria-label="Close export summary" onClick={() => setShowExportConfirmation(false)}>×</button>
+        </header>
+        <div className="export-confirmation-body">
+          <div className="export-source-card"><span>Original JSON</span><strong>{activeJson?.name ?? "No JSON selected"}</strong></div>
+          <label className="field-label export-filename-field">Export file name<input autoFocus value={exportFilename} onChange={(event) => setExportFilename(event.target.value)} aria-label="Export file name" /><small>The file will be downloaded as a .json file.</small></label>
+          <div className="export-change-summary" aria-label="Summary of changes from the original JSON">
+            <article className="export-change-total export-change-total--added"><span>Added</span><strong>{formatNumber(exportChangeSummary.added.length)}</strong></article>
+            <article className="export-change-total export-change-total--removed"><span>Removed</span><strong>{formatNumber(exportChangeSummary.removed.length)}</strong></article>
+            <article className="export-change-total export-change-total--edited"><span>Edited</span><strong>{formatNumber(exportChangeSummary.edited.length)}</strong></article>
+          </div>
+          {exportChangeCount === 0 && <p className="export-no-changes">No recorded collection-site, firing-line, or barangay-detail changes from the original JSON.</p>}
+          <div className="export-change-groups">
+            {[
+              { category: "added", title: "Added", entries: exportChangeSummary.added },
+              { category: "removed", title: "Removed", entries: exportChangeSummary.removed },
+              { category: "edited", title: "Edited", entries: exportChangeSummary.edited },
+            ].map((group) => <section className={`export-change-group export-change-group--${group.category}`} key={group.category}>
+              <header><h3>{group.title}</h3><span>{formatNumber(group.entries.length)}</span></header>
+              {group.entries.length ? <ul>{group.entries.map((entry, index) => <li key={`${entry.id ?? entry.itemName}-${index}`}><strong>{entry.itemName || entry.itemType}</strong><small>{entry.barangayName || "Barangay not recorded"}{entry.details ? ` · ${entry.details}` : ""}</small><time dateTime={entry.timestamp}>{formatTime(entry.timestamp)}</time></li>)}</ul> : <p>No {group.title.toLocaleLowerCase()} items recorded.</p>}
+            </section>)}
+          </div>
+        </div>
+        <footer className="dialog-actions export-confirmation-actions"><button className="quiet-small-button" type="button" onClick={() => setShowExportConfirmation(false)}>Cancel</button><button className="primary-small-button" type="button" onClick={exportReview}>Download JSON</button></footer>
+      </DialogShell>
+
       <DialogShell open={showBarangayDetails} onClose={() => setShowBarangayDetails(false)} titleId="barangay-details-title" className="details-dialog">
         <header className="dialog-header"><div className="dialog-heading-lockup"><span className="details-mark" aria-hidden="true">⌂</span><div><p className="eyebrow">Barangay information</p><h2 id="barangay-details-title">Update barangay details</h2></div></div><button className="icon-close" type="button" aria-label="Close barangay details" onClick={() => setShowBarangayDetails(false)}>×</button></header>
         <form className="details-form" onSubmit={saveBarangayDetails}>
@@ -2083,11 +2192,18 @@ function App() {
   );
 }
 
-function MetricCard({ tone, label, value, detail, icon, compact = false }) {
-  return <article className={`dashboard-metric dashboard-metric--${tone}${compact ? " dashboard-metric--compact" : ""}`}><div className="dashboard-metric-topline">{!compact && <span className="dashboard-metric-icon-wrap"><span className="dashboard-metric-icon" aria-hidden="true">{icon}</span></span>}<span className="dashboard-metric-label">{label}</span></div><strong className="dashboard-metric-value">{formatNumber(value)}</strong>{!compact && <p className="dashboard-metric-description">{detail}</p>}</article>;
+function MetricCard({ tone, label, value, detail, icon, compact = false, onClick }) {
+  const className = `dashboard-metric dashboard-metric--${tone}${compact ? " dashboard-metric--compact" : ""}${onClick ? " dashboard-metric-button" : ""}`;
+  const content = <><div className="dashboard-metric-topline">{!compact && <span className="dashboard-metric-icon-wrap"><span className="dashboard-metric-icon" aria-hidden="true">{icon}</span></span>}<span className="dashboard-metric-label">{label}</span></div><strong className="dashboard-metric-value">{formatNumber(value)}</strong>{!compact && <p className="dashboard-metric-description">{detail}</p>}{onClick && <span className="dashboard-metric-hint">View list <span aria-hidden="true">↗</span></span>}</>;
+  if (onClick) return <button className={className} type="button" onClick={onClick} aria-label={`${label}: ${formatNumber(value)}. View list.`} aria-haspopup="dialog">{content}</button>;
+  return <article className={className}>{content}</article>;
 }
 
 function Dashboard({ barangays, siteCount, confirmedCount, activityLog, activeJsonName, onOpenBarangay }) {
+  const [openKpi, setOpenKpi] = useState(null);
+  const allBarangays = useMemo(() => [...barangays].sort((a, b) => a.name.localeCompare(b.name)), [barangays]);
+  const confirmedBarangays = allBarangays.filter((barangay) => barangay.confirmed);
+  const allSiteEntries = useMemo(() => allBarangays.flatMap((barangay) => barangay.pins.map((pin) => ({ barangay, pin }))), [allBarangays]);
   const largestBarangays = [...barangays].sort((a, b) => b.pins.length - a.pins.length || a.name.localeCompare(b.name)).slice(0, 8);
   const maximumSiteCount = Math.max(1, ...largestBarangays.map((barangay) => barangay.pins.length));
   const reviewQueue = [...barangays].filter((barangay) => !barangay.confirmed).sort((a, b) => b.pins.length - a.pins.length);
@@ -2095,15 +2211,23 @@ function Dashboard({ barangays, siteCount, confirmedCount, activityLog, activeJs
   const barangaysWithSites = barangays.filter((barangay) => barangay.pins.length > 0).length;
   const confirmedWithSites = barangays.filter((barangay) => barangay.confirmed && barangay.pins.length > 0).length;
   const siteCoverage = barangaysWithSites === 0 ? 0 : Math.round((confirmedWithSites / barangaysWithSites) * 100);
+  const metricDetails = {
+    barangays: { title: "Barangays", count: barangays.length },
+    sites: { title: "Collection sites", count: siteCount },
+    confirmed: { title: "Confirmed barangays", count: confirmedCount },
+    changes: { title: "Review changes", count: activityLog.length },
+  };
+  const selectedMetric = openKpi ? metricDetails[openKpi] : null;
 
   return (
+    <>
     <section className="dashboard-view barangay-dashboard" aria-labelledby="dashboard-title">
-      <div className="dashboard-heading"><div><p className="eyebrow">Barangay collection-site review</p><h1 id="dashboard-title">Review dashboard</h1><p className="dashboard-subtitle">A quick view of map coverage, barangay confirmations, and review activity.</p></div><div className="dashboard-schedule-chip"><span className="dashboard-live-dot" /><span>Active dataset</span><strong>{activeJsonName} · browser saved</strong></div></div>
+      <div className="dashboard-heading"><div><h1 id="dashboard-title">Review dashboard</h1></div><div className="dashboard-schedule-chip"><span className="dashboard-live-dot" /><span>Active dataset</span><strong>{activeJsonName} · browser saved</strong></div></div>
       <div className="dashboard-metrics">
-        <MetricCard tone="green" label="Barangays" value={barangays.length} compact />
-        <MetricCard tone="orange" label="Collection sites" value={siteCount} compact />
-        <MetricCard tone="violet" label="Confirmed barangays" value={confirmedCount} compact />
-        <MetricCard tone="teal" label="Review changes" value={activityLog.length} compact />
+        <MetricCard tone="green" label="Barangays" value={barangays.length} compact onClick={() => setOpenKpi("barangays")} />
+        <MetricCard tone="orange" label="Collection sites" value={siteCount} compact onClick={() => setOpenKpi("sites")} />
+        <MetricCard tone="violet" label="Confirmed barangays" value={confirmedCount} compact onClick={() => setOpenKpi("confirmed")} />
+        <MetricCard tone="teal" label="Review changes" value={activityLog.length} compact onClick={() => setOpenKpi("changes")} />
       </div>
 
       <section className="dashboard-coverage-panel" aria-labelledby="coverage-title">
@@ -2127,10 +2251,23 @@ function Dashboard({ barangays, siteCount, confirmedCount, activityLog, activeJs
       </div>
 
       <section className="dashboard-activity-panel" aria-labelledby="recent-activity-title">
-        <div className="dashboard-section-heading"><div><p className="eyebrow">Review history</p><h2 id="recent-activity-title">Recent activity</h2></div><span className="dashboard-coverage-tag">{activityLog.length} changes recorded</span></div>
+        <div className="dashboard-section-heading"><div><h2 id="recent-activity-title">Recent activity</h2></div><span className="dashboard-coverage-tag">{activityLog.length} changes recorded</span></div>
         {recentEntries.length ? <ol className="dashboard-recent-list">{recentEntries.map((entry) => <li key={entry.id}><span className="recent-activity-icon">↶</span><div><strong>{entry.action}</strong><small>{entry.itemName} · {entry.barangayName}</small></div><time dateTime={entry.timestamp}>{formatTime(entry.timestamp)}</time></li>)}</ol> : <p className="dashboard-activity-empty">The activity log will fill in as you review barangays together.</p>}
       </section>
     </section>
+    <DialogShell open={Boolean(selectedMetric)} onClose={() => setOpenKpi(null)} titleId="dashboard-kpi-title" className="kpi-detail-dialog">
+      <header className="dialog-header kpi-detail-header">
+        <div><h2 id="dashboard-kpi-title">{selectedMetric?.title ?? "Dashboard details"}</h2><p>{formatNumber(selectedMetric?.count ?? 0)} {openKpi === "sites" ? "collection sites" : openKpi === "changes" ? "review changes" : "barangays"}</p></div>
+        <button className="icon-close" type="button" aria-label="Close details" onClick={() => setOpenKpi(null)}>×</button>
+      </header>
+      <div className="kpi-detail-content">
+        {openKpi === "barangays" && (allBarangays.length ? <ul className="kpi-detail-list">{allBarangays.map((barangay) => <li key={barangay.id}><button className="kpi-detail-row" type="button" onClick={() => { setOpenKpi(null); onOpenBarangay(barangay); }}><span className="kpi-detail-row-main"><strong>{barangay.name}</strong><small>{formatNumber(barangay.pins.length)} collection sites · {barangay.confirmed ? "Confirmed" : "Needs review"}</small></span><span className="kpi-detail-row-arrow" aria-hidden="true">↗</span></button></li>)}</ul> : <p className="kpi-detail-empty">No barangays are in this JSON.</p>)}
+        {openKpi === "sites" && (allSiteEntries.length ? <ul className="kpi-detail-list">{allSiteEntries.map(({ barangay, pin }) => <li key={`${barangay.id}-${pin.id}`}><button className="kpi-detail-row" type="button" onClick={() => { setOpenKpi(null); onOpenBarangay(barangay); }}><span className="kpi-detail-row-main"><strong>{pin.name}</strong><small>{barangay.name} · {pin.purok || "Purok not assigned"} · {hasMapCoordinates(pin) ? `${Number(pin.latitude).toFixed(5)}, ${Number(pin.longitude).toFixed(5)}` : "Coordinates not recorded"}</small></span><span className="kpi-detail-row-arrow" aria-hidden="true">↗</span></button></li>)}</ul> : <p className="kpi-detail-empty">No collection sites are in this JSON.</p>)}
+        {openKpi === "confirmed" && (confirmedBarangays.length ? <ul className="kpi-detail-list">{confirmedBarangays.map((barangay) => <li key={barangay.id}><button className="kpi-detail-row" type="button" onClick={() => { setOpenKpi(null); onOpenBarangay(barangay); }}><span className="kpi-detail-row-main"><strong>{barangay.name}</strong><small>{formatNumber(barangay.pins.length)} collection sites · Confirmed</small></span><span className="kpi-detail-row-arrow" aria-hidden="true">↗</span></button></li>)}</ul> : <p className="kpi-detail-empty">No barangays have been confirmed yet.</p>)}
+        {openKpi === "changes" && (activityLog.length ? <ol className="kpi-detail-list">{activityLog.map((entry) => <li key={entry.id}><article className="kpi-detail-row kpi-detail-row--static"><span className="kpi-detail-row-main"><strong>{entry.action}</strong><small>{entry.itemName || entry.itemType} · {entry.barangayName}{entry.details ? ` · ${entry.details}` : ""}</small></span><time dateTime={entry.timestamp}>{formatTime(entry.timestamp)}</time></article></li>)}</ol> : <p className="kpi-detail-empty">No review changes have been recorded yet.</p>)}
+      </div>
+    </DialogShell>
+    </>
   );
 }
 
