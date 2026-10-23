@@ -1673,20 +1673,19 @@ function App() {
           </div>
           <section className="directory-panel" aria-label="Barangay list">
             <div className="directory-panel-heading">
-              <div><p className="eyebrow">Review workspace</p><h2>Barangays <span>{filteredBarangays.length}</span></h2><p>Open a barangay to review its map, sites, and firing lines.</p></div>
+              <div><h2>Barangays <span>{filteredBarangays.length}</span></h2></div>
               <div className="directory-controls">
                 <label className="directory-search"><span aria-hidden="true">⌕</span><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Find a barangay" aria-label="Find a barangay" /></label>
                 <label className="directory-filter"><span className="sr-only">Filter barangays</span><select value={listFilter} onChange={(event) => setListFilter(event.target.value)}><option value="all">All barangays</option><option value="unconfirmed">Needs confirmation</option><option value="confirmed">Confirmed</option><option value="no-sites">No site pins</option></select></label>
               </div>
             </div>
-            <div className="barangay-list-head" aria-hidden="true"><span>Barangay</span><span>Sites</span><span>Review status</span><span /></div>
+            <div className="barangay-list-head" aria-hidden="true"><span>Barangay</span><span>Sites</span><span>Review status</span></div>
             <div className="barangay-list">
               {filteredBarangays.map((barangay, index) => (
                 <button className="barangay-row" key={barangay.id} type="button" onClick={() => openBarangay(barangay)}>
                   <span className="barangay-row-name"><span className="row-index">{String(index + 1).padStart(2, "0")}</span><span><strong>{barangay.name}</strong><small>{barangay.puroks.length ? `${barangay.puroks.length} purok${barangay.puroks.length === 1 ? "" : "s"} recorded` : "Puroks not yet recorded"}</small></span></span>
                   <span className="barangay-site-count"><strong>{formatNumber(barangay.pins.length)}</strong><small>site{barangay.pins.length === 1 ? "" : "s"}</small></span>
                   <span className={`review-status${barangay.confirmed ? " review-status--confirmed" : ""}`}><i />{barangay.confirmed ? "Confirmed" : "Needs review"}</span>
-                  <span className="row-arrow" aria-hidden="true">↗</span>
                 </button>
               ))}
               {filteredBarangays.length === 0 && (barangays.length === 0
@@ -2084,14 +2083,14 @@ function App() {
   );
 }
 
-function MetricCard({ tone, label, value, detail, icon }) {
-  return <article className={`dashboard-metric dashboard-metric--${tone}`}><div className="dashboard-metric-topline"><span className="dashboard-metric-icon-wrap"><span className="dashboard-metric-icon" aria-hidden="true">{icon}</span></span><span className="dashboard-metric-label">{label}</span></div><strong className="dashboard-metric-value">{formatNumber(value)}</strong><p className="dashboard-metric-description">{detail}</p></article>;
+function MetricCard({ tone, label, value, detail, icon, compact = false }) {
+  return <article className={`dashboard-metric dashboard-metric--${tone}${compact ? " dashboard-metric--compact" : ""}`}><div className="dashboard-metric-topline">{!compact && <span className="dashboard-metric-icon-wrap"><span className="dashboard-metric-icon" aria-hidden="true">{icon}</span></span>}<span className="dashboard-metric-label">{label}</span></div><strong className="dashboard-metric-value">{formatNumber(value)}</strong>{!compact && <p className="dashboard-metric-description">{detail}</p>}</article>;
 }
 
 function Dashboard({ barangays, siteCount, confirmedCount, activityLog, activeJsonName, onOpenBarangay }) {
   const largestBarangays = [...barangays].sort((a, b) => b.pins.length - a.pins.length || a.name.localeCompare(b.name)).slice(0, 8);
   const maximumSiteCount = Math.max(1, ...largestBarangays.map((barangay) => barangay.pins.length));
-  const reviewQueue = [...barangays].filter((barangay) => !barangay.confirmed).sort((a, b) => b.pins.length - a.pins.length).slice(0, 5);
+  const reviewQueue = [...barangays].filter((barangay) => !barangay.confirmed).sort((a, b) => b.pins.length - a.pins.length);
   const recentEntries = activityLog.slice(0, 5);
   const barangaysWithSites = barangays.filter((barangay) => barangay.pins.length > 0).length;
   const confirmedWithSites = barangays.filter((barangay) => barangay.confirmed && barangay.pins.length > 0).length;
@@ -2101,28 +2100,28 @@ function Dashboard({ barangays, siteCount, confirmedCount, activityLog, activeJs
     <section className="dashboard-view barangay-dashboard" aria-labelledby="dashboard-title">
       <div className="dashboard-heading"><div><p className="eyebrow">Barangay collection-site review</p><h1 id="dashboard-title">Review dashboard</h1><p className="dashboard-subtitle">A quick view of map coverage, barangay confirmations, and review activity.</p></div><div className="dashboard-schedule-chip"><span className="dashboard-live-dot" /><span>Active dataset</span><strong>{activeJsonName} · browser saved</strong></div></div>
       <div className="dashboard-metrics">
-        <MetricCard tone="green" label="Barangays" value={barangays.length} detail="Included in the current review copy" icon="⌖" />
-        <MetricCard tone="orange" label="Collection sites" value={siteCount} detail="Source site records across barangays" icon="●" />
-        <MetricCard tone="violet" label="Confirmed barangays" value={confirmedCount} detail={`${formatNumber(barangays.length - confirmedCount)} still to review`} icon="✓" />
-        <MetricCard tone="teal" label="Review changes" value={activityLog.length} detail="Recorded edits and confirmations" icon="↶" />
+        <MetricCard tone="green" label="Barangays" value={barangays.length} compact />
+        <MetricCard tone="orange" label="Collection sites" value={siteCount} compact />
+        <MetricCard tone="violet" label="Confirmed barangays" value={confirmedCount} compact />
+        <MetricCard tone="teal" label="Review changes" value={activityLog.length} compact />
       </div>
 
       <section className="dashboard-coverage-panel" aria-labelledby="coverage-title">
-        <div className="dashboard-coverage-panel-heading"><div><p className="eyebrow">Review coverage</p><h2 id="coverage-title">Barangay confirmation progress</h2></div><span className="dashboard-coverage-tag">{confirmedWithSites} of {barangaysWithSites} with mapped sites confirmed</span></div>
+        <div className="dashboard-coverage-panel-heading"><div><h2 id="coverage-title">Barangay confirmation progress</h2></div><span className="dashboard-coverage-tag">{confirmedWithSites} of {barangaysWithSites} with mapped sites confirmed</span></div>
         <div className="dashboard-coverage-grid">
-          <div className="dashboard-coverage-item"><div className="dashboard-coverage-heading"><div><h3>Confirmed with site locations</h3><p>Barangays confirmed during local review</p></div><strong>{siteCoverage}%</strong></div><div className="dashboard-progress-track"><span style={{ width: `${siteCoverage}%` }} /></div><p className="dashboard-coverage-count">{formatNumber(confirmedWithSites)} confirmed · {formatNumber(Math.max(0, barangaysWithSites - confirmedWithSites))} still open</p></div>
-          <div className="dashboard-coverage-item dashboard-coverage-item--violet"><div className="dashboard-coverage-heading"><div><h3>Barangay puroks recorded</h3><p>Local purok details in the review copy</p></div><strong>{barangays.length === 0 ? 0 : Math.round((barangays.filter((barangay) => barangay.puroks.length > 0).length / barangays.length) * 100)}%</strong></div><div className="dashboard-progress-track"><span style={{ width: `${barangays.length === 0 ? 0 : Math.round((barangays.filter((barangay) => barangay.puroks.length > 0).length / barangays.length) * 100)}%` }} /></div><p className="dashboard-coverage-count">{formatNumber(barangays.filter((barangay) => barangay.puroks.length > 0).length)} barangays have at least one purok recorded</p></div>
+          <div className="dashboard-coverage-item"><div className="dashboard-coverage-heading"><div><h3>Confirmed with site locations</h3></div><strong>{siteCoverage}%</strong></div><div className="dashboard-progress-track"><span style={{ width: `${siteCoverage}%` }} /></div><p className="dashboard-coverage-count">{formatNumber(confirmedWithSites)} confirmed · {formatNumber(Math.max(0, barangaysWithSites - confirmedWithSites))} still open</p></div>
+          <div className="dashboard-coverage-item dashboard-coverage-item--violet"><div className="dashboard-coverage-heading"><div><h3>Barangay puroks recorded</h3></div><strong>{barangays.length === 0 ? 0 : Math.round((barangays.filter((barangay) => barangay.puroks.length > 0).length / barangays.length) * 100)}%</strong></div><div className="dashboard-progress-track"><span style={{ width: `${barangays.length === 0 ? 0 : Math.round((barangays.filter((barangay) => barangay.puroks.length > 0).length / barangays.length) * 100)}%` }} /></div><p className="dashboard-coverage-count">{formatNumber(barangays.filter((barangay) => barangay.puroks.length > 0).length)} barangays have at least one purok recorded</p></div>
         </div>
       </section>
 
       <div className="dashboard-two-column">
         <section className="dashboard-daily-panel" aria-labelledby="largest-title">
-          <div className="dashboard-section-heading"><div><p className="eyebrow">Map distribution</p><h2 id="largest-title">Barangays with the most site pins</h2><p>Open a barangay to inspect its locations on the map.</p></div><span className="dashboard-coverage-tag">Top 8</span></div>
+          <div className="dashboard-section-heading"><div><h2 id="largest-title">Barangays with the most site pins</h2></div><span className="dashboard-coverage-tag">Top 8</span></div>
           <div className="dashboard-site-bars">{largestBarangays.map((barangay) => <button className="dashboard-site-bar-row" key={barangay.id} type="button" onClick={() => onOpenBarangay(barangay)}><span className="dashboard-bar-label">{barangay.name}</span><span className="dashboard-bar-track"><i style={{ width: `${Math.max(3, (barangay.pins.length / maximumSiteCount) * 100)}%` }} /></span><strong>{formatNumber(barangay.pins.length)}</strong><span className={`mini-confirm-mark${barangay.confirmed ? " mini-confirm-mark--on" : ""}`}>{barangay.confirmed ? "✓" : "·"}</span></button>)}</div>
         </section>
 
         <section className="dashboard-review-queue" aria-labelledby="queue-title">
-          <div className="dashboard-section-heading"><div><p className="eyebrow">Next to review</p><h2 id="queue-title">Open barangays</h2><p>Start with an unconfirmed area.</p></div><span className="queue-count">{formatNumber(barangays.length - confirmedCount)}</span></div>
+          <div className="dashboard-section-heading"><div><h2 id="queue-title">Open barangays</h2></div><span className="queue-count">{formatNumber(barangays.length - confirmedCount)}</span></div>
           <div className="review-queue-list">{reviewQueue.map((barangay) => <button type="button" key={barangay.id} className="review-queue-row" onClick={() => onOpenBarangay(barangay)}><span className="queue-row-copy"><strong>{barangay.name}</strong><small>{formatNumber(barangay.pins.length)} site pins · {barangay.puroks.length ? `${barangay.puroks.length} puroks` : "puroks not recorded"}</small></span><span className="queue-arrow" aria-hidden="true">↗</span></button>)}{reviewQueue.length === 0 && <div className="queue-complete"><span>✓</span><strong>All barangays are confirmed</strong><p>New changes can reopen a barangay for another review.</p></div>}</div>
         </section>
       </div>
