@@ -12,6 +12,7 @@ function App() {
     review,
     loadError,
     storageWarning,
+    workspaceStorageWarning,
     notice,
     setNotice,
     activeJson,
@@ -59,10 +60,14 @@ function App() {
     linePoints,
     selectedLineNodeIndex,
     mapFocus,
+    mapView,
+    setMapView,
     deviceLocation,
     selectedPinId,
     selectedLineId,
     pinDraft,
+    pinLocationInput,
+    setPinLocationInput,
     lineDraft,
     pinManagerCollapsed,
     pinEditorOpen,
@@ -91,6 +96,7 @@ function App() {
     setPinEditorOpen,
     savePin,
     setPinDraft,
+    resetWorkspaceSession,
     setPinSearch,
     beginEditPin,
     requestDelete,
@@ -168,10 +174,12 @@ function App() {
     linePoints,
     selectedLineNodeIndex,
     mapFocus,
+    mapView,
     deviceLocation,
     selectedPinId,
     selectedLineId,
     pinDraft,
+    pinLocationInput,
     lineDraft,
     pinManagerCollapsed,
     pinEditorOpen,
@@ -196,12 +204,14 @@ function App() {
     setUndoCount,
     recenterOnCurrentLocation,
     setMapFocus,
+    setMapView,
     setPinManagerCollapsed,
     beginPinFromCurrentLocation,
     beginPinPlacement,
     setPinEditorOpen,
     savePin,
     setPinDraft,
+    setPinLocationInput,
     setPinSearch,
     beginEditPin,
     requestDelete,
@@ -233,15 +243,16 @@ function App() {
           deleteJson: () => setShowJsonDeleteConfirmation(true),
           openExportConfirmation,
           undoLastAction,
+          resetWorkspaceSession,
           openActivityLog: () => setShowActivity(true),
           returnToBarangayList,
-          showMap: () => setPage("map"),
+          showMap: () => { setMapFocus(null); setPage("map"); },
           showDashboard: () => setPage("dashboard"),
         }}
         refs={{ fileInputRef }}
       />
 
-      {storageWarning && <div className="storage-warning" role="status">Browser storage is full. Keep an exported JSON copy of your review changes.</div>}
+      {(storageWarning || workspaceStorageWarning) && <div className="storage-warning" role="status">Browser storage could not save all progress. Export saved review changes; unfinished edits may not recover. Check that this browser allows site storage.</div>}
       {notice && <div className={`toast toast--${notice.kind}`} role="status"><span>{notice.text}</span><button type="button" aria-label="Dismiss message" onClick={() => setNotice(null)}>×</button></div>}
 
       <BarangaysDirectory

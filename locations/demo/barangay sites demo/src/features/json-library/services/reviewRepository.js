@@ -3,6 +3,7 @@ const REVIEW_DATA_STORAGE_PREFIX = `${REVIEW_STORAGE_KEY}:`;
 const JSON_LIBRARY_STORAGE_KEY = "baguio-barangay-site-json-library-v1";
 const ACTIVE_JSON_STORAGE_KEY = "baguio-barangay-site-active-json-v1";
 const HIDDEN_BUNDLED_JSON_STORAGE_KEY = "baguio-barangay-site-hidden-bundled-json-v1";
+const WORKSPACE_SESSION_STORAGE_PREFIX = "baguio-barangay-workspace-session-v1";
 export const BUNDLED_JSON_ID = "bundled-barangay-sites";
 export const NO_JSON_REVIEW_ID = "__no-json__";
 const BUNDLED_JSON_SOURCE = { name: "barangay_sites_v2.json", kind: "Bundled source" };
@@ -289,6 +290,84 @@ export function loadSavedReview(jsonId = BUNDLED_JSON_ID) {
 export function persistReview(value, jsonId = BUNDLED_JSON_ID) {
   try {
     window.localStorage.setItem(`${REVIEW_DATA_STORAGE_PREFIX}${jsonId}`, JSON.stringify(value));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function workspaceSessionStorageKey(jsonId = BUNDLED_JSON_ID) {
+  return `${WORKSPACE_SESSION_STORAGE_PREFIX}:${jsonId || NO_JSON_REVIEW_ID}`;
+}
+
+function validWorkspaceMapView(value) {
+  if (!value || !Array.isArray(value.center) || value.center.length < 2) return null;
+  const latitude = Number(value.center[0]);
+  const longitude = Number(value.center[1]);
+  const zoom = Number(value.zoom);
+  if (!Number.isFinite(latitude) || latitude < -90 || latitude > 90 ||
+    !Number.isFinite(longitude) || longitude < -180 || longitude > 180 ||
+    !Number.isFinite(zoom) || zoom < 1 || zoom > 22) return null;
+  return { center: [latitude, longitude], zoom };
+}
+
+export function loadWorkspaceSession(jsonId = BUNDLED_JSON_ID) {
+  try {
+    const value = JSON.parse(window.localStorage.getItem(workspaceSessionStorageKey(jsonId)) || "null");
+    if (!value || value.version !== 1 || !value.state || typeof value.state !== "object") return null;
+    const state = value.state;
+    const validPages = ["barangays", "map", "dashboard"];
+    const validModes = ["browse", "place-pin", "draw-line", "edit-line", "add-line-node"];
+    return {
+      savedAt: typeof value.savedAt === "string" ? value.savedAt : "",
+      page: validPages.includes(state.page) ? state.page : "barangays",
+      selectedBarangayId: typeof state.selectedBarangayId === "string" ? state.selectedBarangayId : null,
+      search: typeof state.search === "string" ? state.search : "",
+      listFilter: typeof state.listFilter === "string" ? state.listFilter : "all",
+      mode: validModes.includes(state.mode) ? state.mode : "browse",
+      selectedPinId: typeof state.selectedPinId === "string" ? state.selectedPinId : null,
+      selectedLineId: typeof state.selectedLineId === "string" ? state.selectedLineId : null,
+      pinDraft: state.pinDraft && typeof state.pinDraft === "object" ? state.pinDraft : null,
+      pinEditorOpen: state.pinEditorOpen === true,
+      pinManagerCollapsed: state.pinManagerCollapsed === true,
+      pinSearch: typeof state.pinSearch === "string" ? state.pinSearch : "",
+      pinLocationInput: typeof state.pinLocationInput === "string" ? state.pinLocationInput : "",
+      lineDraft: state.lineDraft && typeof state.lineDraft === "object" ? state.lineDraft : null,
+      linePoints: Array.isArray(state.linePoints) ? state.linePoints.filter(validPoint).map((point) => [Number(point[0]), Number(point[1])]) : [],
+      selectedLineNodeIndex: Number.isInteger(state.selectedLineNodeIndex) ? state.selectedLineNodeIndex : null,
+      lineNodeLocationInput: typeof state.lineNodeLocationInput === "string" ? state.lineNodeLocationInput : "",
+      mapView: validWorkspaceMapView(state.mapView),
+      showActivity: state.showActivity === true,
+      showBarangayDetails: state.showBarangayDetails === true,
+      barangayDetailsDraft: state.barangayDetailsDraft && typeof state.barangayDetailsDraft === "object"
+        ? state.barangayDetailsDraft
+        : { name: "", puroks: "", notes: "" },
+      showConfirmationContact: state.showConfirmationContact === true,
+      confirmationContactDraft: state.confirmationContactDraft && typeof state.confirmationContactDraft === "object"
+        ? state.confirmationContactDraft
+        : { name: "", position: "", phone: "", email: "" },
+    };
+  } catch {
+    return null;
+  }
+}
+
+export function persistWorkspaceSession(state, jsonId = BUNDLED_JSON_ID) {
+  try {
+    window.localStorage.setItem(workspaceSessionStorageKey(jsonId), JSON.stringify({
+      version: 1,
+      savedAt: new Date().toISOString(),
+      state,
+    }));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function removeWorkspaceSession(jsonId = BUNDLED_JSON_ID) {
+  try {
+    window.localStorage.removeItem(workspaceSessionStorageKey(jsonId));
     return true;
   } catch {
     return false;

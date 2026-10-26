@@ -404,6 +404,8 @@ input:focus-visible, textarea:focus-visible { outline: 3px solid #87bea4; outlin
 .json-delete-action { min-height: 35px; padding: 8px 11px; border: 1px solid #e5c4c0; border-radius: 8px; background: #fff5f3; color: #96473e; font: 750 10px "DM Sans", sans-serif; white-space: nowrap; cursor: pointer; }
 .json-delete-action:hover:not(:disabled) { border-color: #dbaaa4; background: #fce9e6; }
 .json-delete-action:disabled { opacity: .48; cursor: not-allowed; }
+.reset-session-action { border-color: #e5c4c0; color: #96473e; }
+.reset-session-action:hover { border-color: #dbaaa4; background: #fff5f3; color: #823a32; }
 .hidden-file-input { display: none; }
 .secondary-action, .small-action, .small-quiet, .quiet-small-button, .primary-small-button, .danger-text-button, .line-edit-button {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px; border-radius: 8px; font-family: inherit; font-size: 10px; font-weight: 750; cursor: pointer; transition: background .15s ease, border-color .15s ease, color .15s ease;

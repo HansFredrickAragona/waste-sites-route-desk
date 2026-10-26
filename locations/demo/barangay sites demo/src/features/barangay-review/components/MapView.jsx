@@ -25,7 +25,7 @@ function vertexIcon(active = false) {
   });
 }
 
-function MapInteractions({ mode, onMapClick, onFinishLine }) {
+function MapInteractions({ mode, onMapClick, onFinishLine, onMapViewChange }) {
   const map = useMap();
   useEffect(() => {
     if (mode === "draw-line" || mode === "add-line-node") map.doubleClickZoom.disable();
@@ -43,17 +43,25 @@ function MapInteractions({ mode, onMapClick, onFinishLine }) {
       event.originalEvent?.preventDefault();
       onFinishLine();
     },
+    moveend(event) {
+      const center = event.target.getCenter();
+      onMapViewChange({ center: [center.lat, center.lng], zoom: event.target.getZoom() });
+    },
   });
   return null;
 }
 
-function FitBarangay({ barangay }) {
+function FitBarangay({ barangay, initialView }) {
   const map = useMap();
   const lastId = useRef(null);
 
   useEffect(() => {
     if (!barangay || lastId.current === barangay.id) return;
     lastId.current = barangay.id;
+    if (initialView) {
+      map.setView(initialView.center, initialView.zoom);
+      return;
+    }
     const points = [
       ...barangay.pins.map((pin) => [pin.latitude, pin.longitude]),
       ...barangay.firingLines.flatMap((line) => line.coordinates ?? []),
@@ -61,7 +69,7 @@ function FitBarangay({ barangay }) {
     if (points.length === 0) map.setView(BAGUIO_CENTER, 13);
     else if (points.length === 1) map.setView(points[0], 15);
     else map.fitBounds(L.latLngBounds(points), { padding: [32, 32], maxZoom: 16 });
-  }, [barangay, map]);
+  }, [barangay, initialView, map]);
   return null;
 }
 
@@ -97,7 +105,8 @@ function MapResizeObserver() {
 
 export function BarangayMap({
   barangay,
-      focus,
+  focus,
+  mapView,
   deviceLocation,
   mode,
   selectedPinId,
@@ -108,6 +117,7 @@ export function BarangayMap({
   linePoints,
   onMapClick,
   onFinishLine,
+  onMapViewChange,
   onSelectPin,
   onSelectLine,
   onSelectLineNode,
@@ -136,14 +146,14 @@ export function BarangayMap({
 
   return (
     <>
-    <MapContainer className="review-map" center={BAGUIO_CENTER} zoom={13} scrollWheelZoom>
+    <MapContainer className="review-map" center={mapView?.center ?? BAGUIO_CENTER} zoom={mapView?.zoom ?? 13} scrollWheelZoom>
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'
         url={TILE_URL}
         maxZoom={19}
       />
       <MapResizeObserver />
-      <FitBarangay barangay={barangay} />
+      <FitBarangay barangay={barangay} initialView={mapView} />
       <FocusMap focus={focus} />
       {deviceLocation && (
         <>
@@ -161,7 +171,7 @@ export function BarangayMap({
           />
         </>
       )}
-      <MapInteractions mode={mode} onMapClick={onMapClick} onFinishLine={onFinishLine} />
+      <MapInteractions mode={mode} onMapClick={onMapClick} onFinishLine={onFinishLine} onMapViewChange={onMapViewChange} />
       {pins.map((pin, index) => {
         const selected = selectedPinId === pin.id;
         const editable = Boolean(pinDraft?.id === pin.id);

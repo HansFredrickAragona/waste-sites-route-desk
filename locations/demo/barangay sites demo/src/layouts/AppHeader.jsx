@@ -4,7 +4,7 @@ import { ActivityLogButton, ReviewTabs } from "./AppChrome.jsx";
 export default function AppHeader({ data, ui, actions, refs }) {
   const { activeJson, activeJsonId, availableJsonCount, bundledJsonHidden, jsonLibrary, activityLog } = data;
   const { page, selectedBarangay, undoCount } = ui;
-  const { changeActiveJson, handleAddJson, deleteJson, openExportConfirmation, undoLastAction, openActivityLog, returnToBarangayList, showMap, showDashboard } = actions;
+  const { changeActiveJson, handleAddJson, deleteJson, openExportConfirmation, undoLastAction, resetWorkspaceSession, openActivityLog, returnToBarangayList, showMap, showDashboard } = actions;
   const { fileInputRef } = refs;
 
   return (
@@ -33,6 +33,7 @@ export default function AppHeader({ data, ui, actions, refs }) {
             <button className="export-schedule-button" type="button" onClick={openExportConfirmation} disabled={!activeJson}>Export JSON <span aria-hidden="true">↓</span></button>
             <button className="secondary-action undo-action" type="button" disabled={undoCount === 0} aria-keyshortcuts="Control+Z Meta+Z" title="Undo the last pin move or saved review change (Ctrl+Z)" onClick={undoLastAction}>↶ Undo</button>
             <ActivityLogButton count={activityLog.length} onClick={openActivityLog} />
+            <button className="secondary-action reset-session-action" type="button" title="Clear the current place and unfinished edits, while keeping saved review changes" onClick={resetWorkspaceSession}>Reset session</button>
           </div>
         </div>
         <ReviewTabs className="desktop-app-tabs" page={page} selectedBarangay={selectedBarangay} onReturnToBarangayList={returnToBarangayList} onShowMap={showMap} onShowDashboard={showDashboard} />

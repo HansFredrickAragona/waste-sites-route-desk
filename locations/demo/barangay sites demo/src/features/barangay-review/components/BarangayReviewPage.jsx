@@ -48,7 +48,7 @@ export default function BarangayReviewPage({ data, ui, actions, refs, helpers })
               <FiringLinesCard data={data} ui={ui} actions={actions} />
             </aside>
           </div>
-          <p className="review-data-note">This is a review copy. Edits are saved in this browser and can be carried to another device with <strong>Export JSON</strong>.</p>
+          <p className="review-data-note">Your field session and unfinished edits save automatically in this browser. Return from Google Maps or reopen this app to continue. Use <strong>Export JSON</strong> to carry review changes to another device.</p>
         </section>
       )}
 

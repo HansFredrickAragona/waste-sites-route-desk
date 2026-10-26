@@ -9,10 +9,13 @@ import {
   loadBundledJsonHidden,
   loadJsonLibrary,
   loadSavedReview,
+  loadWorkspaceSession,
   persistActiveJsonId,
   persistBundledJsonHidden,
   persistJsonLibrary,
   persistReview,
+  persistWorkspaceSession,
+  removeWorkspaceSession,
   siteRecordCount,
 } from "../../json-library/services/reviewRepository.js";
 import { createJsonLibraryActions } from "../../json-library/actions/createJsonLibraryActions.js";
@@ -45,6 +48,7 @@ export function useBarangayReviewController(sourceUrl) {
   const [listFilter, setListFilter] = useState("all");
   const [notice, setNotice] = useState(null);
   const [storageWarning, setStorageWarning] = useState(false);
+  const [workspaceStorageWarning, setWorkspaceStorageWarning] = useState(false);
   const [showActivity, setShowActivity] = useState(false);
   const [showBarangayDetails, setShowBarangayDetails] = useState(false);
   const [barangayDetailsDraft, setBarangayDetailsDraft] = useState({ name: "", puroks: "", notes: "" });
@@ -69,6 +73,8 @@ export function useBarangayReviewController(sourceUrl) {
   const [lineNodeLocationMessage, setLineNodeLocationMessage] = useState("");
   const [isResolvingLineNodeLocation, setIsResolvingLineNodeLocation] = useState(false);
   const [linePoints, setLinePoints] = useState([]);
+  const [mapView, setMapView] = useState(null);
+  const [pinLocationInput, setPinLocationInput] = useState("");
   const [pinSearch, setPinSearch] = useState("");
   const [pendingDelete, setPendingDelete] = useState(null);
   const [showJsonDeleteConfirmation, setShowJsonDeleteConfirmation] = useState(false);
@@ -80,6 +86,42 @@ export function useBarangayReviewController(sourceUrl) {
   const pinDragStartRef = useRef(null);
   const locationRequestRef = useRef(0);
   const [undoCount, setUndoCount] = useState(0);
+  const workspaceSessionRef = useRef(null);
+
+  const workspaceSession = useMemo(() => ({
+    page,
+    selectedBarangayId,
+    search,
+    listFilter,
+    mode,
+    selectedPinId,
+    selectedLineId,
+    pinDraft,
+    pinEditorOpen,
+    pinManagerCollapsed,
+    pinSearch,
+    pinLocationInput: pinDraft ? pinLocationInput : "",
+    lineDraft,
+    linePoints,
+    selectedLineNodeIndex,
+    lineNodeLocationInput: lineDraft ? lineNodeLocationInput : "",
+    mapView,
+    showActivity,
+    showBarangayDetails,
+    barangayDetailsDraft,
+    showConfirmationContact,
+    confirmationContactDraft,
+  }), [
+    page, selectedBarangayId, search, listFilter, mode, selectedPinId, selectedLineId,
+    pinDraft, pinEditorOpen, pinManagerCollapsed, pinSearch, pinLocationInput,
+    lineDraft, linePoints, selectedLineNodeIndex, lineNodeLocationInput, mapView,
+    showActivity, showBarangayDetails, barangayDetailsDraft, showConfirmationContact,
+    confirmationContactDraft,
+  ]);
+
+  workspaceSessionRef.current = review
+    ? { jsonId: activeJsonId || NO_JSON_REVIEW_ID, state: workspaceSession }
+    : null;
 
   useEffect(() => {
     reviewRef.current = review;
@@ -133,9 +175,62 @@ export function useBarangayReviewController(sourceUrl) {
           initialJsonId = "";
           initialReview = loadSavedReview(NO_JSON_REVIEW_ID) ?? emptyReviewData();
         }
+        const savedWorkspace = loadWorkspaceSession(initialJsonId || NO_JSON_REVIEW_ID);
+        const restoredBarangay = savedWorkspace?.selectedBarangayId
+          ? initialReview.barangays.find((item) => item.id === savedWorkspace.selectedBarangayId) ?? null
+          : null;
+        const restoredPage = savedWorkspace?.page === "map" && !restoredBarangay
+          ? "barangays"
+          : savedWorkspace?.page ?? "barangays";
+        const restoredPinDraft = restoredBarangay && savedWorkspace?.pinDraft && typeof savedWorkspace.pinDraft.id === "string"
+          ? savedWorkspace.pinDraft
+          : null;
+        const restoredLineDraft = restoredBarangay && savedWorkspace?.lineDraft &&
+          Array.isArray(savedWorkspace.lineDraft.coordinates) && savedWorkspace.lineDraft.coordinates.every((point) =>
+            Array.isArray(point) && point.length >= 2 && Number.isFinite(Number(point[0])) && Number(point[0]) >= -90 && Number(point[0]) <= 90 &&
+            Number.isFinite(Number(point[1])) && Number(point[1]) >= -180 && Number(point[1]) <= 180)
+          ? savedWorkspace.lineDraft
+          : null;
+        const restoredSelectedPinId = restoredBarangay && typeof savedWorkspace?.selectedPinId === "string" &&
+          (savedWorkspace.selectedPinId === restoredPinDraft?.id || restoredBarangay.pins.some((pin) => pin.id === savedWorkspace.selectedPinId))
+          ? savedWorkspace.selectedPinId
+          : null;
+        const restoredSelectedLineId = restoredBarangay && typeof savedWorkspace?.selectedLineId === "string" &&
+          (savedWorkspace.selectedLineId === restoredLineDraft?.id || restoredBarangay.firingLines.some((line) => line.id === savedWorkspace.selectedLineId))
+          ? savedWorkspace.selectedLineId
+          : null;
+        const restoredMode = ["edit-line", "add-line-node"].includes(savedWorkspace?.mode) && !restoredLineDraft
+          ? "browse"
+          : savedWorkspace?.mode ?? "browse";
         setBundledReview(savedBundledReview);
         setActiveJsonId(initialJsonId);
         setReview(initialReview ?? baseline);
+        setPage(restoredPage);
+        setSelectedBarangayId(restoredBarangay?.id ?? null);
+        setSearch(savedWorkspace?.search ?? "");
+        setListFilter(savedWorkspace?.listFilter ?? "all");
+        setMode(restoredMode);
+        setPinDraft(restoredPinDraft);
+        setPinEditorOpen(Boolean(restoredPinDraft && savedWorkspace?.pinEditorOpen));
+        setPinManagerCollapsed(Boolean(restoredBarangay && savedWorkspace?.pinManagerCollapsed));
+        setPinSearch(savedWorkspace?.pinSearch ?? "");
+        setPinLocationInput(restoredPinDraft ? savedWorkspace?.pinLocationInput ?? "" : "");
+        setLineDraft(restoredLineDraft);
+        setLinePoints(restoredMode === "draw-line" ? savedWorkspace?.linePoints ?? [] : []);
+        setSelectedPinId(restoredSelectedPinId);
+        setSelectedLineId(restoredSelectedLineId);
+        setSelectedLineNodeIndex(restoredLineDraft && Number.isInteger(savedWorkspace?.selectedLineNodeIndex) &&
+          savedWorkspace.selectedLineNodeIndex >= 0 && savedWorkspace.selectedLineNodeIndex < restoredLineDraft.coordinates.length
+          ? savedWorkspace.selectedLineNodeIndex
+          : null);
+        setLineNodeLocationInput(restoredLineDraft ? savedWorkspace?.lineNodeLocationInput ?? "" : "");
+        setMapView(restoredBarangay ? savedWorkspace?.mapView ?? null : null);
+        setMapFocus(null);
+        setShowActivity(Boolean(savedWorkspace?.showActivity));
+        setShowBarangayDetails(Boolean(savedWorkspace?.showBarangayDetails));
+        setBarangayDetailsDraft(savedWorkspace?.barangayDetailsDraft ?? { name: "", puroks: "", notes: "" });
+        setShowConfirmationContact(Boolean(savedWorkspace?.showConfirmationContact));
+        setConfirmationContactDraft(savedWorkspace?.confirmationContactDraft ?? { name: "", position: "", phone: "", email: "" });
       } catch (error) {
         if (!cancelled) setLoadError(error instanceof Error ? error.message : "Could not read the barangay sites JSON data.");
       }
@@ -152,6 +247,35 @@ export function useBarangayReviewController(sourceUrl) {
     const bundledVisibilitySaved = persistBundledJsonHidden(bundledJsonHidden);
     setStorageWarning(!(reviewSaved && librarySaved && activeJsonSaved && bundledVisibilitySaved));
   }, [review, activeJsonId, jsonLibrary, bundledJsonHidden]);
+
+  useEffect(() => {
+    if (!review) return undefined;
+    const timeout = window.setTimeout(() => {
+      const saved = persistWorkspaceSession(workspaceSession, activeJsonId || NO_JSON_REVIEW_ID);
+      setWorkspaceStorageWarning(!saved);
+    }, 120);
+    return () => window.clearTimeout(timeout);
+  }, [review, activeJsonId, workspaceSession]);
+
+  useEffect(() => {
+    function saveWorkspaceNow() {
+      const current = workspaceSessionRef.current;
+      if (current) persistWorkspaceSession(current.state, current.jsonId);
+    }
+    function handleVisibilityChange() {
+      if (document.visibilityState === "hidden") saveWorkspaceNow();
+    }
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("pagehide", saveWorkspaceNow);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("pagehide", saveWorkspaceNow);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!pinDraft && pinLocationInput) setPinLocationInput("");
+  }, [pinDraft, pinLocationInput]);
 
   useEffect(() => {
     if (!notice) return undefined;
@@ -328,6 +452,7 @@ export function useBarangayReviewController(sourceUrl) {
     locationRequestRef.current += 1;
     setIsLocatingCurrentPosition(false);
     setMapFocus(null);
+    setMapView(null);
     clearDraftUndoHistory();
     setSelectedBarangayId(barangay.id);
     setPage("map");
@@ -362,6 +487,7 @@ export function useBarangayReviewController(sourceUrl) {
     locationRequestRef.current += 1;
     setIsLocatingCurrentPosition(false);
     setMapFocus(null);
+    setMapView(null);
     clearDraftUndoHistory();
     setPage("barangays");
     setSelectedBarangayId(null);
@@ -375,13 +501,36 @@ export function useBarangayReviewController(sourceUrl) {
     setMode("browse");
     setPinManagerCollapsed(false);
     setPinSearch("");
+    setPinLocationInput("");
+    setLineNodeLocationInput("");
     setShowActivity(false);
     setShowBarangayDetails(false);
     setPendingDelete(null);
   }
 
+  function resetWorkspaceSession() {
+    const shouldReset = window.confirm(
+      "Reset this field session? This clears your current place and unfinished pin or line edits. Saved review changes will remain."
+    );
+    if (!shouldReset) return;
+    removeWorkspaceSession(activeJsonId || NO_JSON_REVIEW_ID);
+    resetReviewView();
+    setSearch("");
+    setListFilter("all");
+    setMapView(null);
+    setDeviceLocation(null);
+    setPinLocationInput("");
+    setLineNodeLocationInput("");
+    setBarangayDetailsDraft({ name: "", puroks: "", notes: "" });
+    setConfirmationContactDraft({ name: "", position: "", phone: "", email: "" });
+    setShowConfirmationContact(false);
+    setWorkspaceStorageWarning(false);
+    setNotice({ kind: "success", text: "Field session reset. Saved review changes are still available." });
+  }
+
   const actionContext = {
     review,
+    reviewRef,
     setReview,
     bundledReview,
     setBundledReview,
@@ -519,6 +668,7 @@ export function useBarangayReviewController(sourceUrl) {
     setNotice,
     storageWarning,
     setStorageWarning,
+    workspaceStorageWarning,
     showActivity,
     setShowActivity,
     showBarangayDetails,
@@ -549,6 +699,10 @@ export function useBarangayReviewController(sourceUrl) {
     setIsLocatingCurrentPosition,
     mapFocus,
     setMapFocus,
+    mapView,
+    setMapView,
+    pinLocationInput,
+    setPinLocationInput,
     deviceLocation,
     setDeviceLocation,
     lineDraft,
@@ -609,6 +763,7 @@ export function useBarangayReviewController(sourceUrl) {
     openBarangay,
     returnToBarangayList,
     resetReviewView,
+    resetWorkspaceSession,
     openDetailsEditor,
     saveBarangayDetails,
     openConfirmationContactEditor,

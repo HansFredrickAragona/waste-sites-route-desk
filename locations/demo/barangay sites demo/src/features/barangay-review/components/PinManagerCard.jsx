@@ -7,8 +7,8 @@ import { dateTimeFieldValue } from "../utils/pinFormHelpers.js";
 
 export default function PinManagerCard({ data, ui, actions, helpers }) {
   const { selectedBarangay, selectedPin, visiblePins } = data;
-  const { mode, pinDraft, pinManagerCollapsed, pinEditorOpen, isLocatingCurrentPosition, selectedPinId, pinSearch } = ui;
-  const { beginPinFromCurrentLocation, beginPinPlacement, setPinManagerCollapsed, savePin, cancelMapMode, setPinDraft, setPinEditorOpen, setMapFocus, beginEditPin, requestDelete, setPinSearch, selectPin } = actions;
+  const { mode, pinDraft, pinManagerCollapsed, pinEditorOpen, isLocatingCurrentPosition, selectedPinId, pinSearch, pinLocationInput } = ui;
+  const { beginPinFromCurrentLocation, beginPinPlacement, setPinManagerCollapsed, savePin, cancelMapMode, setPinDraft, setPinEditorOpen, setPinLocationInput, setMapFocus, beginEditPin, requestDelete, setPinSearch, selectPin } = actions;
   const { coordinateText, sourceScheduleRows, scheduleFieldValue, updateScheduleField } = helpers;
   const siteReview = pinDraft?.review ?? {};
 
@@ -109,6 +109,8 @@ export default function PinManagerCard({ data, ui, actions, helpers }) {
                             pinId={pinDraft.id}
                             latitude={pinDraft.latitude}
                             longitude={pinDraft.longitude}
+                            locationInput={pinLocationInput}
+                            onLocationInputChange={setPinLocationInput}
                             onCoordinatesChange={({ latitude, longitude }) => setPinDraft((current) => current ? ({
                               ...current,
                               latitude: Number(latitude.toFixed(6)),

@@ -12,8 +12,7 @@ function positionText(latitude, longitude) {
   return `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
 }
 
-export default function PinLocationAssistant({ pinId, latitude, longitude, onCoordinatesChange }) {
-  const [locationInput, setLocationInput] = useState("");
+export default function PinLocationAssistant({ pinId, latitude, longitude, locationInput, onLocationInputChange, onCoordinatesChange }) {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [isResolvingLocation, setIsResolvingLocation] = useState(false);
@@ -102,7 +101,7 @@ export default function PinLocationAssistant({ pinId, latitude, longitude, onCoo
           rows={2}
           value={locationInput}
           onChange={(event) => {
-            setLocationInput(event.target.value);
+            onLocationInputChange(event.target.value);
             setError("");
             setMessage("");
           }}

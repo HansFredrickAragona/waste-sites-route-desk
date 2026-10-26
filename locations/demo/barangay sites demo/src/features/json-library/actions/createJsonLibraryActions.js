@@ -9,12 +9,14 @@ import {
   persistJsonLibrary,
   persistReview,
   removeSavedReview,
+  removeWorkspaceSession,
   siteRecordCount,
 } from "../services/reviewRepository.js";
 
 export function createJsonLibraryActions(context) {
   const {
     review,
+    reviewRef,
     setReview,
     bundledReview,
     setBundledReview,
@@ -157,13 +159,14 @@ export function createJsonLibraryActions(context) {
     clearUndoHistory();
     const librarySaved = persistJsonLibrary(nextLibrary);
     const removedReview = removeSavedReview(activeJsonId);
+    const removedWorkspace = removeWorkspaceSession(activeJsonId);
     const bundledVisibilitySaved = persistBundledJsonHidden(nextBundledHidden);
     setJsonLibrary(nextLibrary);
     setActiveJsonId(nextJsonId);
     setBundledJsonHidden(nextBundledHidden);
     setBundledReview(nextJsonId === BUNDLED_JSON_ID ? nextReview : nextBundledHidden ? null : bundledReview);
     setReview(nextReview);
-    setStorageWarning(!(librarySaved && removedReview && bundledVisibilitySaved));
+    setStorageWarning(!(librarySaved && removedReview && removedWorkspace && bundledVisibilitySaved));
     setShowJsonDeleteConfirmation(false);
     resetReviewView();
     setNotice({
@@ -185,7 +188,8 @@ export function createJsonLibraryActions(context) {
   }
 
   function exportReview() {
-    if (!review) return;
+    const latestReview = reviewRef?.current ?? review;
+    if (!latestReview) return;
     const safeBaseName = exportFilename.trim()
       .replace(/[<>:"/\\|?*\u0000-\u001F]/g, "-")
       .replace(/\s+/g, " ")
@@ -197,7 +201,7 @@ export function createJsonLibraryActions(context) {
       return;
     }
     const downloadName = `${safeBaseName}.json`;
-    const exported = { ...review, exportedAt: new Date().toISOString() };
+    const exported = { ...latestReview, exportedAt: new Date().toISOString() };
     const blob = new Blob([JSON.stringify(exported, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");

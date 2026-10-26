@@ -3,8 +3,8 @@ import { formatNumber } from "../../../shared/utils/reviewFormatting.js";
 
 export default function CollectionMapCard({ data, ui, actions, refs }) {
   const { selectedBarangay, mappedSiteCount, unlocatedSiteCount, removedSiteCount, selectedPinHasMapCoordinates, selectedPinForMap, mapPinPoints } = data;
-  const { mode, linePoints, selectedLineNodeIndex, mapFocus, deviceLocation, selectedPinId, selectedLineId, pinDraft, lineDraft, isLocatingCurrentPosition } = ui;
-  const { finishLineNodePlacement, cancelMapMode, finishLineDrawing, handleMapClick, selectPin, selectLine, selectLineNode, setUndoCount, recenterOnCurrentLocation, setMapFocus, setPinDraft, updateLineNodePosition, deleteSelectedLineNode, disconnectFiringLine, requestDelete } = actions;
+  const { mode, linePoints, selectedLineNodeIndex, mapFocus, mapView, deviceLocation, selectedPinId, selectedLineId, pinDraft, lineDraft, isLocatingCurrentPosition } = ui;
+  const { finishLineNodePlacement, cancelMapMode, finishLineDrawing, handleMapClick, selectPin, selectLine, selectLineNode, setUndoCount, recenterOnCurrentLocation, setMapFocus, setMapView, setPinDraft, updateLineNodePosition, deleteSelectedLineNode, disconnectFiringLine, requestDelete } = actions;
   const { pinDragStartRef, pinMoveUndoRef, reviewUndoRef, lineDraftUndoRef } = refs;
   return (
             <section className="map-card" aria-label={`${selectedBarangay.name} collection-site map`}>
@@ -22,6 +22,7 @@ export default function CollectionMapCard({ data, ui, actions, refs }) {
                   key={selectedBarangay.id}
                   barangay={selectedBarangay}
                   focus={mapFocus}
+                  mapView={mapView}
                   deviceLocation={deviceLocation}
                   mode={mode}
                   selectedPinId={selectedPinId}
@@ -32,6 +33,7 @@ export default function CollectionMapCard({ data, ui, actions, refs }) {
                   linePoints={linePoints}
                   onMapClick={handleMapClick}
                   onFinishLine={finishLineDrawing}
+                  onMapViewChange={setMapView}
                   onSelectPin={selectPin}
                   onSelectLine={selectLine}
                   onSelectLineNode={selectLineNode}

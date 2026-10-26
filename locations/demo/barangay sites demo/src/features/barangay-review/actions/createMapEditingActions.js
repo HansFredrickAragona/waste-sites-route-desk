@@ -24,7 +24,7 @@ function pinFieldChanges(previousPin, nextPin) {
   add("longitude", nextPin.longitude, comparableCoordinate(previous.longitude ?? previous.location?.longitude));
   add("latitude", nextPin.latitude, comparableCoordinate(previous.latitude ?? previous.location?.latitude));
   add("purok", nextPin.purok, String(previous.purok ?? "").trim());
-  add("status.type", nextPin.statusType, String(previous.statusType ?? previous.sourceStatusLabel ?? previous.status?.type ?? "").trim());
+  add("status.type", nextPin.statusType, String(previous.statusType || previous.sourceStatusLabel || previous.status?.type || "").trim());
 
   for (const [kind, field, label] of [
     ["pick-up", "day", "schedule.pick-up.day"],
@@ -427,16 +427,8 @@ export function createMapEditingActions(context) {
     const name = pinDraft.name.trim();
     const latitudeText = String(pinDraft.latitude ?? "").trim();
     const longitudeText = String(pinDraft.longitude ?? "").trim();
-    const latitude = Number(latitudeText);
-    const longitude = Number(longitudeText);
-    if (!name) {
-      setNotice({ kind: "error", text: "Enter a collection-site name before saving." });
-      return;
-    }
-    if (!latitudeText || !longitudeText || !Number.isFinite(latitude) || latitude < -90 || latitude > 90 || !Number.isFinite(longitude) || longitude < -180 || longitude > 180) {
-      setNotice({ kind: "error", text: "Enter valid latitude and longitude values." });
-      return;
-    }
+    const latitude = latitudeText ? Number(latitudeText) : null;
+    const longitude = longitudeText ? Number(longitudeText) : null;
     const savingNew = pinDraft.isNew;
     const previousPin = savingNew
       ? null
@@ -450,9 +442,19 @@ export function createMapEditingActions(context) {
     const schedule = scheduleWithoutDates(Array.isArray(pinDraft.schedule) ? pinDraft.schedule : pinDraft.sourceSchedule ?? []);
     const fieldChanges = pinFieldChanges(previousPin, { name, longitude, latitude, purok, statusType, schedule, remarks, notes });
     const hasPinChanges = fieldChanges.length > 0;
+    if (savingNew || hasPinChanges) {
+      if (!name) {
+        setNotice({ kind: "error", text: "Enter a collection-site name before saving." });
+        return;
+      }
+      if (!latitudeText || !longitudeText || !Number.isFinite(latitude) || latitude < -90 || latitude > 90 || !Number.isFinite(longitude) || longitude < -180 || longitude > 180) {
+        setNotice({ kind: "error", text: "Enter valid latitude and longitude values." });
+        return;
+      }
+    }
     const scheduleChanged = fieldChanges.some(({ field }) => field.startsWith("schedule."));
     const coordinatesChanged = fieldChanges.some(({ field }) => field === "longitude" || field === "latitude");
-    const previousStatusLastUpdated = String(previousPin?.statusLastUpdated ?? previousPin?.status?.last_updated ?? pinDraft.statusLastUpdated ?? "");
+    const previousStatusLastUpdated = String(previousPin?.statusLastUpdated || previousPin?.status?.last_updated || pinDraft.statusLastUpdated || "");
     const statusTypeChanged = fieldChanges.some(({ field }) => field === "status.type");
     const statusLastUpdated = savingNew || statusTypeChanged ? savedAtText : previousStatusLastUpdated;
     const siteReview = pinDraft.review && typeof pinDraft.review === "object" && !Array.isArray(pinDraft.review)
@@ -486,27 +488,30 @@ export function createMapEditingActions(context) {
     const googleMapsUrl = coordinatesChanged || savingNew
       ? location.google_maps_url
       : previousPin?.googleMapsUrl ?? previousPin?.location?.google_maps_url ?? pinDraft.googleMapsUrl;
+    const sourceStatus = savingNew || statusTypeChanged
+      ? /^removed\b/i.test(statusType) ? "removed" : savingNew && /^new\b/i.test(statusType) ? "new" : "active"
+      : previousPin?.sourceStatus ?? (/^removed\b/i.test(statusType) ? "removed" : "active");
     const nextPin = !savingNew && !hasPinChanges
       ? { ...previousPin, review }
       : {
-      ...pinDraft,
-      name,
-      latitude,
-      longitude,
-      site_name: name,
-      location,
-      googleMapsUrl,
-      status,
-      statusType,
-      sourceStatusLabel: statusType,
-      sourceStatus: /^removed\b/i.test(statusType) ? "removed" : savingNew && /^new\b/i.test(statusType) ? "new" : "active",
-      statusLastUpdated,
-      review,
-      schedule: scheduleChanged || savingNew ? schedule : previousPin?.schedule ?? schedule,
-      remarks,
-      purok,
-      notes,
-      isNew: undefined,
+        ...pinDraft,
+        name,
+        latitude,
+        longitude,
+        site_name: name,
+        location,
+        googleMapsUrl,
+        status,
+        statusType,
+        sourceStatusLabel: statusType,
+        sourceStatus,
+        statusLastUpdated,
+        review,
+        schedule: scheduleChanged || savingNew ? schedule : previousPin?.schedule ?? schedule,
+        remarks,
+        purok,
+        notes,
+        isNew: undefined,
       };
     const confirmationChanged = !savingNew && review.is_brgy_confirmed !== (previousPin?.review?.is_brgy_confirmed === true);
     if (!savingNew && !hasPinChanges && !confirmationChanged) {
