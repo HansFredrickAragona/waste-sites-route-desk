@@ -47,23 +47,8 @@ function sourceStatusFor(value) {
 
 function normalizeSiteReview(value) {
   const review = value && typeof value === "object" && !Array.isArray(value) ? value : {};
-  const changeHistory = Array.isArray(review.change_history)
-    ? review.change_history.flatMap((entry) => {
-      if (typeof entry === "string") return [{ date: entry, action: "" }];
-      if (!entry || typeof entry !== "object" || Array.isArray(entry)) return [];
-      return [{
-        ...entry,
-        date: typeof entry.date === "string" ? entry.date : "",
-        action: typeof entry.action === "string" ? entry.action : "",
-      }];
-    })
-    : [];
   return {
-    ...review,
     is_brgy_confirmed: review.is_brgy_confirmed === true,
-    change_status: typeof review.change_status === "string" && review.change_status.trim() ? review.change_status : "unchanged",
-    last_reviewed: typeof review.last_reviewed === "string" ? review.last_reviewed : "",
-    change_history: changeHistory,
   };
 }
 

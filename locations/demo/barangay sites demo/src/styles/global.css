@@ -1434,3 +1434,27 @@ button.kpi-detail-row:focus-visible { outline: 3px solid #79a987; outline-offset
   .export-change-total strong { font-size: 19px; }
   .export-confirmation-actions { padding: 10px 11px; }
 }
+
+/* Keep the existing desktop design, with safe areas and larger controls on phones. */
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+@media (max-width: 720px) {
+  .app-tabs .app-tab { min-height: 44px; }
+  .global-actions > button,
+  .global-actions .json-library-control select,
+  .pin-editor-actions button,
+  .pin-editor-form .field-label input:not([type="checkbox"]),
+  .pin-editor-form .field-label select,
+  .pin-editor-form .field-label textarea {
+    min-height: 44px;
+  }
+  .pin-editor-form .field-label input:not([type="checkbox"]),
+  .pin-editor-form .field-label select,
+  .pin-editor-form .field-label textarea {
+    font-size: 16px;
+  }
+}

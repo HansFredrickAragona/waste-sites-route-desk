@@ -6,7 +6,7 @@ Baguio City waste-collection project with a collection-site and driver-schedule 
 
 | Project | Purpose | Documentation |
 | --- | --- | --- |
-| [`locations/`](locations/) | Prepare collection-site and driver-route data, then review schedules or verify barangay collection sites in the map demos. | [Locations README](locations/README.md) · [Schedule demo guide](<locations/demo/site schedule demo/README.md>) · [Barangay demo guide](<locations/demo/barangay sites demo/README.md>) |
+| [`locations/`](locations/) | Prepare collection-site and driver-route data, then review schedules or verify barangay collection sites in the map demos. | [Locations README](locations/README.md) · [Schedule demo guide](<locations/demo/site schedule demo/README.md>) · [Barangay demo guide](<locations/demo/barangay sites demo/README.md>) · [PWA install guide](<locations/demo/barangay sites demo/PWA_SETUP.md>) |
 | [`bwms-clone/`](bwms-clone/) | Recreate the waste-management dashboard and record-management screens using Nuxt and Vue. | [Website duplicate README](bwms-clone/README.md) |
 
 The applications run independently. The website duplicate uses demonstration records and does not load the `locations` datasets or connect to a live Baguio City service. The map demos store changes in the browser and export new JSON files.

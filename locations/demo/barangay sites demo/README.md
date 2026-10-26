@@ -2,6 +2,10 @@
 
 A React, Vite, and Leaflet app for collecting and reviewing Baguio City collection-site data by barangay. It loads its source records from `locations/data/jsons/barangays/barangay_sites_v2.json` and keeps edits in the browser until they are exported.
 
+## Phase 2 plan
+
+The proposed second phase moves saved data and review rules to a Laravel API and database, and migrates the frontend from React to Vue. See the [Phase 2 server-client and migration plan](PHASE_2_SERVER_CLIENT_MIGRATION.md). This is a plan; the current prototype remains React/Vite with browser-local persistence. Phase 2 implementation will use a separate Git branch and separate folders so this demo keeps its current `npm run dev` workflow and dependencies.
+
 ## Start locally
 
 Requires Node.js 20.19+ or 22.12+.
@@ -34,7 +38,7 @@ Open the local URL printed by Vite (normally <http://127.0.0.1:5173>).
 - The barangay list shows the number of mapped site records and each barangay's confirmation status. Open a row to review its map.
 - Select a site to inspect its source status, coordinates, pickup/drop-off date, day and time, remarks, and purok. Records with no coordinates remain in the list and can be mapped by editing the site and entering coordinates or a Google Maps link. Choose **Add GPS pin** to create a pin from your device's GPS, or choose **Add pin** and click the map to place it manually. GPS pins save latitude, longitude, capture accuracy, and a Google Maps link. The floating target button recenters on your current GPS position; a second map button returns to the selected pin or, when none is selected, shows all mapped pins. Existing mapped pins can be edited by form or by dragging the highlighted pin. Puroks can be selected from saved suggestions or entered directly.
 - Add a firing line, click its path nodes, and finish the line with a double-click or **Finish line**. While editing a line, select a blue node to open its Google Street View link, move it by dragging or pasting coordinates, add nodes after it, or delete it when at least two nodes will remain. Save the line to record node and line changes.
-- Use the barangay-level confirmation switch after the local review. The pin editor also stores per-site barangay confirmation and automatically records change status, last-reviewed time, and `{ date, action }` history when site fields change. Purok and barangay review notes are saved under **Update barangay details**.
+- Use the barangay-level confirmation switch after the local review. The pin editor's site confirmation toggle saves only `review.is_brgy_confirmed`; editing other site fields does not create per-site change status, review dates, or history. Purok and barangay review notes are saved under **Update barangay details**.
 - The activity log records barangay, pin, firing-line, import, and confirmation changes.
 - **JSON in use** selects the active dataset. **Add JSON** accepts one or more raw site-record arrays (such as `barangay_sites.json` or `barangay_sites_v2.json`) or review exports. Each added file becomes its own selectable workspace, with edits saved separately in this browser.
 - The active field session saves automatically in this browser, including the current barangay, map position, unfinished pin or firing-line edits, and pasted Maps location text. Returning from Google Maps or reopening the app resumes that work. **Reset session** clears the current place and unfinished edits while keeping saved review changes.
@@ -48,6 +52,6 @@ Current-location capture requires browser location permission and a secure page 
 
 ## Bundled sample data
 
-The app reads the raw barangay site records directly from `../../data/jsons/barangays/barangay_sites_v2.json`. It groups records by barangay, retains each source schedule, status, remarks, and raw purok value, and starts each barangay unconfirmed. The bundled V2 file adds per-site review metadata: confirmation, automatic change status and review time, and a history of `{ "date": "", "action": "" }` entries. Seven source records currently have no coordinates; they stay available in the site list and can be mapped during review. Purok choices are prefilled only when the source has an explicit `Purok N` label.
+The app reads the raw barangay site records directly from `../../data/jsons/barangays/barangay_sites_v2.json`. It groups records by barangay, retains each source schedule, status, remarks, and raw purok value, and starts each barangay unconfirmed. Per-site review data stores only the confirmation flag; legacy change-status and review-date fields in imported files are ignored. Seven source records currently have no coordinates; they stay available in the site list and can be mapped during review. Purok choices are prefilled only when the source has an explicit `Purok N` label.
 
 Review edits are saved to the browser's local storage. Export a JSON copy before switching browsers or clearing site data.

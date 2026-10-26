@@ -133,9 +133,6 @@ export function createMapEditingActions(context) {
       reviewStatus: "needs_review",
       review: {
         is_brgy_confirmed: false,
-        change_status: "unchanged",
-        last_reviewed: "",
-        change_history: [],
       },
       purok: "",
       sourcePuroks: [],
@@ -460,15 +457,8 @@ export function createMapEditingActions(context) {
     const siteReview = pinDraft.review && typeof pinDraft.review === "object" && !Array.isArray(pinDraft.review)
       ? pinDraft.review
       : {};
-    const changeHistory = Array.isArray(siteReview.change_history) ? [...siteReview.change_history] : [];
     const review = {
-      ...siteReview,
       is_brgy_confirmed: siteReview.is_brgy_confirmed === true,
-      change_status: hasPinChanges ? "changed" : typeof siteReview.change_status === "string" ? siteReview.change_status : "unchanged",
-      last_reviewed: hasPinChanges ? savedAtText : typeof siteReview.last_reviewed === "string" ? siteReview.last_reviewed : "",
-      change_history: hasPinChanges
-        ? [...changeHistory, { date: savedAtText, action: fieldChanges.map(({ field, value }) => `${field}:${value}`).join(", ") }]
-        : changeHistory,
     };
     const location = coordinatesChanged || savingNew
       ? {
