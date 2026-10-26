@@ -52,107 +52,149 @@ export function scheduleDayCode(value) {
   return scheduleDayCodes(value)[0] ?? "";
 }
 
-export function emptyScheduleGroup() {
+function parseTimeRange(value) {
+  const times = [...String(value ?? "").matchAll(/\b(\d{1,2})(?::(\d{2}))?\s*(AM|PM|A\.M\.?|P\.M\.?)?\b/gi)]
+    .slice(0, 2)
+    .map(([, rawHour, rawMinute = "00", rawPeriod = ""]) => {
+      let hour = Number(rawHour);
+      const minute = Number(rawMinute);
+      let period = rawPeriod.toUpperCase().replaceAll(".", "").replace(/\s/g, "");
+      if (hour < 0 || hour > 23 || minute > 59) return null;
+      if (!period && hour === 0) {
+        hour = 12;
+        period = "AM";
+      } else if (!period && hour > 12) {
+        hour -= 12;
+        period = "PM";
+      }
+      return { time: `${hour}:${String(minute).padStart(2, "0")}`, period };
+    })
+    .filter(Boolean);
+
+  if (times.length > 1) {
+    times[0].period ||= times[1].period;
+    times[1].period ||= times[0].period;
+  }
   return {
-    "pick-up": { day: "", time: "" },
-    "drop-off": { day: "", time: "" },
+    startTime: times[0]?.time ?? "",
+    startPeriod: times[0]?.period ?? "",
+    endTime: times[1]?.time ?? "",
+    endPeriod: times[1]?.period ?? "",
   };
 }
 
-export function normalizeScheduleGroups(schedule) {
-  if (!Array.isArray(schedule)) return [];
-
-  const groups = [];
-  let pickupCount = 0;
-  let dropoffCount = 0;
-  const ensureGroup = (index) => {
-    while (groups.length <= index) groups.push({});
-    return groups[index];
+function formatScheduleTime(timing) {
+  const endpoint = (time, period) => {
+    const text = String(time ?? "").trim();
+    return text ? `${text}${period ? ` ${period}` : ""}` : "";
   };
-  const copyTiming = (timing) => timing && typeof timing === "object" && !Array.isArray(timing)
-    ? { ...timing, day: Array.isArray(timing.day) ? timing.day.join(", ") : String(timing.day ?? ""), time: String(timing.time ?? "") }
-    : { day: "", time: "" };
+  const start = endpoint(timing?.startTime, timing?.startPeriod);
+  const end = endpoint(timing?.endTime, timing?.endPeriod);
+  if (start && end) return `${start} - ${end}`;
+  return start || end;
+}
 
-  schedule.forEach((entry) => {
-    if (!entry || typeof entry !== "object" || Array.isArray(entry)) return;
-    const hasPickup = Object.prototype.hasOwnProperty.call(entry, "pick-up");
-    const hasDropoff = Object.prototype.hasOwnProperty.call(entry, "drop-off");
-    if (!hasPickup && !hasDropoff) return;
+function emptyScheduleDay() {
+  return { day: "", startTime: "", startPeriod: "", endTime: "", endPeriod: "" };
+}
 
-    if (hasPickup && hasDropoff) {
-      const index = Math.max(pickupCount, dropoffCount);
-      const group = ensureGroup(index);
-      group["pick-up"] = copyTiming(entry["pick-up"]);
-      group["drop-off"] = copyTiming(entry["drop-off"]);
-      pickupCount = index + 1;
-      dropoffCount = index + 1;
-      return;
-    }
-
-    if (hasPickup) {
-      ensureGroup(pickupCount)["pick-up"] = copyTiming(entry["pick-up"]);
-      pickupCount += 1;
-    }
-    if (hasDropoff) {
-      ensureGroup(dropoffCount)["drop-off"] = copyTiming(entry["drop-off"]);
-      dropoffCount += 1;
-    }
+function normalizeTimingRows(timing) {
+  const values = Array.isArray(timing) ? timing : timing && typeof timing === "object" ? [timing] : [];
+  return values.flatMap((item) => {
+    if (!item || typeof item !== "object" || Array.isArray(item)) return [];
+    const dayValue = Array.isArray(item.day) ? item.day.join(", ") : String(item.day ?? "");
+    const dayCodes = scheduleDayCodes(dayValue);
+    const days = dayCodes.length
+      ? dayCodes.map((code) => SCHEDULE_DAYS.find((day) => day.code === code).label)
+      : [dayValue];
+    const parsedRange = parseTimeRange(item.time);
+    const range = {
+      startTime: String(item.startTime ?? parsedRange.startTime),
+      startPeriod: String(item.startPeriod ?? parsedRange.startPeriod),
+      endTime: String(item.endTime ?? parsedRange.endTime),
+      endPeriod: String(item.endPeriod ?? parsedRange.endPeriod),
+    };
+    const extras = Object.fromEntries(Object.entries(item).filter(([field]) =>
+      !["day", "date", "time", "startTime", "startPeriod", "endTime", "endPeriod"].includes(field),
+    ));
+    return days.map((day) => ({ ...extras, day, ...range }));
   });
-
-  return groups;
 }
 
-export function addScheduleGroup(schedule) {
-  const groups = normalizeScheduleGroups(schedule);
-  if (!groups.length) groups.push(emptyScheduleGroup());
-  return [...groups, emptyScheduleGroup()];
-}
+export function normalizeSiteSchedule(schedule) {
+  const entries = Array.isArray(schedule) ? schedule : [];
+  const siteSchedule = { "pick-up": [], "drop-off": [] };
+  // The editor writes one pair of day lists. Keep newly added blank rows in
+  // that draft shape, but discard empty placeholders from older groups.
+  const isDayListDraft = entries.length === 1 &&
+    Object.keys(siteSchedule).every((kind) => Array.isArray(entries[0]?.[kind]));
 
-export function removeScheduleGroup(schedule, index) {
-  return normalizeScheduleGroups(schedule).filter((_, groupIndex) => groupIndex !== index);
+  for (const entry of entries) {
+    if (!entry || typeof entry !== "object" || Array.isArray(entry)) continue;
+    for (const kind of Object.keys(siteSchedule)) {
+      const rows = normalizeTimingRows(entry[kind]);
+      siteSchedule[kind].push(...rows.filter((row) => isDayListDraft ||
+        Object.values(row).some((value) => String(value ?? "").trim()),
+      ));
+    }
+  }
+  return siteSchedule;
 }
 
 export function sourceScheduleRows(schedule) {
-  const groups = normalizeScheduleGroups(schedule);
-  return groups.flatMap((group, index) => ["pick-up", "drop-off"].flatMap((kind) => {
-    const timing = group[kind];
-    if (!timing) return [];
-    const dayCodes = scheduleDayCodes(timing.day);
-    const days = dayCodes.length
-      ? dayCodes.map((code) => SCHEDULE_DAYS.find((day) => day.code === code).label).join(", ")
-      : timing.day;
-    const label = `${kind.replace(/-/g, " ")}${groups.length > 1 ? ` ${index + 1}` : ""}`;
-    return [{ label, value: [days, timing.time].filter(Boolean).join(" · ") || "Not provided" }];
-  }));
-}
-
-export function scheduleWithoutDates(schedule) {
-  return normalizeScheduleGroups(schedule).flatMap((group) => {
-    const cleanGroup = {};
-    ["pick-up", "drop-off"].forEach((kind) => {
-      const timing = group[kind];
-      if (!timing) return;
-      const cleanTiming = Object.fromEntries(Object.entries(timing).filter(([field]) => field !== "date"));
-      const hasValue = Object.values(cleanTiming).some((value) => String(value ?? "").trim());
-      if (hasValue) cleanGroup[kind] = cleanTiming;
-    });
-    return Object.keys(cleanGroup).length ? [cleanGroup] : [];
+  const siteSchedule = normalizeSiteSchedule(schedule);
+  return ["pick-up", "drop-off"].flatMap((kind) => {
+    const timings = siteSchedule[kind];
+    if (!timings?.length) return [];
+    const details = timings.map((timing) => [timing.day, formatScheduleTime(timing)].filter(Boolean).join(" · "))
+      .filter(Boolean).join("; ");
+    const label = kind.replace(/-/g, " ");
+    return [{ label, value: details || "Not provided" }];
   });
 }
 
-export function scheduleFieldValue(schedule, index, kind, field) {
-  const group = normalizeScheduleGroups(schedule)[index];
-  const value = group?.[kind]?.[field];
-  return Array.isArray(value) ? value.join(", ") : String(value ?? "");
+export function scheduleWithoutDates(schedule) {
+  const siteSchedule = normalizeSiteSchedule(schedule);
+  const cleanSchedule = {};
+  ["pick-up", "drop-off"].forEach((kind) => {
+    const cleanTimings = siteSchedule[kind].flatMap((timing) => {
+      const day = String(timing.day ?? "").trim();
+      const time = formatScheduleTime(timing);
+      const extras = Object.fromEntries(Object.entries(timing).filter(([field]) =>
+        !["day", "date", "time", "startTime", "startPeriod", "endTime", "endPeriod"].includes(field),
+      ));
+      if (!day && !time && !Object.values(extras).some((value) => String(value ?? "").trim())) return [];
+      return [{ ...extras, ...(day ? { day } : {}), ...(time ? { time } : {}) }];
+    });
+    if (cleanTimings.length === 1) cleanSchedule[kind] = cleanTimings[0];
+    else if (cleanTimings.length > 1) cleanSchedule[kind] = cleanTimings;
+  });
+  return Object.keys(cleanSchedule).length ? [cleanSchedule] : [];
 }
 
-export function updateScheduleField(schedule, index, kind, field, value) {
-  const groups = normalizeScheduleGroups(schedule);
-  while (groups.length <= index) groups.push(emptyScheduleGroup());
-  const group = groups[index];
-  const timing = group[kind] && typeof group[kind] === "object" ? group[kind] : { day: "", time: "" };
-  groups[index] = { ...group, [kind]: { ...timing, [field]: value } };
-  return groups;
+export function scheduleDayEntries(schedule, kind) {
+  const rows = normalizeSiteSchedule(schedule)[kind] ?? [];
+  return rows.length ? rows : [emptyScheduleDay()];
+}
+
+export function updateScheduleEntry(schedule, kind, entryIndex, fields) {
+  const siteSchedule = normalizeSiteSchedule(schedule);
+  const rows = [...(siteSchedule[kind]?.length ? siteSchedule[kind] : [emptyScheduleDay()])];
+  while (rows.length <= entryIndex) rows.push(emptyScheduleDay());
+  rows[entryIndex] = { ...rows[entryIndex], ...fields };
+  return [{ ...siteSchedule, [kind]: rows }];
+}
+
+export function addScheduleDay(schedule, kind) {
+  const siteSchedule = normalizeSiteSchedule(schedule);
+  const rows = siteSchedule[kind]?.length ? siteSchedule[kind] : [emptyScheduleDay()];
+  return [{ ...siteSchedule, [kind]: [...rows, emptyScheduleDay()] }];
+}
+
+export function removeScheduleDay(schedule, kind, entryIndex) {
+  const siteSchedule = normalizeSiteSchedule(schedule);
+  const rows = (siteSchedule[kind] ?? []).filter((_, rowIndex) => rowIndex !== entryIndex);
+  return [{ ...siteSchedule, [kind]: rows }];
 }
 
 export function formatStatusUpdatedAt(date) {

@@ -631,23 +631,22 @@ input:focus-visible, textarea:focus-visible { outline: 3px solid #87bea4; outlin
 .field-help strong { color: #55705d; }
 .gps-capture-note { margin: -3px 0 0; color: #53735d; }
 .coordinate-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
-.site-schedule-editor { display: grid; gap: 8px; }
-.site-schedule-group { display: grid; gap: 7px; min-width: 0; margin: 0; padding: 8px; border: 1px solid #e7ece7; border-radius: 7px; }
-.site-schedule-group legend { padding: 0 4px; color: #607969; font-size: 8px; font-weight: 800; }
-.site-schedule-fields { display: grid; grid-template-columns: .8fr 1.2fr; gap: 7px; }
-.site-schedule-item { display: grid; gap: 6px; min-width: 0; }
-.site-schedule-item-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: #526b5b; font-size: 9px; }
-.site-schedule-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; min-width: 0; }
+.site-schedule-group { container: schedule-category / inline-size; display: grid; align-content: start; gap: 12px; min-width: 0; margin: 0; padding: 14px; border: 1px solid #e7ece7; border-radius: 8px; }
+.site-schedule-group legend { padding: 0 4px; color: #607969; font-size: 9px; font-weight: 800; }
+.site-schedule-pair { display: grid; grid-template-columns: minmax(0, 1fr); align-items: start; gap: 16px; min-width: 0; }
+.site-schedule-day-list { display: grid; gap: 14px; min-width: 0; }
+.site-schedule-day-row { display: grid; grid-template-columns: minmax(0, 1fr) 36px; align-items: end; gap: 10px; min-width: 0; }
+.site-schedule-day-row .field-label { min-width: 0; }
+.site-schedule-day-row .schedule-day-picker { grid-column: 1; grid-row: 1; }
+.site-schedule-day-row .schedule-time-range { grid-column: 1 / -1; grid-row: 2; }
+.site-schedule-day-row .schedule-remove-day-button { grid-column: 2; grid-row: 1; }
+.schedule-day-picker { display: grid; gap: 4px; margin: 0; color: #718178; font-size: 9px; font-weight: 700; }
+.schedule-day-picker select { width: 100%; min-width: 0; }
 .schedule-add-button { justify-self: start; }
 .schedule-remove-button { min-height: 24px; padding: 3px 7px; border: 1px solid #ead9d5; border-radius: 6px; background: #fff8f7; color: #9b5d53; font: 650 8px "DM Sans", sans-serif; cursor: pointer; }
 .schedule-remove-button:hover { border-color: #dcb7ae; background: #fff0ed; }
-.schedule-day-field { min-width: 0; margin: 0; padding: 0; border: 0; }
-.schedule-day-field legend { margin: 0 0 5px; padding: 0; color: #718178; font-size: 8px; font-weight: 800; }
-.schedule-day-options { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; min-width: 0; }
-.schedule-day-option { position: relative; display: grid; place-items: center; min-width: 0; min-height: 32px; padding: 3px 1px; border: 1px solid #dfe6df; border-radius: 6px; background: #fff; color: #718178; font-size: 8px; font-weight: 700; cursor: pointer; }
-.schedule-day-option--selected { border-color: #87b592; background: #edf6ee; color: #326548; }
-.schedule-day-option:focus-within { outline: 2px solid #87bea455; outline-offset: 1px; }
-.schedule-day-option input { position: absolute; width: 1px; min-width: 1px; min-height: 1px; margin: 0; padding: 0; border: 0; opacity: 0; }
+.schedule-add-day-button { align-self: start; min-height: 36px; margin: 0; padding: 8px 12px; }
+.schedule-remove-day-button { align-self: end; min-width: 36px; width: 36px; height: 40px; padding: 0; font-size: 18px; line-height: 1; }
 .coordinate-help { margin-top: -4px; color: #98a39b; }
 .editor-topline { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
 .editor-topline .eyebrow { margin: 0 0 3px; font-size: 7px; }
@@ -1364,7 +1363,7 @@ button.kpi-detail-row:focus-visible { outline: 3px solid #79a987; outline-offset
 .pin-editor-header .eyebrow { margin: 0 0 4px; color: #718579; font-size: 9px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
 .pin-editor-header h2 { margin: 0; color: #304638; font-size: 19px; line-height: 1.25; }
 .pin-editor-context { margin: 4px 0 0; color: #859188; font-size: 11px; }
-.pin-editor-body { display: grid; grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr); align-content: start; align-items: start; gap: 13px; min-height: 0; padding: 17px 20px; overflow: visible; }
+.pin-editor-body { display: grid; grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr); align-content: start; align-items: start; column-gap: 16px; row-gap: 20px; min-height: 0; padding: 17px 20px; overflow: visible; }
 .pin-editor-column { display: grid; align-content: start; gap: 13px; min-width: 0; }
 .pin-editor-section { display: grid; align-content: start; gap: 12px; min-width: 0; padding: 0; border: 0; border-radius: 0; background: transparent; }
 .pin-editor-section-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding-bottom: 8px; border-bottom: 1px solid #edf1ed; }
@@ -1374,36 +1373,35 @@ button.kpi-detail-row:focus-visible { outline: 3px solid #79a987; outline-offset
 .pin-editor-form .field-label input, .pin-editor-form .field-label select, .pin-editor-form .field-label textarea { min-height: 38px; padding: 8px 10px; color: #304638; font-size: 12px; }
 .pin-editor-form .field-label textarea { min-height: 62px; line-height: 1.45; }
 .pin-editor-form .coordinate-fields { gap: 9px; }
-.pin-editor-form .site-schedule-editor { grid-template-columns: minmax(0, 1fr); gap: 9px; }
-.pin-editor-form .site-schedule-group { gap: 9px; padding: 11px; border-radius: 8px; }
 .pin-editor-form .site-schedule-group legend { font-size: 10px; }
-.pin-editor-form .site-schedule-fields { grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); gap: 8px; }
+.pin-editor-form .schedule-day-picker { font-size: 10px; }
+.pin-editor-form .schedule-day-picker select { min-height: 40px; padding: 8px 10px; font-size: 12px; }
 .site-review-confirmation { width: 100%; min-height: 48px; justify-content: space-between; gap: 10px; padding: 8px 11px; }
 .site-review-confirmation .confirmation-copy { white-space: normal; }
 .site-review-confirmation .confirmation-copy strong { font-size: 11px; }
 .site-review-confirmation .confirmation-copy small { font-size: 10px; }
-.site-review-section .field-label input[readonly] { background: #f8faf7; color: #64756a; cursor: default; }
-.site-review-history { display: grid; gap: 8px; }
-.site-review-history-heading { display: grid; gap: 3px; }
-.site-review-history-heading > span { color: #63776a; font-size: 10px; font-weight: 800; }
-.site-review-history-heading > small { color: #87938a; font-size: 9px; line-height: 1.4; }
-.site-review-history-entry { display: grid; gap: 7px; padding: 9px; border: 1px solid #e3eae3; border-radius: 8px; background: #fbfcfa; }
-.site-review-history-entry .field-label input[readonly] { min-height: 34px; }
-.site-review-history-entry > p { margin: 0; color: #53675a; font-size: 10px; line-height: 1.45; overflow-wrap: anywhere; }
-.site-review-history-empty { margin: 0; color: #87938a; font-size: 10px; line-height: 1.4; }
 .schedule-time-range { display: grid; align-content: start; gap: 6px; min-width: 0; }
-.schedule-time-heading { color: #63776a; font-size: 10px; font-weight: 800; }
-.schedule-time-range-fields { display: grid; gap: 6px; min-width: 0; }
-.schedule-time-endpoint { display: grid; grid-template-columns: 36px minmax(0, 1fr); align-items: center; gap: 6px; min-width: 0; color: #718178; font-size: 9px; font-weight: 700; }
-.schedule-time-pickers { display: grid; grid-template-columns: minmax(0, 1fr) 64px; gap: 6px; min-width: 0; }
-.schedule-time-picker-label { display: block; min-width: 0; }
-.schedule-time-picker-label select { width: 100%; min-width: 0; }
+.schedule-time-heading { color: #63776a; font-size: 10px; font-weight: 700; }
+.schedule-time-range-fields { display: grid; grid-template-columns: minmax(0, 1fr) 90px 20px minmax(0, 1fr) 90px; align-items: center; gap: 6px; min-width: 0; }
+.schedule-time-text-label, .schedule-time-period-label { display: block; min-width: 0; margin: 0; }
+.pin-editor-form .schedule-time-text-label input, .pin-editor-form .schedule-time-period-label select { width: 100%; min-width: 0; min-height: 40px; padding: 8px; font-size: 12px; }
+.schedule-time-separator { align-self: center; color: #87938a; font-size: 9px; text-align: center; }
+.pin-editor-form .pin-editor-schedule-section { grid-column: 1 / -1; }
+@container schedule-category (min-width: 580px) {
+  .site-schedule-day-row { grid-template-columns: minmax(140px, .4fr) minmax(0, 1fr) 36px; }
+  .site-schedule-day-row .schedule-time-range { grid-column: 2; grid-row: 1; }
+  .site-schedule-day-row .schedule-remove-day-button { grid-column: 3; grid-row: 1; }
+}
+@container schedule-category (max-width: 359px) {
+  .schedule-time-range-fields { grid-template-columns: minmax(0, 1fr) 90px; gap: 8px; }
+  .schedule-time-separator { display: none; }
+}
 .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 .pin-editor-schedule-section { min-width: 0; }
 .pin-editor-form .street-view-handoff { gap: 9px; margin-top: 0; padding: 11px; }
 .pin-editor-form .manual-street-view-fallback { gap: 8px; }
-.pin-editor-notes { min-width: 0; align-self: start; border: 0; border-radius: 0; background: transparent; }
-.pin-editor-notes-fields { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; padding: 0; }
+.pin-editor-notes { grid-column: 1 / -1; min-width: 0; align-self: start; }
+.pin-editor-notes-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; padding: 0; }
 .pin-editor-notes-fields .field-label textarea { min-height: 112px; }
 .pin-editor-actions { position: sticky; bottom: 0; z-index: 2; justify-content: flex-end; margin: 0; padding: 12px 20px; border-top: 1px solid #e7ece6; background: #fbfcfa; }
 .pin-editor-actions .primary-small-button, .pin-editor-actions .quiet-small-button { min-height: 36px; padding: 8px 14px; font-size: 11px; }
@@ -1422,8 +1420,7 @@ button.kpi-detail-row:focus-visible { outline: 3px solid #79a987; outline-offset
   .pin-editor-header h2 { font-size: 17px; }
   .pin-editor-body { gap: 10px; padding: 11px; }
   .pin-editor-section { gap: 10px; padding: 12px; }
-  .pin-editor-form .site-schedule-editor, .pin-editor-notes-fields { grid-template-columns: minmax(0, 1fr); }
-  .pin-editor-form .site-schedule-pair { grid-template-columns: minmax(0, 1fr); }
+  .pin-editor-notes-fields { grid-template-columns: minmax(0, 1fr); }
   .pin-editor-actions { padding: 10px 12px; }
   .pin-editor-actions .primary-small-button, .pin-editor-actions .quiet-small-button { flex: 1 1 0; justify-content: center; }
 }

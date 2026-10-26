@@ -23,14 +23,12 @@ import { createBarangayDetailsActions } from "../actions/createBarangayDetailsAc
 import { createMapEditingActions } from "../actions/createMapEditingActions.js";
 import { summarizeReviewChanges } from "../utils/reviewChanges.js";
 import {
-  addScheduleGroup,
+  addScheduleDay,
   coordinateText,
-  emptyScheduleGroup,
-  normalizeScheduleGroups,
-  removeScheduleGroup,
-  scheduleFieldValue,
+  removeScheduleDay,
+  scheduleDayEntries,
   sourceScheduleRows,
-  updateScheduleField,
+  updateScheduleEntry,
 } from "../utils/pinFormHelpers.js";
 
 const EMPTY_ACTIVITY = [];
@@ -807,12 +805,10 @@ export function useBarangayReviewController(sourceUrl) {
     unlocatedSiteCount,
     removedSiteCount,
     coordinateText,
-    addScheduleGroup,
-    emptyScheduleGroup,
-    normalizeScheduleGroups,
-    removeScheduleGroup,
+    addScheduleDay,
+    removeScheduleDay,
+    scheduleDayEntries,
     sourceScheduleRows,
-    scheduleFieldValue,
-    updateScheduleField,
+    updateScheduleEntry,
   };
 }
