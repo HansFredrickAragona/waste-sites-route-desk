@@ -118,6 +118,10 @@ function App() {
     reviewUndoRef,
     lineDraftUndoRef,
     coordinateText,
+    addScheduleGroup,
+    emptyScheduleGroup,
+    normalizeScheduleGroups,
+    removeScheduleGroup,
     sourceScheduleRows,
     scheduleFieldValue,
     updateScheduleField,
@@ -230,7 +234,7 @@ function App() {
     disconnectFiringLine,
   };
   const refs = { pinDragStartRef, pinMoveUndoRef, reviewUndoRef, lineDraftUndoRef };
-  const helpers = { coordinateText, sourceScheduleRows, scheduleFieldValue, updateScheduleField };
+  const helpers = { coordinateText, addScheduleGroup, emptyScheduleGroup, normalizeScheduleGroups, removeScheduleGroup, sourceScheduleRows, scheduleFieldValue, updateScheduleField };
 
   return (
     <main className="app-shell">

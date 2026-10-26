@@ -23,7 +23,11 @@ import { createBarangayDetailsActions } from "../actions/createBarangayDetailsAc
 import { createMapEditingActions } from "../actions/createMapEditingActions.js";
 import { summarizeReviewChanges } from "../utils/reviewChanges.js";
 import {
+  addScheduleGroup,
   coordinateText,
+  emptyScheduleGroup,
+  normalizeScheduleGroups,
+  removeScheduleGroup,
   scheduleFieldValue,
   sourceScheduleRows,
   updateScheduleField,
@@ -803,6 +807,10 @@ export function useBarangayReviewController(sourceUrl) {
     unlocatedSiteCount,
     removedSiteCount,
     coordinateText,
+    addScheduleGroup,
+    emptyScheduleGroup,
+    normalizeScheduleGroups,
+    removeScheduleGroup,
     sourceScheduleRows,
     scheduleFieldValue,
     updateScheduleField,

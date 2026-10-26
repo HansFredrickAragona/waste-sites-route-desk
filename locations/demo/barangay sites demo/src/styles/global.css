@@ -635,6 +635,19 @@ input:focus-visible, textarea:focus-visible { outline: 3px solid #87bea4; outlin
 .site-schedule-group { display: grid; gap: 7px; min-width: 0; margin: 0; padding: 8px; border: 1px solid #e7ece7; border-radius: 7px; }
 .site-schedule-group legend { padding: 0 4px; color: #607969; font-size: 8px; font-weight: 800; }
 .site-schedule-fields { display: grid; grid-template-columns: .8fr 1.2fr; gap: 7px; }
+.site-schedule-item { display: grid; gap: 6px; min-width: 0; }
+.site-schedule-item-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: #526b5b; font-size: 9px; }
+.site-schedule-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; min-width: 0; }
+.schedule-add-button { justify-self: start; }
+.schedule-remove-button { min-height: 24px; padding: 3px 7px; border: 1px solid #ead9d5; border-radius: 6px; background: #fff8f7; color: #9b5d53; font: 650 8px "DM Sans", sans-serif; cursor: pointer; }
+.schedule-remove-button:hover { border-color: #dcb7ae; background: #fff0ed; }
+.schedule-day-field { min-width: 0; margin: 0; padding: 0; border: 0; }
+.schedule-day-field legend { margin: 0 0 5px; padding: 0; color: #718178; font-size: 8px; font-weight: 800; }
+.schedule-day-options { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; min-width: 0; }
+.schedule-day-option { position: relative; display: grid; place-items: center; min-width: 0; min-height: 32px; padding: 3px 1px; border: 1px solid #dfe6df; border-radius: 6px; background: #fff; color: #718178; font-size: 8px; font-weight: 700; cursor: pointer; }
+.schedule-day-option--selected { border-color: #87b592; background: #edf6ee; color: #326548; }
+.schedule-day-option:focus-within { outline: 2px solid #87bea455; outline-offset: 1px; }
+.schedule-day-option input { position: absolute; width: 1px; min-width: 1px; min-height: 1px; margin: 0; padding: 0; border: 0; opacity: 0; }
 .coordinate-help { margin-top: -4px; color: #98a39b; }
 .editor-topline { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
 .editor-topline .eyebrow { margin: 0 0 3px; font-size: 7px; }
@@ -1378,11 +1391,6 @@ button.kpi-detail-row:focus-visible { outline: 3px solid #79a987; outline-offset
 .site-review-history-entry .field-label input[readonly] { min-height: 34px; }
 .site-review-history-entry > p { margin: 0; color: #53675a; font-size: 10px; line-height: 1.45; overflow-wrap: anywhere; }
 .site-review-history-empty { margin: 0; color: #87938a; font-size: 10px; line-height: 1.4; }
-.schedule-day-control { position: relative; display: block; height: 38px; }
-.schedule-day-control select { width: 100%; height: 100%; appearance: none; padding: 0 30px 0 10px !important; color: transparent !important; cursor: pointer; }
-.schedule-day-control select option { color: #304638; }
-.schedule-day-selected { position: absolute; inset: 0; display: grid; place-items: center; padding: 0 28px 0 0; overflow: hidden; color: #304638; font: 500 12px "DM Sans", sans-serif; line-height: 1.2; text-align: center; text-overflow: ellipsis; white-space: nowrap; pointer-events: none; }
-.schedule-day-control::after { position: absolute; top: 50%; right: 12px; color: #4b6352; font-size: 14px; line-height: 1; content: "⌄"; pointer-events: none; transform: translateY(-55%); }
 .schedule-time-range { display: grid; align-content: start; gap: 6px; min-width: 0; }
 .schedule-time-heading { color: #63776a; font-size: 10px; font-weight: 800; }
 .schedule-time-range-fields { display: grid; gap: 6px; min-width: 0; }
@@ -1415,6 +1423,7 @@ button.kpi-detail-row:focus-visible { outline: 3px solid #79a987; outline-offset
   .pin-editor-body { gap: 10px; padding: 11px; }
   .pin-editor-section { gap: 10px; padding: 12px; }
   .pin-editor-form .site-schedule-editor, .pin-editor-notes-fields { grid-template-columns: minmax(0, 1fr); }
+  .pin-editor-form .site-schedule-pair { grid-template-columns: minmax(0, 1fr); }
   .pin-editor-actions { padding: 10px 12px; }
   .pin-editor-actions .primary-small-button, .pin-editor-actions .quiet-small-button { flex: 1 1 0; justify-content: center; }
 }

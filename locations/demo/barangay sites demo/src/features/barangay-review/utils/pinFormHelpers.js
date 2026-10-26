@@ -3,69 +3,156 @@ export function coordinateText(latitude, longitude) {
 }
 
 export const SCHEDULE_DAYS = [
-  { code: "MON", label: "Monday" },
-  { code: "TUES", label: "Tuesday" },
-  { code: "WED", label: "Wednesday" },
-  { code: "THURS", label: "Thursday" },
-  { code: "FRI", label: "Friday" },
-  { code: "SAT", label: "Saturday" },
-  { code: "SUN", label: "Sunday" },
+  { code: "MON", label: "Monday", shortLabel: "Mon" },
+  { code: "TUES", label: "Tuesday", shortLabel: "Tue" },
+  { code: "WED", label: "Wednesday", shortLabel: "Wed" },
+  { code: "THURS", label: "Thursday", shortLabel: "Thu" },
+  { code: "FRI", label: "Friday", shortLabel: "Fri" },
+  { code: "SAT", label: "Saturday", shortLabel: "Sat" },
+  { code: "SUN", label: "Sunday", shortLabel: "Sun" },
 ];
 
-export function scheduleDayCode(value) {
-  const normalized = String(value ?? "").trim().toUpperCase().replace(/[^A-Z]/g, "");
-  if (!normalized) return "";
-  const match = SCHEDULE_DAYS.find(({ code, label }) => {
-    const fullName = label.toUpperCase();
-    return normalized === code || normalized === fullName || fullName.startsWith(normalized);
+const SCHEDULE_DAY_ALIASES = {
+  MON: ["MON", "MONDAY", "M"],
+  TUES: ["TUE", "TUES", "TUESDAY", "TU", "T"],
+  WED: ["WED", "WEDNESDAY", "W"],
+  THURS: ["THU", "THUR", "THURS", "THURSDAY", "TH"],
+  FRI: ["FRI", "FRIDAY", "F"],
+  SAT: ["SAT", "SATURDAY", "SA"],
+  SUN: ["SUN", "SUNDAY", "SU"],
+};
+
+const COMPACT_SCHEDULE_DAYS = {
+  MW: ["MON", "WED"],
+  MWF: ["MON", "WED", "FRI"],
+  TTH: ["TUES", "THURS"],
+  TR: ["TUES", "THURS"],
+};
+
+export function scheduleDayCodes(value) {
+  const text = (Array.isArray(value) ? value.join(",") : String(value ?? ""))
+    .toUpperCase()
+    .replace(/\bAND\b/g, ",");
+  const selected = new Set();
+
+  text.split(/[\s,/&+;]+/).filter(Boolean).forEach((token) => {
+    const compactDays = COMPACT_SCHEDULE_DAYS[token];
+    if (compactDays) {
+      compactDays.forEach((code) => selected.add(code));
+      return;
+    }
+    const day = Object.entries(SCHEDULE_DAY_ALIASES).find(([, aliases]) => aliases.includes(token));
+    if (day) selected.add(day[0]);
   });
-  return match?.code ?? "";
+
+  return SCHEDULE_DAYS.filter(({ code }) => selected.has(code)).map(({ code }) => code);
+}
+
+export function scheduleDayCode(value) {
+  return scheduleDayCodes(value)[0] ?? "";
+}
+
+export function emptyScheduleGroup() {
+  return {
+    "pick-up": { day: "", time: "" },
+    "drop-off": { day: "", time: "" },
+  };
+}
+
+export function normalizeScheduleGroups(schedule) {
+  if (!Array.isArray(schedule)) return [];
+
+  const groups = [];
+  let pickupCount = 0;
+  let dropoffCount = 0;
+  const ensureGroup = (index) => {
+    while (groups.length <= index) groups.push({});
+    return groups[index];
+  };
+  const copyTiming = (timing) => timing && typeof timing === "object" && !Array.isArray(timing)
+    ? { ...timing, day: Array.isArray(timing.day) ? timing.day.join(", ") : String(timing.day ?? ""), time: String(timing.time ?? "") }
+    : { day: "", time: "" };
+
+  schedule.forEach((entry) => {
+    if (!entry || typeof entry !== "object" || Array.isArray(entry)) return;
+    const hasPickup = Object.prototype.hasOwnProperty.call(entry, "pick-up");
+    const hasDropoff = Object.prototype.hasOwnProperty.call(entry, "drop-off");
+    if (!hasPickup && !hasDropoff) return;
+
+    if (hasPickup && hasDropoff) {
+      const index = Math.max(pickupCount, dropoffCount);
+      const group = ensureGroup(index);
+      group["pick-up"] = copyTiming(entry["pick-up"]);
+      group["drop-off"] = copyTiming(entry["drop-off"]);
+      pickupCount = index + 1;
+      dropoffCount = index + 1;
+      return;
+    }
+
+    if (hasPickup) {
+      ensureGroup(pickupCount)["pick-up"] = copyTiming(entry["pick-up"]);
+      pickupCount += 1;
+    }
+    if (hasDropoff) {
+      ensureGroup(dropoffCount)["drop-off"] = copyTiming(entry["drop-off"]);
+      dropoffCount += 1;
+    }
+  });
+
+  return groups;
+}
+
+export function addScheduleGroup(schedule) {
+  const groups = normalizeScheduleGroups(schedule);
+  if (!groups.length) groups.push(emptyScheduleGroup());
+  return [...groups, emptyScheduleGroup()];
+}
+
+export function removeScheduleGroup(schedule, index) {
+  return normalizeScheduleGroups(schedule).filter((_, groupIndex) => groupIndex !== index);
 }
 
 export function sourceScheduleRows(schedule) {
-  if (!Array.isArray(schedule)) return [];
-  return schedule.flatMap((entry) => Object.entries(entry ?? {}).map(([kind, timing]) => ({
-    label: kind.replace(/-/g, " "),
-    value: [SCHEDULE_DAYS.find(({ code }) => code === scheduleDayCode(timing?.day))?.label ?? timing?.day, timing?.time].filter(Boolean).join(" · ") || "Not provided",
-  })));
+  const groups = normalizeScheduleGroups(schedule);
+  return groups.flatMap((group, index) => ["pick-up", "drop-off"].flatMap((kind) => {
+    const timing = group[kind];
+    if (!timing) return [];
+    const dayCodes = scheduleDayCodes(timing.day);
+    const days = dayCodes.length
+      ? dayCodes.map((code) => SCHEDULE_DAYS.find((day) => day.code === code).label).join(", ")
+      : timing.day;
+    const label = `${kind.replace(/-/g, " ")}${groups.length > 1 ? ` ${index + 1}` : ""}`;
+    return [{ label, value: [days, timing.time].filter(Boolean).join(" · ") || "Not provided" }];
+  }));
 }
 
 export function scheduleWithoutDates(schedule) {
-  if (!Array.isArray(schedule)) return [];
-  return schedule.map((entry) => {
-    if (!entry || typeof entry !== "object" || Array.isArray(entry)) return entry;
-    return Object.fromEntries(Object.entries(entry).map(([kind, timing]) => [
-      kind,
-      timing && typeof timing === "object" && !Array.isArray(timing)
-        ? Object.fromEntries(Object.entries(timing).filter(([field]) => field !== "date"))
-        : timing,
-    ]));
+  return normalizeScheduleGroups(schedule).flatMap((group) => {
+    const cleanGroup = {};
+    ["pick-up", "drop-off"].forEach((kind) => {
+      const timing = group[kind];
+      if (!timing) return;
+      const cleanTiming = Object.fromEntries(Object.entries(timing).filter(([field]) => field !== "date"));
+      const hasValue = Object.values(cleanTiming).some((value) => String(value ?? "").trim());
+      if (hasValue) cleanGroup[kind] = cleanTiming;
+    });
+    return Object.keys(cleanGroup).length ? [cleanGroup] : [];
   });
 }
 
-export function scheduleFieldValue(schedule, kind, field) {
-  if (!Array.isArray(schedule)) return "";
-  const entry = schedule.find((item) => item && Object.prototype.hasOwnProperty.call(item, kind));
-  return String(entry?.[kind]?.[field] ?? "");
+export function scheduleFieldValue(schedule, index, kind, field) {
+  const group = normalizeScheduleGroups(schedule)[index];
+  const value = group?.[kind]?.[field];
+  return Array.isArray(value) ? value.join(", ") : String(value ?? "");
 }
 
-export function updateScheduleField(schedule, kind, field, value) {
-  const nextSchedule = (Array.isArray(schedule) ? schedule : []).map((entry) => {
-    if (!entry || typeof entry !== "object" || Array.isArray(entry)) return entry;
-    return Object.fromEntries(Object.entries(entry).map(([name, timing]) => [
-      name,
-      timing && typeof timing === "object" && !Array.isArray(timing) ? { ...timing } : timing,
-    ]));
-  });
-  let entryIndex = nextSchedule.findIndex((entry) => entry && Object.prototype.hasOwnProperty.call(entry, kind));
-  if (entryIndex === -1) {
-    nextSchedule.push({ [kind]: { day: "", time: "" } });
-    entryIndex = nextSchedule.length - 1;
-  }
-  const entry = nextSchedule[entryIndex];
-  const timing = entry[kind] && typeof entry[kind] === "object" && !Array.isArray(entry[kind]) ? entry[kind] : {};
-  nextSchedule[entryIndex] = { ...entry, [kind]: { ...timing, [field]: value } };
-  return nextSchedule;
+export function updateScheduleField(schedule, index, kind, field, value) {
+  const groups = normalizeScheduleGroups(schedule);
+  while (groups.length <= index) groups.push(emptyScheduleGroup());
+  const group = groups[index];
+  const timing = group[kind] && typeof group[kind] === "object" ? group[kind] : { day: "", time: "" };
+  groups[index] = { ...group, [kind]: { ...timing, [field]: value } };
+  return groups;
 }
 
 export function formatStatusUpdatedAt(date) {

@@ -8,8 +8,10 @@ export default function PinManagerCard({ data, ui, actions, helpers }) {
   const { selectedBarangay, selectedPin, visiblePins } = data;
   const { mode, pinDraft, pinManagerCollapsed, pinEditorOpen, isLocatingCurrentPosition, selectedPinId, pinSearch, pinLocationInput } = ui;
   const { beginPinFromCurrentLocation, beginPinPlacement, setPinManagerCollapsed, savePin, cancelMapMode, setPinDraft, setPinEditorOpen, setPinLocationInput, setMapFocus, beginEditPin, requestDelete, setPinSearch, selectPin } = actions;
-  const { coordinateText, sourceScheduleRows, scheduleFieldValue, updateScheduleField } = helpers;
+  const { coordinateText, addScheduleGroup, emptyScheduleGroup, normalizeScheduleGroups, removeScheduleGroup, sourceScheduleRows, scheduleFieldValue, updateScheduleField } = helpers;
   const siteReview = pinDraft?.review ?? {};
+  const normalizedScheduleGroups = normalizeScheduleGroups(pinDraft?.schedule ?? pinDraft?.sourceSchedule ?? []);
+  const scheduleGroups = normalizedScheduleGroups.length ? normalizedScheduleGroups : [emptyScheduleGroup()];
 
   function updateSiteReview(field, value) {
     setPinDraft((current) => current ? ({
@@ -59,22 +61,33 @@ export default function PinManagerCard({ data, ui, actions, helpers }) {
                           </select></label>
                         </section>
                         <section className="pin-editor-section pin-editor-schedule-section" aria-labelledby="pin-schedule-title">
-                          <div className="pin-editor-section-heading"><h3 id="pin-schedule-title">Collection schedule</h3><span>Optional</span></div>
+                          <div className="pin-editor-section-heading"><h3 id="pin-schedule-title">Collection schedule</h3><span>Multiple days and schedules · time optional</span></div>
                           <div className="site-schedule-editor">
-                            <fieldset className="site-schedule-group">
-                              <legend>Pickup</legend>
-                              <div className="site-schedule-fields">
-                                <ScheduleDayField value={scheduleFieldValue(pinDraft.schedule ?? pinDraft.sourceSchedule, "pick-up", "day")} onChange={(value) => setPinDraft((current) => current ? ({ ...current, schedule: updateScheduleField(current.schedule ?? current.sourceSchedule, "pick-up", "day", value) }) : current)} />
-                                <ScheduleTimeRangeField label="Pickup" value={scheduleFieldValue(pinDraft.schedule ?? pinDraft.sourceSchedule, "pick-up", "time")} onChange={(value) => setPinDraft((current) => current ? ({ ...current, schedule: updateScheduleField(current.schedule ?? current.sourceSchedule, "pick-up", "time", value) }) : current)} />
+                            {scheduleGroups.map((scheduleGroup, scheduleIndex) => (
+                              <div className="site-schedule-item" key={`schedule-${scheduleIndex}`}>
+                                <div className="site-schedule-item-heading">
+                                  <strong>Schedule {scheduleIndex + 1}</strong>
+                                  {scheduleGroups.length > 1 && <button className="schedule-remove-button" type="button" onClick={() => setPinDraft((current) => current ? ({ ...current, schedule: removeScheduleGroup(current.schedule ?? current.sourceSchedule, scheduleIndex) }) : current)} aria-label={`Remove schedule ${scheduleIndex + 1}`}>Remove</button>}
+                                </div>
+                                <div className="site-schedule-pair">
+                                  <fieldset className="site-schedule-group">
+                                    <legend>Pick-up</legend>
+                                    <div className="site-schedule-fields">
+                                      <ScheduleDayField value={scheduleFieldValue(pinDraft.schedule ?? pinDraft.sourceSchedule, scheduleIndex, "pick-up", "day")} onChange={(value) => setPinDraft((current) => current ? ({ ...current, schedule: updateScheduleField(current.schedule ?? current.sourceSchedule, scheduleIndex, "pick-up", "day", value) }) : current)} />
+                                      <ScheduleTimeRangeField label="Pick-up" value={scheduleFieldValue(pinDraft.schedule ?? pinDraft.sourceSchedule, scheduleIndex, "pick-up", "time")} onChange={(value) => setPinDraft((current) => current ? ({ ...current, schedule: updateScheduleField(current.schedule ?? current.sourceSchedule, scheduleIndex, "pick-up", "time", value) }) : current)} />
+                                    </div>
+                                  </fieldset>
+                                  <fieldset className="site-schedule-group">
+                                    <legend>Drop-off</legend>
+                                    <div className="site-schedule-fields">
+                                      <ScheduleDayField value={scheduleFieldValue(pinDraft.schedule ?? pinDraft.sourceSchedule, scheduleIndex, "drop-off", "day")} onChange={(value) => setPinDraft((current) => current ? ({ ...current, schedule: updateScheduleField(current.schedule ?? current.sourceSchedule, scheduleIndex, "drop-off", "day", value) }) : current)} />
+                                      <ScheduleTimeRangeField label="Drop-off" value={scheduleFieldValue(pinDraft.schedule ?? pinDraft.sourceSchedule, scheduleIndex, "drop-off", "time")} onChange={(value) => setPinDraft((current) => current ? ({ ...current, schedule: updateScheduleField(current.schedule ?? current.sourceSchedule, scheduleIndex, "drop-off", "time", value) }) : current)} />
+                                    </div>
+                                  </fieldset>
+                                </div>
                               </div>
-                            </fieldset>
-                            <fieldset className="site-schedule-group">
-                              <legend>Drop-off</legend>
-                              <div className="site-schedule-fields">
-                                <ScheduleDayField value={scheduleFieldValue(pinDraft.schedule ?? pinDraft.sourceSchedule, "drop-off", "day")} onChange={(value) => setPinDraft((current) => current ? ({ ...current, schedule: updateScheduleField(current.schedule ?? current.sourceSchedule, "drop-off", "day", value) }) : current)} />
-                                <ScheduleTimeRangeField label="Drop-off" value={scheduleFieldValue(pinDraft.schedule ?? pinDraft.sourceSchedule, "drop-off", "time")} onChange={(value) => setPinDraft((current) => current ? ({ ...current, schedule: updateScheduleField(current.schedule ?? current.sourceSchedule, "drop-off", "time", value) }) : current)} />
-                              </div>
-                            </fieldset>
+                            ))}
+                            <button className="small-action schedule-add-button" type="button" onClick={() => setPinDraft((current) => current ? ({ ...current, schedule: addScheduleGroup(current.schedule ?? current.sourceSchedule) }) : current)}>＋ Add another schedule</button>
                           </div>
                         </section>
                         <section className="pin-editor-section site-review-section" aria-labelledby="site-review-title">

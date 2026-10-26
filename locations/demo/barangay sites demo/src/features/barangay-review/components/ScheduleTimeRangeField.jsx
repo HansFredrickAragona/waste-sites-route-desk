@@ -79,7 +79,7 @@ export default function ScheduleTimeRangeField({ value, label, onChange }) {
 
   return (
     <div className="schedule-time-range">
-      <span className="schedule-time-heading">Time</span>
+      <span className="schedule-time-heading">Time (optional)</span>
       <div className="schedule-time-range-fields">
         {[
           { key: "start", title: "Start" },

@@ -1,19 +1,29 @@
-import { SCHEDULE_DAYS, scheduleDayCode } from "../utils/pinFormHelpers.js";
+import { SCHEDULE_DAYS, scheduleDayCodes } from "../utils/pinFormHelpers.js";
 
 export default function ScheduleDayField({ value, onChange }) {
-  const selectedCode = scheduleDayCode(value);
-  const selectedDay = SCHEDULE_DAYS.find(({ code }) => code === selectedCode);
+  const selectedCodes = new Set(scheduleDayCodes(value));
 
   return (
-    <label className="field-label schedule-day-field">
-      Day
-      <span className="schedule-day-control">
-        <select value={selectedCode} onChange={(event) => onChange(event.target.value)}>
-          <option value="">Select day</option>
-          {SCHEDULE_DAYS.map((day) => <option key={day.code} value={day.code}>{day.label}</option>)}
-        </select>
-        <span className="schedule-day-selected" aria-hidden="true">{selectedDay?.label ?? "Select day"}</span>
-      </span>
-    </label>
+    <fieldset className="field-label schedule-day-field">
+      <legend>Days</legend>
+      <div className="schedule-day-options">
+        {SCHEDULE_DAYS.map((day) => (
+          <label className={`schedule-day-option${selectedCodes.has(day.code) ? " schedule-day-option--selected" : ""}`} key={day.code}>
+            <input
+              type="checkbox"
+              checked={selectedCodes.has(day.code)}
+              aria-label={day.label}
+              onChange={(event) => {
+                const nextCodes = new Set(selectedCodes);
+                if (event.target.checked) nextCodes.add(day.code);
+                else nextCodes.delete(day.code);
+                onChange(SCHEDULE_DAYS.filter(({ code }) => nextCodes.has(code)).map(({ label }) => label).join(", "));
+              }}
+            />
+            <span aria-hidden="true">{day.shortLabel}</span>
+          </label>
+        ))}
+      </div>
+    </fieldset>
   );
 }

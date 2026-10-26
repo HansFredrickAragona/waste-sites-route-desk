@@ -1,7 +1,41 @@
 import { createId } from "../../json-library/services/reviewRepository.js";
 import { resolveMapCoordinates } from "../data/mapCoordinates.js";
 import { hasMapCoordinates } from "../../../shared/utils/reviewFormatting.js";
-import { coordinateText, formatStatusUpdatedAt, scheduleFieldValue, scheduleWithoutDates } from "../utils/pinFormHelpers.js";
+import { coordinateText, formatStatusUpdatedAt, scheduleWithoutDates } from "../utils/pinFormHelpers.js";
+
+const PRECISE_LOCATION_OPTIONS = { enableHighAccuracy: true, timeout: 25000, maximumAge: 10000 };
+const FALLBACK_LOCATION_OPTIONS = { enableHighAccuracy: false, timeout: 15000, maximumAge: 30000 };
+
+function getCurrentPositionWithFallback() {
+  const request = (options) => new Promise((resolve, reject) => {
+    navigator.geolocation.getCurrentPosition(resolve, reject, options);
+  });
+
+  return request(PRECISE_LOCATION_OPTIONS).catch((error) => {
+    if (error?.code === 1) throw error;
+    return request(FALLBACK_LOCATION_OPTIONS);
+  });
+}
+
+function currentLocationUnavailableMessage() {
+  if (window.isSecureContext === false) {
+    return "GPS needs a secure HTTPS page on mobile. A local network IP opened over HTTP cannot request your location.";
+  }
+  return "This browser does not provide location access. Open the app in Safari or Chrome and check your phone's Location Services.";
+}
+
+function currentLocationErrorMessage(error) {
+  if (error?.code === 1) {
+    return "Location access is blocked. Allow location for this site and enable precise location for your browser in phone settings.";
+  }
+  if (error?.code === 2) {
+    return "Your phone could not determine a location. Turn on Location Services and precise location, then retry outdoors.";
+  }
+  if (error?.code === 3) {
+    return "Location lookup timed out. Keep the app open and retry outdoors; your phone may need more time for a GPS fix.";
+  }
+  return "Your phone could not determine a location. Check Location Services and try again outdoors.";
+}
 
 function comparableCoordinate(value) {
   const text = String(value ?? "").trim();
@@ -17,23 +51,17 @@ function pinFieldChanges(previousPin, nextPin) {
     if (Object.is(value, previousValue)) return;
     changes.push({ field, value: value === null || value === undefined ? "" : String(value) });
   };
-  const previousSchedule = previous.schedule ?? previous.sourceSchedule ?? [];
-  const nextSchedule = nextPin.schedule ?? [];
-
   add("site_name", nextPin.name, String(previous.site_name ?? previous.name ?? "").trim());
   add("longitude", nextPin.longitude, comparableCoordinate(previous.longitude ?? previous.location?.longitude));
   add("latitude", nextPin.latitude, comparableCoordinate(previous.latitude ?? previous.location?.latitude));
   add("purok", nextPin.purok, String(previous.purok ?? "").trim());
   add("status.type", nextPin.statusType, String(previous.statusType || previous.sourceStatusLabel || previous.status?.type || "").trim());
 
-  for (const [kind, field, label] of [
-    ["pick-up", "day", "schedule.pick-up.day"],
-    ["pick-up", "time", "schedule.pick-up.time"],
-    ["drop-off", "day", "schedule.drop-off.day"],
-    ["drop-off", "time", "schedule.drop-off.time"],
-  ]) {
-    add(label, scheduleFieldValue(nextSchedule, kind, field), scheduleFieldValue(previousSchedule, kind, field));
-  }
+  add(
+    "schedule",
+    JSON.stringify(scheduleWithoutDates(nextPin.schedule ?? [])),
+    JSON.stringify(scheduleWithoutDates(previous.schedule ?? previous.sourceSchedule ?? [])),
+  );
 
   add("remarks", nextPin.remarks, String(previous.remarks ?? previous.sourceRemarks ?? ""));
   add("review_note", nextPin.notes, String(previous.notes ?? ""));
@@ -156,8 +184,8 @@ export function createMapEditingActions(context) {
       setNotice({ kind: "error", text: "Save or cancel the open edit before adding another feature." });
       return;
     }
-    if (!navigator.geolocation) {
-      setNotice({ kind: "error", text: "Current location needs browser location access on HTTPS or localhost." });
+    if (window.isSecureContext === false || !navigator.geolocation) {
+      setNotice({ kind: "error", text: currentLocationUnavailableMessage() });
       return;
     }
 
@@ -166,53 +194,41 @@ export function createMapEditingActions(context) {
     locationRequestRef.current = requestId;
     setIsLocatingCurrentPosition(true);
     setMode("browse");
-    setNotice({ kind: "info", text: "Getting your current location…" });
-    try {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          if (locationRequestRef.current !== requestId) return;
-          setIsLocatingCurrentPosition(false);
-          const capturedAt = new Date().toISOString();
-          setDeviceLocation({
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-            accuracy: position.coords.accuracy,
-          });
-          createPinDraftAt([position.coords.latitude, position.coords.longitude], {
-            accuracy: position.coords.accuracy,
-            capturedAt,
-          });
-          const accuracyText = Number.isFinite(position.coords.accuracy)
-            ? ` GPS accuracy is about ${Math.round(position.coords.accuracy)} m.`
-            : "";
-          setNotice({ kind: "success", text: `Location captured. Confirm the pin on the map, then enter its details.${accuracyText}` });
-        },
-        (error) => {
-          if (locationRequestRef.current !== requestId) return;
-          setIsLocatingCurrentPosition(false);
-          const message = error.code === 1
-            ? "Location access was denied. Allow location access in your browser and try again."
-            : error.code === 3
-              ? "Location lookup timed out. Move to an open area and try again."
-              : "Your current location is unavailable. Check device location services and try again.";
-          setNotice({ kind: "error", text: message });
-        },
-        { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 },
-      );
-    } catch {
-      if (locationRequestRef.current !== requestId) return;
-      setIsLocatingCurrentPosition(false);
-      setNotice({ kind: "error", text: "Your browser could not start location lookup. Check location settings and try again." });
-    }
+    setNotice({ kind: "info", text: "Getting your location… If GPS is slow, a lower-accuracy location method will be tried too." });
+    getCurrentPositionWithFallback()
+      .then((position) => {
+        if (locationRequestRef.current !== requestId) return;
+        setIsLocatingCurrentPosition(false);
+        const capturedAt = new Date().toISOString();
+        setDeviceLocation({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          accuracy: position.coords.accuracy,
+        });
+        createPinDraftAt([position.coords.latitude, position.coords.longitude], {
+          accuracy: position.coords.accuracy,
+          capturedAt,
+        });
+        const accuracyText = Number.isFinite(position.coords.accuracy)
+          ? ` GPS accuracy is about ${Math.round(position.coords.accuracy)} m.`
+          : "";
+        setNotice({ kind: "success", text: `Location captured. Confirm the pin on the map, then enter its details.${accuracyText}` });
+      })
+      .catch((error) => {
+        if (locationRequestRef.current !== requestId) return;
+        setIsLocatingCurrentPosition(false);
+        setNotice({ kind: "error", text: currentLocationErrorMessage(error) });
+      });
   }
 
   function recenterOnCurrentLocation() {
-    if (!navigator.geolocation) {
+    if (window.isSecureContext === false || !navigator.geolocation) {
+      const unavailableMessage = currentLocationUnavailableMessage();
       if (deviceLocation) {
         setMapFocus({ type: "point", point: [deviceLocation.latitude, deviceLocation.longitude] });
-        setNotice({ kind: "info", text: "Showing your last captured location. Fresh GPS access is unavailable here." });
+        setNotice({ kind: "info", text: `${unavailableMessage} Showing your last captured location.` });
       } else {
-        setNotice({ kind: "error", text: "Current location needs browser location access on HTTPS or localhost." });
+        setNotice({ kind: "error", text: unavailableMessage });
       }
       return;
     }
@@ -220,51 +236,33 @@ export function createMapEditingActions(context) {
     const requestId = locationRequestRef.current + 1;
     locationRequestRef.current = requestId;
     setIsLocatingCurrentPosition(true);
-    setNotice({ kind: "info", text: "Finding your current location…" });
-    try {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          if (locationRequestRef.current !== requestId) return;
-          setIsLocatingCurrentPosition(false);
-          const point = [position.coords.latitude, position.coords.longitude];
-          setDeviceLocation({
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-            accuracy: position.coords.accuracy,
-          });
-          setMapFocus({ type: "point", point });
-          const accuracyText = Number.isFinite(position.coords.accuracy)
-            ? ` GPS accuracy is about ${Math.round(position.coords.accuracy)} m.`
-            : "";
-          setNotice({ kind: "success", text: `Map centered on your current location.${accuracyText}` });
-        },
-        (error) => {
-          if (locationRequestRef.current !== requestId) return;
-          setIsLocatingCurrentPosition(false);
-          if (deviceLocation) {
-            setMapFocus({ type: "point", point: [deviceLocation.latitude, deviceLocation.longitude] });
-            setNotice({ kind: "info", text: "Could not get a fresh GPS fix. Recentered on your last captured location." });
-            return;
-          }
-          const message = error.code === 1
-            ? "Location access was denied. Allow location access in your browser and try again."
-            : error.code === 3
-              ? "Location lookup timed out. Move to an open area and try again."
-              : "Your current location is unavailable. Check device location services and try again.";
-          setNotice({ kind: "error", text: message });
-        },
-        { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 },
-      );
-    } catch {
-      if (locationRequestRef.current !== requestId) return;
-      setIsLocatingCurrentPosition(false);
-      if (deviceLocation) {
-        setMapFocus({ type: "point", point: [deviceLocation.latitude, deviceLocation.longitude] });
-        setNotice({ kind: "info", text: "Fresh GPS lookup failed. Recentered on your last captured location." });
-      } else {
-        setNotice({ kind: "error", text: "Your browser could not start location lookup. Check location settings and try again." });
-      }
-    }
+    setNotice({ kind: "info", text: "Finding your location… If GPS is slow, a lower-accuracy location method will be tried too." });
+    getCurrentPositionWithFallback()
+      .then((position) => {
+        if (locationRequestRef.current !== requestId) return;
+        setIsLocatingCurrentPosition(false);
+        const point = [position.coords.latitude, position.coords.longitude];
+        setDeviceLocation({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          accuracy: position.coords.accuracy,
+        });
+        setMapFocus({ type: "point", point });
+        const accuracyText = Number.isFinite(position.coords.accuracy)
+          ? ` GPS accuracy is about ${Math.round(position.coords.accuracy)} m.`
+          : "";
+        setNotice({ kind: "success", text: `Map centered on your current location.${accuracyText}` });
+      })
+      .catch((error) => {
+        if (locationRequestRef.current !== requestId) return;
+        setIsLocatingCurrentPosition(false);
+        if (deviceLocation) {
+          setMapFocus({ type: "point", point: [deviceLocation.latitude, deviceLocation.longitude] });
+          setNotice({ kind: "info", text: "Could not get a fresh GPS fix. Recentered on your last captured location." });
+          return;
+        }
+        setNotice({ kind: "error", text: currentLocationErrorMessage(error) });
+      });
   }
 
   function beginLineDrawing() {
@@ -449,7 +447,7 @@ export function createMapEditingActions(context) {
         return;
       }
     }
-    const scheduleChanged = fieldChanges.some(({ field }) => field.startsWith("schedule."));
+    const scheduleChanged = fieldChanges.some(({ field }) => field === "schedule");
     const coordinatesChanged = fieldChanges.some(({ field }) => field === "longitude" || field === "latitude");
     const previousStatusLastUpdated = String(previousPin?.statusLastUpdated || previousPin?.status?.last_updated || pinDraft.statusLastUpdated || "");
     const statusTypeChanged = fieldChanges.some(({ field }) => field === "status.type");
