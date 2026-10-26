@@ -1,4 +1,4 @@
-import barangaySitesUrl from "../../../../data/jsons/barangays/barangay_sites.json?url";
+import barangaySitesUrl from "../../../../data/jsons/barangays/barangay_sites_v2.json?url";
 import AppHeader from "../layouts/AppHeader.jsx";
 import { Dashboard } from "../features/dashboard/components/Dashboard.jsx";
 import BarangaysDirectory from "../features/barangays/components/BarangaysDirectory.jsx";
@@ -145,7 +145,7 @@ function App() {
   }
 
   if (!review) {
-    return <main className="app-shell"><section className="data-load-state"><span className="data-load-symbol">…</span><div><h2>Preparing barangay review</h2><p>Loading collection-site records from barangay_sites.json.</p></div></section></main>;
+    return <main className="app-shell"><section className="data-load-state"><span className="data-load-symbol">…</span><div><h2>Preparing barangay review</h2><p>Loading collection-site records from barangay_sites_v2.json.</p></div></section></main>;
   }
 
   const data = {

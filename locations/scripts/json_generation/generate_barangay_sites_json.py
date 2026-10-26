@@ -1,4 +1,4 @@
-"""Generate barangay_sites.json from the annotated SWMD sites CSV."""
+"""Generate barangay_sites_v2.json from the annotated SWMD sites CSV."""
 
 from __future__ import annotations
 
@@ -12,7 +12,7 @@ from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parents[3]
 CSV_PATH = ROOT / "locations" / "data" / "csvs" / "raw" / "Drivers - Annotated SWMD MAP - Baguio_SWMD_Google_MyMaps.csv"
-OUTPUT_PATH = ROOT / "locations" / "data" / "jsons" / "barangays" / "barangay_sites.json"
+OUTPUT_PATH = ROOT / "locations" / "data" / "jsons" / "barangays" / "barangay_sites_v2.json"
 
 WEEKDAYS = (
     "Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday"
@@ -103,6 +103,12 @@ def read_sites() -> list[dict]:
                     },
                     "status": {"type": get(10), "last_updated": last_updated},
                     "remarks": get(9),
+                    "review": {
+                        "is_brgy_confirmed": False,
+                        "change_status": "unchanged",
+                        "last_reviewed": "",
+                        "change_history": [],
+                    },
                 }
             )
     return sites

@@ -115,7 +115,7 @@ export function createJsonLibraryActions(context) {
     setActiveJsonId(jsonId);
     setReview(nextReview);
     resetReviewView();
-    const nextJsonName = jsonId === BUNDLED_JSON_ID ? "barangay_sites.json" : jsonLibrary.find((item) => item.id === jsonId)?.name;
+    const nextJsonName = jsonId === BUNDLED_JSON_ID ? "barangay_sites_v2.json" : jsonLibrary.find((item) => item.id === jsonId)?.name;
     setNotice({ kind: "success", text: `${nextJsonName || "JSON file"} is now in use.` });
   }
 
@@ -176,7 +176,7 @@ export function createJsonLibraryActions(context) {
 
   function openExportConfirmation() {
     if (!review || !activeJson) return;
-    const baseName = (activeJson.name || "barangay_sites.json")
+    const baseName = (activeJson.name || "barangay_sites_v2.json")
       .replace(/\.json$/i, "")
       .replace(/[^a-z0-9_-]+/gi, "-")
       .replace(/^-+|-+$/g, "") || "barangay-sites";

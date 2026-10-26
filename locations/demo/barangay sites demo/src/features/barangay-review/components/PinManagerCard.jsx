@@ -3,12 +3,22 @@ import AnimatedSize from "../../../shared/ui/AnimatedSize.jsx";
 import ScheduleDayField from "./ScheduleDayField.jsx";
 import ScheduleTimeRangeField from "./ScheduleTimeRangeField.jsx";
 import { formatNumber, hasMapCoordinates } from "../../../shared/utils/reviewFormatting.js";
+import { dateTimeFieldValue } from "../utils/pinFormHelpers.js";
 
 export default function PinManagerCard({ data, ui, actions, helpers }) {
   const { selectedBarangay, selectedPin, visiblePins } = data;
   const { mode, pinDraft, pinManagerCollapsed, pinEditorOpen, isLocatingCurrentPosition, selectedPinId, pinSearch } = ui;
   const { beginPinFromCurrentLocation, beginPinPlacement, setPinManagerCollapsed, savePin, cancelMapMode, setPinDraft, setPinEditorOpen, setMapFocus, beginEditPin, requestDelete, setPinSearch, selectPin } = actions;
   const { coordinateText, sourceScheduleRows, scheduleFieldValue, updateScheduleField } = helpers;
+  const siteReview = pinDraft?.review ?? {};
+
+  function updateSiteReview(field, value) {
+    setPinDraft((current) => current ? ({
+      ...current,
+      review: { ...(current.review ?? {}), [field]: value },
+    }) : current);
+  }
+
   return (
               <section className={`review-panel pin-manager-panel${pinManagerCollapsed ? " pin-manager-panel--collapsed" : ""}`}>
                 <div className="tools-heading">
@@ -66,6 +76,27 @@ export default function PinManagerCard({ data, ui, actions, helpers }) {
                                 <ScheduleTimeRangeField label="Drop-off" value={scheduleFieldValue(pinDraft.schedule ?? pinDraft.sourceSchedule, "drop-off", "time")} onChange={(value) => setPinDraft((current) => current ? ({ ...current, schedule: updateScheduleField(current.schedule ?? current.sourceSchedule, "drop-off", "time", value) }) : current)} />
                               </div>
                             </fieldset>
+                          </div>
+                        </section>
+                        <section className="pin-editor-section site-review-section" aria-labelledby="site-review-title">
+                          <div className="pin-editor-section-heading"><h3 id="site-review-title">Barangay review</h3><span>Site review details</span></div>
+                          <label className={`confirmation-control site-review-confirmation${siteReview.is_brgy_confirmed ? " confirmation-control--on" : ""}`}>
+                            <span className="confirmation-copy"><strong>Barangay confirmed</strong><small>Mark this site as confirmed</small></span>
+                            <input type="checkbox" checked={siteReview.is_brgy_confirmed === true} onChange={(event) => updateSiteReview("is_brgy_confirmed", event.target.checked)} aria-label={`Barangay confirmed for ${pinDraft.name}`} />
+                            <span className="confirmation-switch" aria-hidden="true"><i /></span>
+                          </label>
+                          <label className="field-label">Change status<input value={siteReview.change_status ?? "unchanged"} readOnly aria-readonly="true" /></label>
+                          <label className="field-label">Last reviewed<input type="datetime-local" value={dateTimeFieldValue(siteReview.last_reviewed)} readOnly aria-readonly="true" /></label>
+                          <div className="site-review-history">
+                            <div className="site-review-history-heading"><span>Change history</span><small>Recorded automatically when site fields change</small></div>
+                            {Array.isArray(siteReview.change_history) && siteReview.change_history.length > 0
+                              ? siteReview.change_history.map((entry, index) => (
+                                <article className="site-review-history-entry" key={`change-history-${index}`}>
+                                  <label className="field-label"><span>Entry {index + 1} · date and time</span><input type="datetime-local" value={dateTimeFieldValue(typeof entry === "string" ? entry : entry?.date)} readOnly aria-readonly="true" /></label>
+                                  <p>{typeof entry === "string" ? entry : entry?.action || "No field details recorded."}</p>
+                                </article>
+                              ))
+                              : <p className="site-review-history-empty">No history dates recorded.</p>}
                           </div>
                         </section>
                         </div>

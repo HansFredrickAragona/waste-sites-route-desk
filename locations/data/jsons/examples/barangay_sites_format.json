@@ -28,6 +28,12 @@
             "type": "Corrected/Adjusted",
             "last_updated": "22/10/2025 8:46 AM"
         },
-        "remarks": ""
+        "remarks": "",
+        "review": {
+            "is_brgy_confirmed": false,
+            "change_status": "unchanged",
+            "last_reviewed": "",
+            "change_history": []
+        }
     }
 ]

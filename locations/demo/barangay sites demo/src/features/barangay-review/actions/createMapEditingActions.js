@@ -1,7 +1,44 @@
 import { createId } from "../../json-library/services/reviewRepository.js";
 import { resolveMapCoordinates } from "../data/mapCoordinates.js";
 import { hasMapCoordinates } from "../../../shared/utils/reviewFormatting.js";
-import { coordinateText, formatStatusUpdatedAt, scheduleWithoutDates } from "../utils/pinFormHelpers.js";
+import { coordinateText, formatStatusUpdatedAt, scheduleFieldValue, scheduleWithoutDates } from "../utils/pinFormHelpers.js";
+
+function comparableCoordinate(value) {
+  const text = String(value ?? "").trim();
+  if (!text) return null;
+  const number = Number(text);
+  return Number.isFinite(number) ? number : null;
+}
+
+function pinFieldChanges(previousPin, nextPin) {
+  const previous = previousPin ?? {};
+  const changes = [];
+  const add = (field, value, previousValue) => {
+    if (Object.is(value, previousValue)) return;
+    changes.push({ field, value: value === null || value === undefined ? "" : String(value) });
+  };
+  const previousSchedule = previous.schedule ?? previous.sourceSchedule ?? [];
+  const nextSchedule = nextPin.schedule ?? [];
+
+  add("site_name", nextPin.name, String(previous.site_name ?? previous.name ?? "").trim());
+  add("longitude", nextPin.longitude, comparableCoordinate(previous.longitude ?? previous.location?.longitude));
+  add("latitude", nextPin.latitude, comparableCoordinate(previous.latitude ?? previous.location?.latitude));
+  add("purok", nextPin.purok, String(previous.purok ?? "").trim());
+  add("status.type", nextPin.statusType, String(previous.statusType ?? previous.sourceStatusLabel ?? previous.status?.type ?? "").trim());
+
+  for (const [kind, field, label] of [
+    ["pick-up", "day", "schedule.pick-up.day"],
+    ["pick-up", "time", "schedule.pick-up.time"],
+    ["drop-off", "day", "schedule.drop-off.day"],
+    ["drop-off", "time", "schedule.drop-off.time"],
+  ]) {
+    add(label, scheduleFieldValue(nextSchedule, kind, field), scheduleFieldValue(previousSchedule, kind, field));
+  }
+
+  add("remarks", nextPin.remarks, String(previous.remarks ?? previous.sourceRemarks ?? ""));
+  add("review_note", nextPin.notes, String(previous.notes ?? ""));
+  return changes;
+}
 
 export function createMapEditingActions(context) {
   const {
@@ -94,6 +131,12 @@ export function createMapEditingActions(context) {
       sourceRemarks: "",
       sourceRowCount: 0,
       reviewStatus: "needs_review",
+      review: {
+        is_brgy_confirmed: false,
+        change_status: "unchanged",
+        last_reviewed: "",
+        change_history: [],
+      },
       purok: "",
       sourcePuroks: [],
       notes: "",
@@ -395,48 +438,94 @@ export function createMapEditingActions(context) {
       return;
     }
     const savingNew = pinDraft.isNew;
+    const previousPin = savingNew
+      ? null
+      : selectedBarangay.pins.find((pin) => pin.id === pinDraft.id) ?? pinDraft;
     const statusType = String(pinDraft.statusType ?? pinDraft.sourceStatusLabel ?? "").trim();
     const remarks = String(pinDraft.remarks ?? pinDraft.sourceRemarks ?? "").trim();
-    const statusLastUpdated = formatStatusUpdatedAt(new Date());
-    const location = {
-      ...(pinDraft.location && typeof pinDraft.location === "object" && !Array.isArray(pinDraft.location) ? pinDraft.location : {}),
-      latitude,
-      longitude,
-      google_maps_url: "https://www.google.com/maps?q=" + coordinateText(latitude, longitude),
+    const purok = String(pinDraft.purok ?? "").trim();
+    const notes = String(pinDraft.notes ?? "").trim();
+    const savedAt = new Date();
+    const savedAtText = formatStatusUpdatedAt(savedAt);
+    const schedule = scheduleWithoutDates(Array.isArray(pinDraft.schedule) ? pinDraft.schedule : pinDraft.sourceSchedule ?? []);
+    const fieldChanges = pinFieldChanges(previousPin, { name, longitude, latitude, purok, statusType, schedule, remarks, notes });
+    const hasPinChanges = fieldChanges.length > 0;
+    const scheduleChanged = fieldChanges.some(({ field }) => field.startsWith("schedule."));
+    const coordinatesChanged = fieldChanges.some(({ field }) => field === "longitude" || field === "latitude");
+    const previousStatusLastUpdated = String(previousPin?.statusLastUpdated ?? previousPin?.status?.last_updated ?? pinDraft.statusLastUpdated ?? "");
+    const statusTypeChanged = fieldChanges.some(({ field }) => field === "status.type");
+    const statusLastUpdated = savingNew || statusTypeChanged ? savedAtText : previousStatusLastUpdated;
+    const siteReview = pinDraft.review && typeof pinDraft.review === "object" && !Array.isArray(pinDraft.review)
+      ? pinDraft.review
+      : {};
+    const changeHistory = Array.isArray(siteReview.change_history) ? [...siteReview.change_history] : [];
+    const review = {
+      ...siteReview,
+      is_brgy_confirmed: siteReview.is_brgy_confirmed === true,
+      change_status: hasPinChanges ? "changed" : typeof siteReview.change_status === "string" ? siteReview.change_status : "unchanged",
+      last_reviewed: hasPinChanges ? savedAtText : typeof siteReview.last_reviewed === "string" ? siteReview.last_reviewed : "",
+      change_history: hasPinChanges
+        ? [...changeHistory, { date: savedAtText, action: fieldChanges.map(({ field, value }) => `${field}:${value}`).join(", ") }]
+        : changeHistory,
     };
-    const status = {
-      ...(pinDraft.status && typeof pinDraft.status === "object" && !Array.isArray(pinDraft.status) ? pinDraft.status : {}),
-      type: statusType,
-      last_updated: statusLastUpdated,
-    };
-    const nextPin = {
+    const location = coordinatesChanged || savingNew
+      ? {
+        ...(pinDraft.location && typeof pinDraft.location === "object" && !Array.isArray(pinDraft.location) ? pinDraft.location : {}),
+        latitude,
+        longitude,
+        google_maps_url: "https://www.google.com/maps?q=" + coordinateText(latitude, longitude),
+      }
+      : previousPin?.location ?? pinDraft.location;
+    const status = statusTypeChanged || savingNew
+      ? {
+        ...(pinDraft.status && typeof pinDraft.status === "object" && !Array.isArray(pinDraft.status) ? pinDraft.status : {}),
+        type: statusType,
+        last_updated: statusLastUpdated,
+      }
+      : previousPin?.status ?? pinDraft.status;
+    const googleMapsUrl = coordinatesChanged || savingNew
+      ? location.google_maps_url
+      : previousPin?.googleMapsUrl ?? previousPin?.location?.google_maps_url ?? pinDraft.googleMapsUrl;
+    const nextPin = !savingNew && !hasPinChanges
+      ? { ...previousPin, review }
+      : {
       ...pinDraft,
       name,
       latitude,
       longitude,
       site_name: name,
       location,
-      googleMapsUrl: location.google_maps_url,
+      googleMapsUrl,
       status,
       statusType,
       sourceStatusLabel: statusType,
       sourceStatus: /^removed\b/i.test(statusType) ? "removed" : savingNew && /^new\b/i.test(statusType) ? "new" : "active",
       statusLastUpdated,
-      schedule: scheduleWithoutDates(Array.isArray(pinDraft.schedule) ? pinDraft.schedule : pinDraft.sourceSchedule ?? []),
+      review,
+      schedule: scheduleChanged || savingNew ? schedule : previousPin?.schedule ?? schedule,
       remarks,
-      purok: pinDraft.purok || "",
-      notes: pinDraft.notes.trim(),
+      purok,
+      notes,
       isNew: undefined,
-    };
+      };
+    const confirmationChanged = !savingNew && review.is_brgy_confirmed !== (previousPin?.review?.is_brgy_confirmed === true);
+    if (!savingNew && !hasPinChanges && !confirmationChanged) {
+      setPinDraft(null);
+      setPinEditorOpen(false);
+      setMode("browse");
+      return;
+    }
     clearDraftUndoHistory();
     commitBarangay(selectedBarangay.id, (current) => ({
       ...current,
       pins: savingNew ? [nextPin, ...current.pins] : current.pins.map((pin) => pin.id === nextPin.id ? nextPin : pin),
     }), {
-      action: savingNew ? "Added collection-site pin" : "Updated collection-site pin",
-      itemType: "Collection site",
+      action: savingNew ? "Added collection-site pin" : hasPinChanges ? "Updated collection-site pin" : "Updated site confirmation",
+      itemType: hasPinChanges || savingNew ? "Collection site" : "Site confirmation",
       itemName: name,
-      details: `${nextPin.purok || "No purok assigned"} · ${coordinateText(latitude, longitude)}`,
+      details: hasPinChanges || savingNew
+        ? `${nextPin.purok || "No purok assigned"} · ${coordinateText(latitude, longitude)}`
+        : `${review.is_brgy_confirmed ? "Confirmed" : "Confirmation removed"} for ${name}`,
     });
     setSelectedPinId(nextPin.id);
     setPinDraft(null);

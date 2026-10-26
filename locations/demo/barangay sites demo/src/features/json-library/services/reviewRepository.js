@@ -5,7 +5,7 @@ const ACTIVE_JSON_STORAGE_KEY = "baguio-barangay-site-active-json-v1";
 const HIDDEN_BUNDLED_JSON_STORAGE_KEY = "baguio-barangay-site-hidden-bundled-json-v1";
 export const BUNDLED_JSON_ID = "bundled-barangay-sites";
 export const NO_JSON_REVIEW_ID = "__no-json__";
-const BUNDLED_JSON_SOURCE = { name: "barangay_sites.json", kind: "Bundled source" };
+const BUNDLED_JSON_SOURCE = { name: "barangay_sites_v2.json", kind: "Bundled source" };
 
 function slug(value) {
   return String(value).normalize("NFKD").replace(/[\u0300-\u036f]/g, "")
@@ -42,6 +42,28 @@ function normalizeSchedule(value) {
 
 function sourceStatusFor(value) {
   return /^removed\b/i.test(String(value ?? "").trim()) ? "removed" : "active";
+}
+
+function normalizeSiteReview(value) {
+  const review = value && typeof value === "object" && !Array.isArray(value) ? value : {};
+  const changeHistory = Array.isArray(review.change_history)
+    ? review.change_history.flatMap((entry) => {
+      if (typeof entry === "string") return [{ date: entry, action: "" }];
+      if (!entry || typeof entry !== "object" || Array.isArray(entry)) return [];
+      return [{
+        ...entry,
+        date: typeof entry.date === "string" ? entry.date : "",
+        action: typeof entry.action === "string" ? entry.action : "",
+      }];
+    })
+    : [];
+  return {
+    ...review,
+    is_brgy_confirmed: review.is_brgy_confirmed === true,
+    change_status: typeof review.change_status === "string" && review.change_status.trim() ? review.change_status : "unchanged",
+    last_reviewed: typeof review.last_reviewed === "string" ? review.last_reviewed : "",
+    change_history: changeHistory,
+  };
 }
 
 export function buildInitialReview(siteRecords, jsonSource = BUNDLED_JSON_SOURCE) {
@@ -94,6 +116,7 @@ export function buildInitialReview(siteRecords, jsonSource = BUNDLED_JSON_SOURCE
         remarks: sourceRemarks,
         sourceRemarks,
         reviewStatus: "needs_review",
+        review: normalizeSiteReview(site?.review),
         notes: "",
       };
     });
@@ -112,7 +135,7 @@ export function buildInitialReview(siteRecords, jsonSource = BUNDLED_JSON_SOURCE
 
   return {
     schemaVersion: 1,
-    source: "locations/data/jsons/barangays/barangay_sites.json",
+    source: "locations/data/jsons/barangays/barangay_sites_v2.json",
     jsonSource: {
       name: typeof jsonSource?.name === "string" && jsonSource.name.trim() ? jsonSource.name.trim() : BUNDLED_JSON_SOURCE.name,
       kind: typeof jsonSource?.kind === "string" && jsonSource.kind.trim() ? jsonSource.kind.trim() : BUNDLED_JSON_SOURCE.kind,
@@ -204,6 +227,7 @@ export function normalizeReviewData(value) {
         : typeof pin.remarks === "string" ? pin.remarks : "",
       notes: typeof pin.notes === "string" ? pin.notes : "",
       reviewStatus: typeof pin.reviewStatus === "string" ? pin.reviewStatus : "needs_review",
+      review: normalizeSiteReview(pin.review),
     })) : [],
     firingLines: Array.isArray(item.firingLines) ? item.firingLines.filter((line) => line && Array.isArray(line.coordinates) && line.coordinates.length >= 2 && line.coordinates.every(validPoint)).map((line, lineIndex) => ({
       ...line,
@@ -249,7 +273,14 @@ export function loadSavedReview(jsonId = BUNDLED_JSON_ID) {
           : [],
       };
     }
-    return normalizeReviewData(value);
+    const normalized = normalizeReviewData(value);
+    return jsonId === BUNDLED_JSON_ID
+      ? {
+        ...normalized,
+        source: "locations/data/jsons/barangays/barangay_sites_v2.json",
+        jsonSource: BUNDLED_JSON_SOURCE,
+      }
+      : normalized;
   } catch {
     return null;
   }

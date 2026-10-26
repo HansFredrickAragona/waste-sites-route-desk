@@ -257,7 +257,7 @@ export function useBarangayReviewController(sourceUrl) {
   const exportChangeSummary = summarizeReviewChanges(activityLog);
   const exportChangeCount = exportChangeSummary.added.length + exportChangeSummary.removed.length + exportChangeSummary.edited.length;
   const activeJson = activeJsonId === BUNDLED_JSON_ID && !bundledJsonHidden
-    ? { id: BUNDLED_JSON_ID, name: "barangay_sites.json", kind: "Bundled source" }
+    ? { id: BUNDLED_JSON_ID, name: "barangay_sites_v2.json", kind: "Bundled source" }
     : jsonLibrary.find((item) => item.id === activeJsonId) ?? null;
   const availableJsonCount = jsonLibrary.length + (bundledJsonHidden ? 0 : 1);
   const canDeleteActiveJson = Boolean(activeJson);

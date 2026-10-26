@@ -1,10 +1,10 @@
 # Baguio project handoff
 
-**Updated:** Friday, October 23, 2026 (Asia/Manila)
+**Updated:** Monday, October 26, 2026 (Asia/Manila)
 
 ## Current focus: Personal field collection tool
 
-The active app is `locations/demo/barangay sites demo/`, a React, Vite, and Leaflet tool for personally collecting Baguio collection-site data in the field, organized by barangay. Its source dataset is `locations/data/jsons/barangays/barangay_sites.json`; the JSON is generated from the annotated SWMD sites CSV. The product direction and staged plan are in `ROADMAP.md`.
+The active app is `locations/demo/barangay sites demo/`, a React, Vite, and Leaflet tool for personally collecting Baguio collection-site data in the field, organized by barangay. Its bundled source dataset is `locations/data/jsons/barangays/barangay_sites_v2.json`; it is generated from the annotated SWMD sites CSV and adds per-site review metadata. The original `barangay_sites.json` export is preserved. The product direction and staged plan are in `ROADMAP.md`.
 
 ### Current prototype behavior
 
@@ -13,6 +13,7 @@ The active app is `locations/demo/barangay sites demo/`, a React, Vite, and Leaf
 - Purok can be selected from the saved list or typed directly. GPS capture requires browser location permission and HTTPS or localhost.
 - Mobile layout now uses a sticky compact view switcher, responsive header actions, and isolated map stacking so floating map controls stay within the map panel.
 - Barangay details can update the barangay name, purok list, and notes.
+- Site review metadata includes a barangay-confirmation flag, an automatically updated change status and last-reviewed timestamp, and a `{ date, action }` history entry when site details change.
 - JSON datasets can be added, selected, exported, and removed from the browser-based selector. Each dataset keeps a separate local review copy.
 - Firing lines support drawing and editing nodes. Right-clicking a node opens actions to disconnect the next segment, delete the selected node, or remove the line. Backspace deletes the selected node; Ctrl+Z undoes supported recent edits. The Pins panel minimizes during firing-line drawing/editing and expands after saving or cancelling.
 - The map uses OpenStreetMap tiles. Google Street View editing needs a Maps API key; map links and pasted coordinates remain available without one.
@@ -39,7 +40,7 @@ To regenerate the demo input JSON, run from `locations/`:
 python scripts/json_generation/generate_barangay_sites_json.py
 ```
 
-The generator reads the annotated SWMD CSV and writes `data/jsons/barangays/barangay_sites.json` using the example schema at `data/jsons/examples/barangay_sites_format.json`. The generated JSON includes site schedule, status, remarks, coordinate, and source-row fields; missing coordinates remain reviewable in the app.
+The generator reads the annotated SWMD CSV and writes `data/jsons/barangays/barangay_sites_v2.json` using the example schema at `data/jsons/examples/barangay_sites_format.json`. The generated JSON includes site schedule, status, remarks, coordinates, and per-site review fields; missing coordinates remain reviewable in the app. It leaves the original `barangay_sites.json` unchanged.
 
 | Area | File or folder |
 | --- | --- |
@@ -50,7 +51,7 @@ The generator reads the annotated SWMD CSV and writes `data/jsons/barangays/bara
 | Shared layouts and UI | `locations/demo/barangay sites demo/src/layouts/` and `src/shared/` |
 | Prototype styles | `locations/demo/barangay sites demo/src/styles/global.css` |
 | Map coordinate parsing | `locations/demo/barangay sites demo/src/features/barangay-review/data/mapCoordinates.js` |
-| Source demo data | `locations/data/jsons/barangays/barangay_sites.json` |
+| Source demo data | `locations/data/jsons/barangays/barangay_sites_v2.json` |
 | Source JSON schema example | `locations/data/jsons/examples/barangay_sites_format.json` |
 | JSON generator | `locations/scripts/json_generation/generate_barangay_sites_json.py` |
 | Data generation notes | `locations/scripts/README.md` and `locations/data/jsons/README.md` |

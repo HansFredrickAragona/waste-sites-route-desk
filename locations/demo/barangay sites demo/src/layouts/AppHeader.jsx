@@ -19,7 +19,7 @@ export default function AppHeader({ data, ui, actions, refs }) {
             <div className="json-library-control">
               <select id="active-json" value={activeJsonId} onChange={(event) => changeActiveJson(event.target.value)} aria-label="Select active dataset" disabled={availableJsonCount === 0}>
                 {availableJsonCount === 0 && <option value="">No JSON available</option>}
-                {!bundledJsonHidden && <option value={BUNDLED_JSON_ID}>barangay_sites.json · bundled</option>}
+                {!bundledJsonHidden && <option value={BUNDLED_JSON_ID}>barangay_sites_v2.json · bundled</option>}
                 {jsonLibrary.map((item) => {
                   const sameName = jsonLibrary.filter((candidate) => candidate.name === item.name);
                   const duplicate = sameName.length > 1 ? ` · ${sameName.findIndex((candidate) => candidate.id === item.id) + 1}` : "";
