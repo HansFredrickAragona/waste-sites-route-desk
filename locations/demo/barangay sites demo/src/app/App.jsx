@@ -69,6 +69,7 @@ function App() {
     pinLocationInput,
     setPinLocationInput,
     lineDraft,
+    setLineDraft,
     pinManagerCollapsed,
     pinEditorOpen,
     isLocatingCurrentPosition,
@@ -129,6 +130,7 @@ function App() {
     exportChangeCount,
     showBarangayDetails,
     barangayDetailsDraft,
+    setBarangayDetailsDraft,
     showConfirmationContact,
     confirmationContactDraft,
     showJsonDeleteConfirmation,
@@ -219,6 +221,7 @@ function App() {
     requestDelete,
     beginLineDrawing,
     saveLine,
+    setLineDraft,
     deleteSelectedLineNode,
     beginLineNodePlacement,
     setShowLineNodeStreetView,
@@ -289,7 +292,7 @@ function App() {
       <ReviewDialogs
         state={{ showActivity, showExportConfirmation, exportFilename, exportChangeSummary, exportChangeCount, showBarangayDetails, barangayDetailsDraft, showConfirmationContact, confirmationContactDraft, showJsonDeleteConfirmation, pendingDelete }}
         data={{ activeJson, activityLog, selectedBarangay }}
-        actions={{ setShowActivity, setShowExportConfirmation, setExportFilename: controller.setExportFilename, exportReview, saveBarangayDetails, setShowBarangayDetails, saveConfirmationContact, setConfirmationContactDraft, setShowConfirmationContact, deleteActiveJson, setShowJsonDeleteConfirmation, setPendingDelete, confirmDelete }}
+        actions={{ setShowActivity, setShowExportConfirmation, setExportFilename: controller.setExportFilename, exportReview, saveBarangayDetails, setShowBarangayDetails, setBarangayDetailsDraft, saveConfirmationContact, setConfirmationContactDraft, setShowConfirmationContact, deleteActiveJson, setShowJsonDeleteConfirmation, setPendingDelete, confirmDelete }}
       />
 
       <footer className="app-footer"><span>Baguio City · Barangay collection-site review</span><span>Changes stay in this browser until you export the JSON.</span></footer>
