@@ -5,7 +5,7 @@ import { ActivityLogDialog } from "../../activity-log/components/ActivityLogDial
 export default function ReviewDialogs({ state, data, actions }) {
   const { showActivity, showExportConfirmation, exportFilename, exportChangeSummary, exportChangeCount, showBarangayDetails, barangayDetailsDraft, showConfirmationContact, confirmationContactDraft, showJsonDeleteConfirmation, pendingDelete } = state;
   const { activeJson, activityLog, selectedBarangay } = data;
-  const { setShowActivity, setShowExportConfirmation, setExportFilename, exportReview, saveBarangayDetails, setShowBarangayDetails, saveConfirmationContact, setConfirmationContactDraft, setShowConfirmationContact, deleteActiveJson, setShowJsonDeleteConfirmation, setPendingDelete, confirmDelete } = actions;
+  const { setShowActivity, setShowExportConfirmation, setExportFilename, exportReview, saveBarangayDetails, setShowBarangayDetails, setBarangayDetailsDraft, saveConfirmationContact, setConfirmationContactDraft, setShowConfirmationContact, deleteActiveJson, setShowJsonDeleteConfirmation, setPendingDelete, confirmDelete } = actions;
   return (
     <>
       <ActivityLogDialog open={showActivity} entries={activityLog} onClose={() => setShowActivity(false)} />
