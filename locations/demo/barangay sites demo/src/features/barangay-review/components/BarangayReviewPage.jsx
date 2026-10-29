@@ -1,12 +1,13 @@
 import CollectionMapCard from "./CollectionMapCard.jsx";
 import PinManagerCard from "./PinManagerCard.jsx";
 import FiringLinesCard from "./FiringLinesCard.jsx";
+import MapColumnResizer from "./MapColumnResizer.jsx";
 import { formatNumber } from "../../../shared/utils/reviewFormatting.js";
 
 export default function BarangayReviewPage({ data, ui, actions, refs, helpers }) {
   const { selectedBarangay, activeJson, mapFilteredPins, mapPurokOptions, mapSiteStatusOptions } = data;
-  const { page, pinDraft, mapPurokFilter, mapSiteStatusFilter, activeToolsPanel } = ui;
-  const { openDetailsEditor, setConfirmed, openConfirmationContactEditor, setMapPurokFilter, setMapSiteStatusFilter, setSelectedPinId } = actions;
+  const { page, pinDraft, lineDraft, mode, toolsPanelWidthRatio, mapPurokFilter, mapSiteStatusFilter } = ui;
+  const { openDetailsEditor, setConfirmed, openConfirmationContactEditor, setMapPurokFilter, setMapSiteStatusFilter, setSelectedPinId, setToolsPanelWidthRatio } = actions;
   return (
     <>
       {page === "map" && selectedBarangay && (
@@ -40,9 +41,13 @@ export default function BarangayReviewPage({ data, ui, actions, refs, helpers })
             <p aria-live="polite">{formatNumber(mapFilteredPins.length)} of {formatNumber(selectedBarangay.pins.length)} sites shown</p>
           </section>
 
-          <div className={`map-layout barangay-map-layout${pinDraft ? " barangay-map-layout--pin-editing" : ""}${activeToolsPanel ? " barangay-map-layout--tools-expanded" : ""}`}>
+          <div
+            className={`map-layout barangay-map-layout${pinDraft || lineDraft || mode === "draw-line" ? " barangay-map-layout--editing" : ""}${toolsPanelWidthRatio !== null ? " barangay-map-layout--resized" : ""}`}
+            style={toolsPanelWidthRatio !== null ? { "--tools-panel-width": `${toolsPanelWidthRatio * 100}%` } : undefined}
+          >
             <CollectionMapCard data={data} ui={ui} actions={actions} refs={refs} />
-            <aside className={`map-side-panel barangay-tools-panel${activeToolsPanel === "lines" ? " barangay-tools-panel--lines-expanded" : ""}`} aria-label="Manage collection pins and firing lines">
+            <MapColumnResizer onWidthChange={setToolsPanelWidthRatio} />
+            <aside className="map-side-panel barangay-tools-panel" aria-label="Manage collection pins and firing lines">
               <PinManagerCard data={data} ui={ui} actions={actions} helpers={helpers} />
               <FiringLinesCard data={data} ui={ui} actions={actions} />
             </aside>

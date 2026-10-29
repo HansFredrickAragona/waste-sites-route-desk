@@ -66,7 +66,7 @@ export function useBarangayReviewController(sourceUrl) {
   const [selectedPinId, setSelectedPinId] = useState(null);
   const [selectedLineId, setSelectedLineId] = useState(null);
   const [pinManagerCollapsed, setPinManagerCollapsed] = useState(false);
-  const [expandedToolsPanel, setExpandedToolsPanel] = useState(null);
+  const [toolsPanelWidthRatio, setToolsPanelWidthRatio] = useState(null);
   const [pinDraft, setPinDraft] = useState(null);
   const [pinEditorOpen, setPinEditorOpen] = useState(false);
   const [isLocatingCurrentPosition, setIsLocatingCurrentPosition] = useState(false);
@@ -108,7 +108,7 @@ export function useBarangayReviewController(sourceUrl) {
     pinDraft,
     pinEditorOpen,
     pinManagerCollapsed,
-    expandedToolsPanel,
+    toolsPanelWidthRatio,
     pinSearch,
     mapPurokFilter,
     mapSiteStatusFilter,
@@ -125,7 +125,7 @@ export function useBarangayReviewController(sourceUrl) {
     confirmationContactDraft,
   }), [
     page, selectedBarangayId, search, listFilter, mode, selectedPinId, selectedLineId,
-    pinDraft, pinEditorOpen, pinManagerCollapsed, expandedToolsPanel, pinSearch, mapPurokFilter, mapSiteStatusFilter, pinLocationInput,
+    pinDraft, pinEditorOpen, pinManagerCollapsed, toolsPanelWidthRatio, pinSearch, mapPurokFilter, mapSiteStatusFilter, pinLocationInput,
     lineDraft, linePoints, selectedLineNodeIndex, lineNodeLocationInput, mapView,
     showActivity, showBarangayDetails, barangayDetailsDraft, showConfirmationContact,
     confirmationContactDraft,
@@ -225,7 +225,7 @@ export function useBarangayReviewController(sourceUrl) {
         setPinDraft(restoredPinDraft);
         setPinEditorOpen(Boolean(restoredPinDraft && savedWorkspace?.pinEditorOpen));
         setPinManagerCollapsed(Boolean(restoredBarangay && savedWorkspace?.pinManagerCollapsed));
-        setExpandedToolsPanel(restoredBarangay ? savedWorkspace?.expandedToolsPanel ?? null : null);
+        setToolsPanelWidthRatio(savedWorkspace?.toolsPanelWidthRatio ?? null);
         setPinSearch(savedWorkspace?.pinSearch ?? "");
         setMapPurokFilter(savedWorkspace?.mapPurokFilter ?? "all");
         setMapSiteStatusFilter(savedWorkspace?.mapSiteStatusFilter ?? "all");
@@ -380,7 +380,6 @@ export function useBarangayReviewController(sourceUrl) {
 
   const barangays = review?.barangays ?? [];
   const selectedBarangay = barangays.find((barangay) => barangay.id === selectedBarangayId) ?? null;
-  const activeToolsPanel = pinDraft ? "pins" : lineDraft || mode === "draw-line" ? "lines" : expandedToolsPanel;
   const selectedPin = selectedBarangay?.pins.find((pin) => pin.id === selectedPinId) ?? null;
   const selectedPinForMap = pinDraft?.id === selectedPinId ? pinDraft : selectedPin;
   const mapPurokOptions = [...new Set((selectedBarangay?.pins ?? []).map((pin) => String(pin.purok ?? "").trim()))]
@@ -497,7 +496,6 @@ export function useBarangayReviewController(sourceUrl) {
     setLinePoints([]);
     setMode("browse");
     setPinManagerCollapsed(false);
-    setExpandedToolsPanel(null);
     setPinSearch("");
     setMapPurokFilter("all");
     setMapSiteStatusFilter("all");
@@ -535,7 +533,7 @@ export function useBarangayReviewController(sourceUrl) {
     setLinePoints([]);
     setMode("browse");
     setPinManagerCollapsed(false);
-    setExpandedToolsPanel(null);
+    setToolsPanelWidthRatio(null);
     setPinSearch("");
     setMapPurokFilter("all");
     setMapSiteStatusFilter("all");
@@ -625,7 +623,6 @@ export function useBarangayReviewController(sourceUrl) {
     setPinDraft,
     setPinEditorOpen,
     setPinManagerCollapsed,
-    setExpandedToolsPanel,
     setSelectedLineId,
     setSelectedLineNodeIndex,
     setSelectedPinId,
@@ -730,9 +727,8 @@ export function useBarangayReviewController(sourceUrl) {
     setSelectedLineId,
     pinManagerCollapsed,
     setPinManagerCollapsed,
-    expandedToolsPanel,
-    setExpandedToolsPanel,
-    activeToolsPanel,
+    toolsPanelWidthRatio,
+    setToolsPanelWidthRatio,
     pinDraft,
     setPinDraft,
     pinEditorOpen,

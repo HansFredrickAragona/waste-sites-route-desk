@@ -101,7 +101,6 @@ export function createMapEditingActions(context) {
     setPinDraft,
     setPinEditorOpen,
     setPinManagerCollapsed,
-    setExpandedToolsPanel,
     setSelectedLineId,
     setSelectedLineNodeIndex,
     setSelectedPinId,
@@ -124,7 +123,6 @@ export function createMapEditingActions(context) {
     setShowLineNodeStreetView(false);
     setLinePoints([]);
     setPinManagerCollapsed(false);
-    setExpandedToolsPanel("pins");
     setMode((current) => current === "place-pin" ? "browse" : "place-pin");
   }
 
@@ -177,7 +175,6 @@ export function createMapEditingActions(context) {
     setLinePoints([]);
     setMode("browse");
     setPinManagerCollapsed(false);
-    setExpandedToolsPanel("pins");
     setMapFocus({ type: "point", point: [latitude, longitude], zoom: 19 });
   }
 
@@ -289,7 +286,6 @@ export function createMapEditingActions(context) {
     setShowLineNodeStreetView(false);
     setLinePoints([]);
     setPinManagerCollapsed(true);
-    setExpandedToolsPanel("lines");
     setMode("draw-line");
   }
 
@@ -311,7 +307,6 @@ export function createMapEditingActions(context) {
     setShowLineNodeStreetView(false);
     setMode("browse");
     setPinManagerCollapsed(false);
-    setExpandedToolsPanel("pins");
     if (hasMapCoordinates(pin)) {
       setMapFocus({ type: "point", point: [Number(pin.latitude), Number(pin.longitude)], zoom: 19 });
     }
@@ -360,7 +355,6 @@ export function createMapEditingActions(context) {
     setSelectedPinId(null);
     setSelectedLineNodeIndex(0);
     setLinePoints([]);
-    setExpandedToolsPanel("lines");
     setMode("edit-line");
   }
 
@@ -392,7 +386,6 @@ export function createMapEditingActions(context) {
     locationRequestRef.current += 1;
     setIsLocatingCurrentPosition(false);
     setSelectedPinId(pinId);
-    setExpandedToolsPanel((current) => current ? "pins" : null);
     setSelectedLineId(null);
     setPinDraft(null);
     setLineDraft(null);
@@ -411,7 +404,6 @@ export function createMapEditingActions(context) {
     locationRequestRef.current += 1;
     setIsLocatingCurrentPosition(false);
     setSelectedLineId(lineId);
-    setExpandedToolsPanel((current) => current ? "lines" : null);
     setSelectedPinId(null);
     setPinDraft(null);
     setLineDraft(null);
@@ -603,7 +595,6 @@ export function createMapEditingActions(context) {
     setLineNodeLocationMessage("");
     setMode("edit-line");
     setPinManagerCollapsed(true);
-    setExpandedToolsPanel("lines");
     if (line.coordinates.length) {
       setMapFocus({ type: "bounds", points: line.coordinates, maxZoom: 18 });
     }

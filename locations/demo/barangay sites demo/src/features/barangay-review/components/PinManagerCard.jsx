@@ -5,11 +5,11 @@ import { formatNumber, hasMapCoordinates } from "../../../shared/utils/reviewFor
 
 export default function PinManagerCard({ data, ui, actions, helpers }) {
   const { selectedBarangay, selectedPin, visiblePins } = data;
-  const { mode, pinDraft, lineDraft, pinManagerCollapsed, activeToolsPanel, pinEditorOpen, isLocatingCurrentPosition, selectedPinId, pinSearch, pinLocationInput } = ui;
-  const { beginPinFromCurrentLocation, beginPinPlacement, setPinManagerCollapsed, setExpandedToolsPanel, savePin, cancelMapMode, setPinDraft, setPinEditorOpen, setPinLocationInput, setMapFocus, beginEditPin, requestDelete, setPinSearch, selectPin } = actions;
+  const { mode, pinDraft, lineDraft, pinManagerCollapsed, pinEditorOpen, isLocatingCurrentPosition, selectedPinId, pinSearch, pinLocationInput } = ui;
+  const { beginPinFromCurrentLocation, beginPinPlacement, setPinManagerCollapsed, savePin, cancelMapMode, setPinDraft, setPinEditorOpen, setPinLocationInput, setMapFocus, beginEditPin, requestDelete, setPinSearch, selectPin } = actions;
   const { coordinateText, sourceScheduleRows } = helpers;
   const siteReview = pinDraft?.review ?? {};
-  const panelCollapsed = pinDraft ? false : pinManagerCollapsed || activeToolsPanel === "lines";
+  const panelCollapsed = pinDraft ? false : pinManagerCollapsed;
   const editInProgress = Boolean(pinDraft || lineDraft || mode === "draw-line");
 
   function updateSiteReview(field, value) {
@@ -20,23 +20,22 @@ export default function PinManagerCard({ data, ui, actions, helpers }) {
   }
 
   return (
-              <section className={`review-panel pin-manager-panel${panelCollapsed ? " pin-manager-panel--collapsed" : ""}${activeToolsPanel === "pins" ? " pin-manager-panel--expanded" : ""}`}>
+              <section className={`review-panel pin-manager-panel${panelCollapsed ? " pin-manager-panel--collapsed" : ""}`}>
                 <div className="tools-heading">
                   <div><h2>Pins <span>{formatNumber(selectedBarangay.pins.length)}</span></h2></div>
                   <div className="pin-manager-heading-actions">
                     {!panelCollapsed && <button className="small-action" type="button" onClick={beginPinFromCurrentLocation} disabled={isLocatingCurrentPosition} aria-busy={isLocatingCurrentPosition}>{isLocatingCurrentPosition ? "Locating…" : "⌖ Add GPS pin"}</button>}
                     {!panelCollapsed && <button className={`small-action${mode === "place-pin" ? " small-action--active" : ""}`} type="button" onClick={beginPinPlacement} aria-pressed={mode === "place-pin"}>＋ Add pin</button>}
-                    <button className="small-action panel-expand-button" type="button" aria-pressed={activeToolsPanel === "pins"} aria-label={activeToolsPanel === "pins" ? "Restore Pins panel width" : "Expand Pins panel width"} disabled={editInProgress} title={editInProgress ? "Finish the current edit before changing panel size" : undefined} onClick={() => { setPinManagerCollapsed(false); setExpandedToolsPanel((current) => current === "pins" ? null : "pins"); }}>{activeToolsPanel === "pins" ? (pinDraft ? "Expanded" : "Restore") : "Expand"}</button>
-                    {activeToolsPanel !== "lines" && <button
+                    <button
                       className="small-action pin-manager-toggle"
                       type="button"
-                      onClick={() => { if (activeToolsPanel === "pins") setExpandedToolsPanel(null); setPinManagerCollapsed((current) => !current); }}
+                      onClick={() => setPinManagerCollapsed((current) => !current)}
                       disabled={editInProgress}
                       aria-expanded={!panelCollapsed}
                       aria-label={panelCollapsed ? "Show Pins panel" : "Minimize Pins panel"}
                     >
                       {panelCollapsed ? "Show" : "Minimize"}
-                    </button>}
+                    </button>
                   </div>
                 </div>
                 <AnimatedSize className="pin-content-size-transition" collapsed={panelCollapsed}>

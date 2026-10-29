@@ -570,3 +570,16 @@ No unavailable or unlisted conversation is presumed accessible. No live Cloudfla
 - **Checks completed:** `npm run test:schedules` passed 7/7, including a new firing-line save and JSON reimport case. `npm run build` passed and reported the existing Vite JavaScript chunk over 500 kB advisory. `git diff --check` reported no whitespace errors; Git emitted only line-ending conversion notices.
 - **Checks still needed:** a real browser interaction and mobile layout review for filters, selected-pin card, and firing-line editor. The in-app browser timed out on the local preview and the computer-use request for Chrome was automatically denied. No Cloudflare production check, phone GPS test, commit, push, or deployment was performed.
 
+## 39. Expandable Map Panels — 2026-10-29
+
+- Superseded by section 40: the owner requested a draggable column boundary in place of the Expand/Restore buttons.
+- The owner chose wider panels across the map page for Pins and Firing lines. Each has an **Expand/Restore** control. The expanded panel grows beside the visible map while the other panel folds to its header. A pin or firing-line edit, or drawing a new line, opens the corresponding panel wide. Panel width selection persists in the browser field session.
+- Browser checks for this panel feature succeeded locally at desktop and emulated 390 px mobile widths: expand both panels, restore the default layout, reload with the Firing lines panel expanded, and open/cancel a pin edit. The earlier browser-access limitation in section 38 was resolved for these checks by using an approved local preview. This does not verify the filter logic or a firing-line save/reimport flow; those remain follow-up checks.
+- No physical phone or GPS check, Cloudflare check, push, or deployment was performed for this panel feature. The repository was already at local commit `a3c5427` and one commit ahead of `origin/main` when this continuation was checked; do not assume the current local state is published.
+
+## 40. Draggable Map Divider — 2026-10-29
+
+- The owner replaced the panel Expand/Restore interaction with dragging the boundary between the map and the Pins/Firing lines column, like a spreadsheet column. Both sections now remain in the one side column, with the existing Pins Minimize control intact. The resize handle is keyboard operable, and double-click resets the width. The browser field session saves the chosen width ratio; old `expandedToolsPanel` session preferences are ignored without changing saved review data.
+- At desktop widths, the map and side column each keep at least 300 px. The default width is 390 px (350 px for 901–1100 px viewports); an edit opens the side column wider until the owner manually resizes it. Pin editor fields stack when the side column narrows. Below 901 px, the divider is hidden and the map and side column stack at full width.
+- Verified local browser dragging in both directions, lower width limit, reload persistence, pin edit while resizing, cancel without saving, double-click reset, keyboard arrow adjustment, and emulated 390 px mobile layout. The build and seven schedule tests pass, with the existing Vite large-chunk advisory. No physical phone, GPS, Cloudflare, push, or deployment check was performed. The map-filter and firing-line save/import browser checks remain open.
+

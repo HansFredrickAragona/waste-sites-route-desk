@@ -1,26 +1,20 @@
 import GoogleStreetViewEditor from "./GoogleStreetViewEditor.jsx";
-import AnimatedSize from "../../../shared/ui/AnimatedSize.jsx";
 import CollectionScheduleFields from "./CollectionScheduleFields.jsx";
 import { formatNumber } from "../../../shared/utils/reviewFormatting.js";
 import { sourceScheduleRows } from "../utils/pinFormHelpers.js";
 
 export default function FiringLinesCard({ data, ui, actions }) {
   const { selectedBarangay, selectedLine, selectedLineNode } = data;
-  const { mode, pinDraft, lineDraft, activeToolsPanel, selectedLineId, selectedLineNodeIndex, showLineNodeStreetView, lineNodeLocationInput, lineNodeLocationError, lineNodeLocationMessage, isResolvingLineNodeLocation } = ui;
-  const { beginLineDrawing, saveLine, cancelMapMode, setLineDraft, setExpandedToolsPanel, finishLineNodePlacement, beginLineNodePlacement, deleteSelectedLineNode, setShowLineNodeStreetView, setLineNodeLocationInput, setLineNodeLocationError, setLineNodeLocationMessage, applyLineNodeLocation, handleLineNodeStreetViewPosition, beginEditLine, requestDelete, selectLine } = actions;
-  const panelCollapsed = activeToolsPanel === "pins" && !lineDraft && mode !== "draw-line";
-  const editInProgress = Boolean(pinDraft || lineDraft || mode === "draw-line");
+  const { mode, lineDraft, selectedLineId, selectedLineNodeIndex, showLineNodeStreetView, lineNodeLocationInput, lineNodeLocationError, lineNodeLocationMessage, isResolvingLineNodeLocation } = ui;
+  const { beginLineDrawing, saveLine, cancelMapMode, setLineDraft, finishLineNodePlacement, beginLineNodePlacement, deleteSelectedLineNode, setShowLineNodeStreetView, setLineNodeLocationInput, setLineNodeLocationError, setLineNodeLocationMessage, applyLineNodeLocation, handleLineNodeStreetViewPosition, beginEditLine, requestDelete, selectLine } = actions;
   return (
-              <section className={`review-panel line-manager-panel${panelCollapsed ? " line-manager-panel--collapsed" : ""}${activeToolsPanel === "lines" ? " line-manager-panel--expanded" : ""}`}>
+              <section className="review-panel line-manager-panel">
                 <div className="tools-heading">
                   <div><p className="eyebrow">Route features</p><h2>Firing lines <span>{formatNumber(selectedBarangay.firingLines.length)}</span></h2></div>
                   <div className="line-manager-heading-actions">
-                    {!panelCollapsed && <button className={`small-action small-action--line${mode === "draw-line" ? " small-action--active" : ""}`} type="button" onClick={beginLineDrawing} aria-pressed={mode === "draw-line"}>{mode === "draw-line" ? "Cancel line" : "＋ Add line"}</button>}
-                    <button className="small-action small-action--line panel-expand-button" type="button" aria-pressed={activeToolsPanel === "lines"} aria-label={activeToolsPanel === "lines" ? "Restore Firing lines panel width" : "Expand Firing lines panel width"} disabled={editInProgress} title={editInProgress ? "Finish the current edit before changing panel size" : undefined} onClick={() => setExpandedToolsPanel((current) => current === "lines" ? null : "lines")}>{activeToolsPanel === "lines" ? (lineDraft || mode === "draw-line" ? "Expanded" : "Restore") : "Expand"}</button>
+                    <button className={`small-action small-action--line${mode === "draw-line" ? " small-action--active" : ""}`} type="button" onClick={beginLineDrawing} aria-pressed={mode === "draw-line"}>{mode === "draw-line" ? "Cancel line" : "＋ Add line"}</button>
                   </div>
                 </div>
-                <AnimatedSize className="line-content-size-transition" collapsed={panelCollapsed}>
-                  <>
                 {lineDraft ? (
                   <form className="line-editor" onSubmit={saveLine}>
                     <div className="editor-topline"><div><p className="eyebrow">{lineDraft.isNew ? "New feature" : "Edit feature"}</p><h3>{lineDraft.name}</h3></div><button className="icon-close icon-close--small" type="button" aria-label="Cancel line editing" onClick={cancelMapMode}>×</button></div>
@@ -142,8 +136,6 @@ export default function FiringLinesCard({ data, ui, actions }) {
                     </li>
                   ))}
                 </ul>
-                  </>
-                </AnimatedSize>
               </section>
   );
 }
