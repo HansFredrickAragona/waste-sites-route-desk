@@ -4,9 +4,9 @@ import FiringLinesCard from "./FiringLinesCard.jsx";
 import { formatNumber } from "../../../shared/utils/reviewFormatting.js";
 
 export default function BarangayReviewPage({ data, ui, actions, refs, helpers }) {
-  const { selectedBarangay, activeJson } = data;
-  const { page, pinDraft } = ui;
-  const { openDetailsEditor, setConfirmed, openConfirmationContactEditor } = actions;
+  const { selectedBarangay, activeJson, mapFilteredPins, mapPurokOptions, mapSiteStatusOptions } = data;
+  const { page, pinDraft, mapPurokFilter, mapSiteStatusFilter, activeToolsPanel } = ui;
+  const { openDetailsEditor, setConfirmed, openConfirmationContactEditor, setMapPurokFilter, setMapSiteStatusFilter, setSelectedPinId } = actions;
   return (
     <>
       {page === "map" && selectedBarangay && (
@@ -33,17 +33,16 @@ export default function BarangayReviewPage({ data, ui, actions, refs, helpers })
             <div className="summary-source-note"><span className="source-dot" /><span>Collection records from {activeJson?.name ?? "No JSON loaded"}</span></div>
           </div>
 
-          <section className="map-filter-preview" aria-label="Map filter preview">
-            <div className="map-filter-title"><span className="filter-funnel" aria-hidden="true">▽</span><div><strong>Map filters</strong><small>Preview only</small></div></div>
-            <label><span>Purok</span><select disabled value="all" aria-label="Purok map filter placeholder"><option value="all">All puroks</option></select></label>
-            <label><span>Site status</span><select disabled value="all" aria-label="Site status map filter placeholder"><option value="all">All sites</option></select></label>
-            <label><span>Review</span><select disabled value="all" aria-label="Review map filter placeholder"><option value="all">Any status</option></select></label>
-            <p>Filters are visual placeholders for this demo.</p>
+          <section className="map-filters" aria-label="Map filters">
+            <div className="map-filter-title"><span className="filter-funnel" aria-hidden="true">▽</span><strong>Map filters</strong></div>
+            <label><span>Purok</span><select value={mapPurokFilter} aria-label="Filter map by purok" onChange={(event) => { setMapPurokFilter(event.target.value); if (!pinDraft) setSelectedPinId(null); }}><option value="all">All puroks</option>{mapPurokOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
+            <label><span>Site status</span><select value={mapSiteStatusFilter} aria-label="Filter map by site status" onChange={(event) => { setMapSiteStatusFilter(event.target.value); if (!pinDraft) setSelectedPinId(null); }}><option value="all">All statuses</option>{mapSiteStatusOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
+            <p aria-live="polite">{formatNumber(mapFilteredPins.length)} of {formatNumber(selectedBarangay.pins.length)} sites shown</p>
           </section>
 
-          <div className={`map-layout barangay-map-layout${pinDraft ? " barangay-map-layout--pin-editing" : ""}`}>
+          <div className={`map-layout barangay-map-layout${pinDraft ? " barangay-map-layout--pin-editing" : ""}${activeToolsPanel ? " barangay-map-layout--tools-expanded" : ""}`}>
             <CollectionMapCard data={data} ui={ui} actions={actions} refs={refs} />
-            <aside className="map-side-panel barangay-tools-panel" aria-label="Manage collection pins and firing lines">
+            <aside className={`map-side-panel barangay-tools-panel${activeToolsPanel === "lines" ? " barangay-tools-panel--lines-expanded" : ""}`} aria-label="Manage collection pins and firing lines">
               <PinManagerCard data={data} ui={ui} actions={actions} helpers={helpers} />
               <FiringLinesCard data={data} ui={ui} actions={actions} />
             </aside>

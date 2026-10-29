@@ -2,13 +2,13 @@ import { BarangayMap, MapModeNotice } from "./MapView.jsx";
 import { formatNumber } from "../../../shared/utils/reviewFormatting.js";
 
 export default function CollectionMapCard({ data, ui, actions, refs }) {
-  const { selectedBarangay, mappedSiteCount, unlocatedSiteCount, removedSiteCount, selectedPinHasMapCoordinates, selectedPinForMap, mapPinPoints } = data;
-  const { mode, linePoints, selectedLineNodeIndex, mapFocus, mapView, deviceLocation, selectedPinId, selectedLineId, pinDraft, lineDraft, isLocatingCurrentPosition } = ui;
+  const { selectedBarangay, mapFilteredPins, mappedSiteCount, unlocatedSiteCount, removedSiteCount, selectedPinHasMapCoordinates, selectedPinForMap, mapPinPoints } = data;
+  const { mode, linePoints, selectedLineNodeIndex, mapFocus, mapView, deviceLocation, selectedPinId, selectedLineId, pinDraft, lineDraft, isLocatingCurrentPosition, mapPurokFilter, mapSiteStatusFilter } = ui;
   const { finishLineNodePlacement, cancelMapMode, finishLineDrawing, handleMapClick, selectPin, selectLine, selectLineNode, setUndoCount, recenterOnCurrentLocation, setMapFocus, setMapView, setPinDraft, updateLineNodePosition, deleteSelectedLineNode, disconnectFiringLine, requestDelete } = actions;
   const { pinDragStartRef, pinMoveUndoRef, reviewUndoRef, lineDraftUndoRef } = refs;
   return (
             <section className="map-card" aria-label={`${selectedBarangay.name} collection-site map`}>
-              <div className="map-card-heading"><div><h2>Collection map</h2></div><span className="map-count-card"><strong className="map-count-number">{formatNumber(mappedSiteCount)}</strong> mapped</span></div>
+              <div className="map-card-heading"><div><h2>Collection map</h2></div><span className="map-count-card"><strong className="map-count-number">{formatNumber(mappedSiteCount)}</strong> mapped{mapPurokFilter !== "all" || mapSiteStatusFilter !== "all" ? " shown" : ""}</span></div>
               <MapModeNotice
                 mode={mode}
                 linePointCount={linePoints.length}
@@ -21,6 +21,7 @@ export default function CollectionMapCard({ data, ui, actions, refs }) {
                 <BarangayMap
                   key={selectedBarangay.id}
                   barangay={selectedBarangay}
+                  mapPins={mapFilteredPins}
                   focus={mapFocus}
                   mapView={mapView}
                   deviceLocation={deviceLocation}

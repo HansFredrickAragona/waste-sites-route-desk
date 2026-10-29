@@ -1,15 +1,16 @@
 import PinLocationAssistant from "./PinLocationAssistant.jsx";
 import AnimatedSize from "../../../shared/ui/AnimatedSize.jsx";
-import ScheduleDayField from "./ScheduleDayField.jsx";
-import ScheduleTimeRangeField from "./ScheduleTimeRangeField.jsx";
+import CollectionScheduleFields from "./CollectionScheduleFields.jsx";
 import { formatNumber, hasMapCoordinates } from "../../../shared/utils/reviewFormatting.js";
 
 export default function PinManagerCard({ data, ui, actions, helpers }) {
   const { selectedBarangay, selectedPin, visiblePins } = data;
-  const { mode, pinDraft, pinManagerCollapsed, pinEditorOpen, isLocatingCurrentPosition, selectedPinId, pinSearch, pinLocationInput } = ui;
-  const { beginPinFromCurrentLocation, beginPinPlacement, setPinManagerCollapsed, savePin, cancelMapMode, setPinDraft, setPinEditorOpen, setPinLocationInput, setMapFocus, beginEditPin, requestDelete, setPinSearch, selectPin } = actions;
-  const { coordinateText, addScheduleDay, removeScheduleDay, scheduleDayEntries, sourceScheduleRows, updateScheduleEntry } = helpers;
+  const { mode, pinDraft, lineDraft, pinManagerCollapsed, activeToolsPanel, pinEditorOpen, isLocatingCurrentPosition, selectedPinId, pinSearch, pinLocationInput } = ui;
+  const { beginPinFromCurrentLocation, beginPinPlacement, setPinManagerCollapsed, setExpandedToolsPanel, savePin, cancelMapMode, setPinDraft, setPinEditorOpen, setPinLocationInput, setMapFocus, beginEditPin, requestDelete, setPinSearch, selectPin } = actions;
+  const { coordinateText, sourceScheduleRows } = helpers;
   const siteReview = pinDraft?.review ?? {};
+  const panelCollapsed = pinDraft ? false : pinManagerCollapsed || activeToolsPanel === "lines";
+  const editInProgress = Boolean(pinDraft || lineDraft || mode === "draw-line");
 
   function updateSiteReview(field, value) {
     setPinDraft((current) => current ? ({
@@ -18,80 +19,27 @@ export default function PinManagerCard({ data, ui, actions, helpers }) {
     }) : current);
   }
 
-  function renderScheduleDays(kind, label) {
-    const entries = scheduleDayEntries(pinDraft.schedule ?? pinDraft.sourceSchedule, kind);
-
-    return (
-      <>
-        <div className="site-schedule-day-list">
-          {entries.map((entry, entryIndex) => (
-            <div className="site-schedule-day-row" key={`${kind}-${entryIndex}`}>
-              <ScheduleDayField
-                label={`${label} row ${entryIndex + 1}`}
-                value={entry.day}
-                onChange={(value) => setPinDraft((current) => current ? ({
-                  ...current,
-                  schedule: updateScheduleEntry(current.schedule ?? current.sourceSchedule, kind, entryIndex, { day: value }),
-                }) : current)}
-              />
-              <ScheduleTimeRangeField
-                label={`${label} row ${entryIndex + 1}`}
-                value={entry}
-                onChange={(fields) => setPinDraft((current) => current ? ({
-                  ...current,
-                  schedule: updateScheduleEntry(current.schedule ?? current.sourceSchedule, kind, entryIndex, fields),
-                }) : current)}
-              />
-              {entries.length > 1 && (
-                <button
-                  className="schedule-remove-button schedule-remove-day-button"
-                  type="button"
-                  onClick={() => setPinDraft((current) => current ? ({
-                    ...current,
-                    schedule: removeScheduleDay(current.schedule ?? current.sourceSchedule, kind, entryIndex),
-                  }) : current)}
-                  aria-label={`Remove ${label.toLowerCase()} day ${entryIndex + 1}`}
-                >
-                  ×
-                </button>
-              )}
-            </div>
-          ))}
-        </div>
-        <button
-          className="small-action schedule-add-button schedule-add-day-button"
-          type="button"
-          aria-label={`Add ${label.toLowerCase()} day`}
-          onClick={() => setPinDraft((current) => current ? ({
-            ...current,
-            schedule: addScheduleDay(current.schedule ?? current.sourceSchedule, kind),
-          }) : current)}
-        >
-          ＋ Add day
-        </button>
-      </>
-    );
-  }
-
   return (
-              <section className={`review-panel pin-manager-panel${pinManagerCollapsed ? " pin-manager-panel--collapsed" : ""}`}>
+              <section className={`review-panel pin-manager-panel${panelCollapsed ? " pin-manager-panel--collapsed" : ""}${activeToolsPanel === "pins" ? " pin-manager-panel--expanded" : ""}`}>
                 <div className="tools-heading">
                   <div><h2>Pins <span>{formatNumber(selectedBarangay.pins.length)}</span></h2></div>
                   <div className="pin-manager-heading-actions">
-                    {!pinManagerCollapsed && <button className="small-action" type="button" onClick={beginPinFromCurrentLocation} disabled={isLocatingCurrentPosition} aria-busy={isLocatingCurrentPosition}>{isLocatingCurrentPosition ? "Locating…" : "⌖ Add GPS pin"}</button>}
-                    {!pinManagerCollapsed && <button className={`small-action${mode === "place-pin" ? " small-action--active" : ""}`} type="button" onClick={beginPinPlacement} aria-pressed={mode === "place-pin"}>＋ Add pin</button>}
-                    <button
+                    {!panelCollapsed && <button className="small-action" type="button" onClick={beginPinFromCurrentLocation} disabled={isLocatingCurrentPosition} aria-busy={isLocatingCurrentPosition}>{isLocatingCurrentPosition ? "Locating…" : "⌖ Add GPS pin"}</button>}
+                    {!panelCollapsed && <button className={`small-action${mode === "place-pin" ? " small-action--active" : ""}`} type="button" onClick={beginPinPlacement} aria-pressed={mode === "place-pin"}>＋ Add pin</button>}
+                    <button className="small-action panel-expand-button" type="button" aria-pressed={activeToolsPanel === "pins"} aria-label={activeToolsPanel === "pins" ? "Restore Pins panel width" : "Expand Pins panel width"} disabled={editInProgress} title={editInProgress ? "Finish the current edit before changing panel size" : undefined} onClick={() => { setPinManagerCollapsed(false); setExpandedToolsPanel((current) => current === "pins" ? null : "pins"); }}>{activeToolsPanel === "pins" ? (pinDraft ? "Expanded" : "Restore") : "Expand"}</button>
+                    {activeToolsPanel !== "lines" && <button
                       className="small-action pin-manager-toggle"
                       type="button"
-                      onClick={() => setPinManagerCollapsed((current) => !current)}
-                      aria-expanded={!pinManagerCollapsed}
-                      aria-label={pinManagerCollapsed ? "Expand Pins panel" : "Minimize Pins panel"}
+                      onClick={() => { if (activeToolsPanel === "pins") setExpandedToolsPanel(null); setPinManagerCollapsed((current) => !current); }}
+                      disabled={editInProgress}
+                      aria-expanded={!panelCollapsed}
+                      aria-label={panelCollapsed ? "Show Pins panel" : "Minimize Pins panel"}
                     >
-                      {pinManagerCollapsed ? "Expand" : "Minimize"}
-                    </button>
+                      {panelCollapsed ? "Show" : "Minimize"}
+                    </button>}
                   </div>
                 </div>
-                <AnimatedSize className="pin-content-size-transition" collapsed={pinManagerCollapsed}>
+                <AnimatedSize className="pin-content-size-transition" collapsed={panelCollapsed}>
                   <>
                 {pinDraft ? (
                   pinEditorOpen ? (
@@ -146,16 +94,10 @@ export default function PinManagerCard({ data, ui, actions, helpers }) {
                         </div>
                         <section className="pin-editor-section pin-editor-schedule-section" aria-labelledby="pin-schedule-title">
                           <div className="pin-editor-section-heading"><h3 id="pin-schedule-title">Collection schedule</h3><span>One row per day · time optional</span></div>
-                          <div className="site-schedule-pair">
-                            <fieldset className="site-schedule-group">
-                              <legend>Drop-off</legend>
-                              {renderScheduleDays("drop-off", "Drop-off")}
-                            </fieldset>
-                            <fieldset className="site-schedule-group">
-                              <legend>Pick-up</legend>
-                              {renderScheduleDays("pick-up", "Pick-up")}
-                            </fieldset>
-                          </div>
+                          <CollectionScheduleFields
+                            schedule={pinDraft.schedule ?? pinDraft.sourceSchedule}
+                            onChange={(schedule) => setPinDraft((current) => current ? ({ ...current, schedule }) : current)}
+                          />
                         </section>
                       </div>
                       <footer className="editor-actions pin-editor-actions"><button className="quiet-small-button" type="button" onClick={cancelMapMode}>Cancel</button><button className="primary-small-button" type="submit">{pinDraft.isNew ? "Save pin" : "Save changes"}</button></footer>
@@ -171,18 +113,14 @@ export default function PinManagerCard({ data, ui, actions, helpers }) {
                   )
                 ) : selectedPin ? (
                   <div className="pin-detail-card">
-                    <div className="pin-detail-topline"><span className={`pin-status-dot${selectedPin.sourceStatus === "removed" ? " pin-status-dot--removed" : ""}`} /><span className="eyebrow">{selectedPin.sourceStatusLabel || (selectedPin.sourceStatus === "removed" ? "Removed in source export" : selectedPin.sourceStatus === "new" ? "Added in this review" : "Site record")}</span></div>
                     <h3>{selectedPin.name}</h3>
-                    {selectedPin.sourceNames?.length > 1 && <p className="source-aliases">Source labels: {selectedPin.sourceNames.join(" · ")}</p>}
                     <dl className="pin-detail-list">
                       <div><dt>Purok</dt><dd>{selectedPin.purok || <span className="missing-value">Not assigned</span>}</dd></div>
                       <div><dt>Coordinates</dt><dd>{hasMapCoordinates(selectedPin) ? <code>{coordinateText(selectedPin.latitude, selectedPin.longitude)}</code> : <span className="missing-value">Not mapped · edit to add coordinates</span>}</dd></div>
-                      <div><dt>Status last updated</dt><dd>{selectedPin.statusLastUpdated || <span className="missing-value">Not recorded</span>}</dd></div>
-                      {sourceScheduleRows(selectedPin.schedule ?? selectedPin.sourceSchedule).map((row, index) => <div key={`${row.label}-${index}`}><dt>{row.label}</dt><dd>{row.value}</dd></div>)}
-                      <div><dt>Source record</dt><dd>{selectedPin.sourceRowCount || "New record"}</dd></div>
-                      {selectedPin.sourcePuroks?.length > 0 && <div><dt>Raw purok field</dt><dd>{selectedPin.sourcePuroks.join(" · ")}</dd></div>}
-                      {(selectedPin.remarks || selectedPin.sourceRemarks) && <div><dt>Remarks</dt><dd>{selectedPin.remarks || selectedPin.sourceRemarks}</dd></div>}
-                      {selectedPin.notes && <div><dt>Review note</dt><dd>{selectedPin.notes}</dd></div>}
+                      {["pick up", "drop off"].map((label) => <div key={label}><dt>{label}</dt><dd>{sourceScheduleRows(selectedPin.schedule ?? selectedPin.sourceSchedule).find((row) => row.label === label)?.value || <span className="missing-value">Not provided</span>}</dd></div>)}
+                      <div><dt>Barangay confirmed</dt><dd>{selectedPin.review?.is_brgy_confirmed === true ? "Yes" : "No"}</dd></div>
+                      <div><dt>Remarks</dt><dd>{selectedPin.remarks || selectedPin.sourceRemarks || <span className="missing-value">Not provided</span>}</dd></div>
+                      <div><dt>Review note</dt><dd>{selectedPin.notes || <span className="missing-value">Not provided</span>}</dd></div>
                     </dl>
                     <div className="pin-detail-actions">
                       {hasMapCoordinates(selectedPin) && <a className="quiet-small-button pin-map-link" href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(coordinateText(selectedPin.latitude, selectedPin.longitude))}`} target="_blank" rel="noreferrer">Open in Google Maps <span aria-hidden="true">↗</span></a>}
@@ -197,10 +135,10 @@ export default function PinManagerCard({ data, ui, actions, helpers }) {
                 <ul className="site-record-list" aria-label="Collection-site pins">
                   {visiblePins.map((pin, index) => (
                     <li key={pin.id}><button className={`site-record${selectedPinId === pin.id ? " site-record--active" : ""}${pin.sourceStatus === "removed" ? " site-record--removed" : ""}`} type="button" onClick={() => selectPin(pin.id)}>
-                      <span className="site-record-number">{index + 1}</span><span className="site-record-copy"><strong>{pin.name}</strong><small>{pin.purok || pin.sourcePuroks?.[0] || "Purok not assigned"}{pin.sourceStatus === "removed" ? " · removed" : ""}{!hasMapCoordinates(pin) ? " · no coordinates" : ""}</small></span><span className="site-record-arrow" aria-hidden="true">›</span>
+                      <span className="site-record-number">{index + 1}</span><span className="site-record-copy"><strong>{pin.name}</strong><small>{pin.purok || "Purok not assigned"}{pin.sourceStatus === "removed" ? " · removed" : ""}{!hasMapCoordinates(pin) ? " · no coordinates" : ""}</small></span><span className="site-record-arrow" aria-hidden="true">›</span>
                     </button></li>
                   ))}
-                  {visiblePins.length === 0 && <li className="site-list-empty">No sites match this search.</li>}
+                  {visiblePins.length === 0 && <li className="site-list-empty">No sites match the filters or search.</li>}
                 </ul>
                   </>
                 </AnimatedSize>

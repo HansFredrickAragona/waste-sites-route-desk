@@ -53,6 +53,9 @@ function App() {
     selectedPinForMap,
     mapPinPoints,
     visiblePins,
+    mapFilteredPins,
+    mapPurokOptions,
+    mapSiteStatusOptions,
     mappedSiteCount,
     unlocatedSiteCount,
     removedSiteCount,
@@ -71,6 +74,8 @@ function App() {
     lineDraft,
     setLineDraft,
     pinManagerCollapsed,
+    setExpandedToolsPanel,
+    activeToolsPanel,
     pinEditorOpen,
     isLocatingCurrentPosition,
     showLineNodeStreetView,
@@ -78,6 +83,11 @@ function App() {
     lineNodeLocationError,
     lineNodeLocationMessage,
     pinSearch,
+    mapPurokFilter,
+    setMapPurokFilter,
+    mapSiteStatusFilter,
+    setMapSiteStatusFilter,
+    setSelectedPinId,
     openDetailsEditor,
     setConfirmed,
     openConfirmationContactEditor,
@@ -119,11 +129,7 @@ function App() {
     reviewUndoRef,
     lineDraftUndoRef,
     coordinateText,
-    addScheduleDay,
-    removeScheduleDay,
-    scheduleDayEntries,
     sourceScheduleRows,
-    updateScheduleEntry,
     showExportConfirmation,
     exportFilename,
     exportChangeSummary,
@@ -171,6 +177,9 @@ function App() {
     selectedPinForMap,
     mapPinPoints,
     visiblePins,
+    mapFilteredPins,
+    mapPurokOptions,
+    mapSiteStatusOptions,
   };
   const ui = {
     page,
@@ -186,6 +195,7 @@ function App() {
     pinLocationInput,
     lineDraft,
     pinManagerCollapsed,
+    activeToolsPanel,
     pinEditorOpen,
     isLocatingCurrentPosition,
     showLineNodeStreetView,
@@ -193,6 +203,8 @@ function App() {
     lineNodeLocationError,
     lineNodeLocationMessage,
     pinSearch,
+    mapPurokFilter,
+    mapSiteStatusFilter,
   };
   const actions = {
     openDetailsEditor,
@@ -210,6 +222,7 @@ function App() {
     setMapFocus,
     setMapView,
     setPinManagerCollapsed,
+    setExpandedToolsPanel,
     beginPinFromCurrentLocation,
     beginPinPlacement,
     setPinEditorOpen,
@@ -217,6 +230,9 @@ function App() {
     setPinDraft,
     setPinLocationInput,
     setPinSearch,
+    setMapPurokFilter,
+    setMapSiteStatusFilter,
+    setSelectedPinId,
     beginEditPin,
     requestDelete,
     beginLineDrawing,
@@ -235,7 +251,7 @@ function App() {
     disconnectFiringLine,
   };
   const refs = { pinDragStartRef, pinMoveUndoRef, reviewUndoRef, lineDraftUndoRef };
-  const helpers = { coordinateText, addScheduleDay, removeScheduleDay, scheduleDayEntries, sourceScheduleRows, updateScheduleEntry };
+  const helpers = { coordinateText, sourceScheduleRows };
 
   return (
     <main className="app-shell">

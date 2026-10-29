@@ -14,6 +14,7 @@ import {
   buildInitialReview,
   normalizeReviewData,
 } from "../src/features/json-library/services/reviewRepository.js";
+import { createMapEditingActions } from "../src/features/barangay-review/actions/createMapEditingActions.js";
 
 const records = JSON.parse(await readFile(new URL("../../../data/jsons/barangays/barangay_sites_v2.json", import.meta.url), "utf8"));
 const irisan = records.find((record) => record.barangay.name === "Irisan" && record.site_name === "Site 1");
@@ -119,4 +120,77 @@ test(`all ${records.length} source sites survive save/export/reimport with at mo
     }
   }
   assert.equal(siteCount, records.length);
+});
+
+test("firing-line days and confirmation survive save and JSON reimport", () => {
+  const review = buildInitialReview(records);
+  const barangay = review.barangays.find((item) => item.name === "Irisan");
+  let savedBarangay;
+  let schedule = updateScheduleEntry([], "pick-up", 0, { day: "Thursday" });
+  schedule = addScheduleDay(schedule, "pick-up");
+  schedule = updateScheduleEntry(schedule, "pick-up", 1, { day: "Friday", startTime: "8:00", startPeriod: "AM" });
+  schedule = updateScheduleEntry(schedule, "drop-off", 0, { day: "Saturday" });
+  const actions = createMapEditingActions({
+    selectedBarangay: barangay,
+    lineDraft: {
+      id: "test-firing-line",
+      isNew: true,
+      name: "  Test firing line  ",
+      coordinates: [[16.416, 120.556], [16.417, 120.557]],
+      schedule,
+      review: { is_brgy_confirmed: true },
+      notes: "  Checked with barangay  ",
+    },
+    clearDraftUndoHistory() {},
+    commitBarangay(_id, transform) { savedBarangay = transform(barangay); },
+    setSelectedLineId() {},
+    setLineDraft() {},
+    setSelectedLineNodeIndex() {},
+    setShowLineNodeStreetView() {},
+    setMode() {},
+    setPinManagerCollapsed() {},
+  });
+  actions.saveLine({ preventDefault() {} });
+  const restored = normalizeReviewData(JSON.parse(JSON.stringify({
+    ...review,
+    barangays: review.barangays.map((item) => item.id === barangay.id ? savedBarangay : item),
+  })));
+  const line = restored.barangays.find((item) => item.id === barangay.id).firingLines[0];
+  assert.equal(line.name, "Test firing line");
+  assert.deepEqual(line.schedule, [{
+    "pick-up": [{ day: "Thursday" }, { day: "Friday", time: "8:00 AM" }],
+    "drop-off": { day: "Saturday" },
+  }]);
+  assert.equal(line.review.is_brgy_confirmed, true);
+  assert.equal(line.notes, "Checked with barangay");
+  assert.deepEqual(line.coordinates, [[16.416, 120.556], [16.417, 120.557]]);
+
+  const restoredBarangay = restored.barangays.find((item) => item.id === barangay.id);
+  let editedBarangay;
+  const editActions = createMapEditingActions({
+    selectedBarangay: restoredBarangay,
+    lineDraft: {
+      ...line,
+      isNew: false,
+      schedule: updateScheduleEntry(line.schedule, "drop-off", 0, { day: "Sunday" }),
+      review: { is_brgy_confirmed: false },
+    },
+    clearDraftUndoHistory() {},
+    commitBarangay(_id, transform) { editedBarangay = transform(restoredBarangay); },
+    setSelectedLineId() {},
+    setLineDraft() {},
+    setSelectedLineNodeIndex() {},
+    setShowLineNodeStreetView() {},
+    setMode() {},
+    setPinManagerCollapsed() {},
+  });
+  editActions.saveLine({ preventDefault() {} });
+  assert.equal(editedBarangay.firingLines.length, 1, "Editing must update the existing line");
+  const edited = normalizeReviewData(JSON.parse(JSON.stringify({
+    ...restored,
+    barangays: restored.barangays.map((item) => item.id === barangay.id ? editedBarangay : item),
+  }))).barangays.find((item) => item.id === barangay.id).firingLines[0];
+  assert.deepEqual(edited.schedule[0]["drop-off"], { day: "Sunday" });
+  assert.equal(edited.review.is_brgy_confirmed, false);
+  assert.deepEqual(edited.schedule[0]["pick-up"], line.schedule[0]["pick-up"]);
 });

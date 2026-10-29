@@ -101,6 +101,7 @@ export function createMapEditingActions(context) {
     setPinDraft,
     setPinEditorOpen,
     setPinManagerCollapsed,
+    setExpandedToolsPanel,
     setSelectedLineId,
     setSelectedLineNodeIndex,
     setSelectedPinId,
@@ -123,6 +124,7 @@ export function createMapEditingActions(context) {
     setShowLineNodeStreetView(false);
     setLinePoints([]);
     setPinManagerCollapsed(false);
+    setExpandedToolsPanel("pins");
     setMode((current) => current === "place-pin" ? "browse" : "place-pin");
   }
 
@@ -175,6 +177,7 @@ export function createMapEditingActions(context) {
     setLinePoints([]);
     setMode("browse");
     setPinManagerCollapsed(false);
+    setExpandedToolsPanel("pins");
     setMapFocus({ type: "point", point: [latitude, longitude], zoom: 19 });
   }
 
@@ -286,6 +289,7 @@ export function createMapEditingActions(context) {
     setShowLineNodeStreetView(false);
     setLinePoints([]);
     setPinManagerCollapsed(true);
+    setExpandedToolsPanel("lines");
     setMode("draw-line");
   }
 
@@ -307,6 +311,7 @@ export function createMapEditingActions(context) {
     setShowLineNodeStreetView(false);
     setMode("browse");
     setPinManagerCollapsed(false);
+    setExpandedToolsPanel("pins");
     if (hasMapCoordinates(pin)) {
       setMapFocus({ type: "point", point: [Number(pin.latitude), Number(pin.longitude)], zoom: 19 });
     }
@@ -350,11 +355,12 @@ export function createMapEditingActions(context) {
   function finishLineDrawing() {
     if (linePoints.length < 2) return;
     const id = createId("line");
-    setLineDraft({ id, isNew: true, name: "New firing line", coordinates: linePoints, notes: "", sample: false });
+    setLineDraft({ id, isNew: true, name: "New firing line", coordinates: linePoints, schedule: [], review: { is_brgy_confirmed: false }, notes: "", sample: false });
     setSelectedLineId(id);
     setSelectedPinId(null);
     setSelectedLineNodeIndex(0);
     setLinePoints([]);
+    setExpandedToolsPanel("lines");
     setMode("edit-line");
   }
 
@@ -386,6 +392,7 @@ export function createMapEditingActions(context) {
     locationRequestRef.current += 1;
     setIsLocatingCurrentPosition(false);
     setSelectedPinId(pinId);
+    setExpandedToolsPanel((current) => current ? "pins" : null);
     setSelectedLineId(null);
     setPinDraft(null);
     setLineDraft(null);
@@ -404,6 +411,7 @@ export function createMapEditingActions(context) {
     locationRequestRef.current += 1;
     setIsLocatingCurrentPosition(false);
     setSelectedLineId(lineId);
+    setExpandedToolsPanel((current) => current ? "lines" : null);
     setSelectedPinId(null);
     setPinDraft(null);
     setLineDraft(null);
@@ -539,10 +547,21 @@ export function createMapEditingActions(context) {
       setNotice({ kind: "error", text: "Enter a name for this firing line." });
       return;
     }
-    const nextLine = { ...lineDraft, name, notes: lineDraft.notes.trim(), isNew: undefined };
+    const nextLine = {
+      ...lineDraft,
+      name,
+      schedule: scheduleWithoutDates(lineDraft.schedule ?? []),
+      review: { ...(lineDraft.review ?? {}), is_brgy_confirmed: lineDraft.review?.is_brgy_confirmed === true },
+      notes: lineDraft.notes.trim(),
+      isNew: undefined,
+    };
     const originalLine = selectedBarangay.firingLines.find((line) => line.id === nextLine.id);
     const placementsChanged = originalLine && JSON.stringify(originalLine.coordinates) !== JSON.stringify(nextLine.coordinates);
-    const detailsChanged = originalLine && (originalLine.name !== nextLine.name || originalLine.notes !== nextLine.notes);
+    const detailsChanged = originalLine && (
+      originalLine.name !== nextLine.name || originalLine.notes !== nextLine.notes ||
+      JSON.stringify(scheduleWithoutDates(originalLine.schedule ?? [])) !== JSON.stringify(nextLine.schedule) ||
+      (originalLine.review?.is_brgy_confirmed === true) !== nextLine.review.is_brgy_confirmed
+    );
     clearDraftUndoHistory();
     commitBarangay(selectedBarangay.id, (current) => ({
       ...current,
@@ -570,7 +589,13 @@ export function createMapEditingActions(context) {
     setSelectedLineId(line.id);
     setSelectedPinId(null);
     setPinDraft(null);
-    setLineDraft({ ...line, coordinates: line.coordinates.map((point) => [...point]), isNew: false });
+    setLineDraft({
+      ...line,
+      coordinates: line.coordinates.map((point) => [...point]),
+      schedule: Array.isArray(line.schedule) ? line.schedule : [],
+      review: { ...(line.review ?? {}), is_brgy_confirmed: line.review?.is_brgy_confirmed === true },
+      isNew: false,
+    });
     setSelectedLineNodeIndex(0);
     setShowLineNodeStreetView(false);
     setLineNodeLocationInput("");
@@ -578,6 +603,7 @@ export function createMapEditingActions(context) {
     setLineNodeLocationMessage("");
     setMode("edit-line");
     setPinManagerCollapsed(true);
+    setExpandedToolsPanel("lines");
     if (line.coordinates.length) {
       setMapFocus({ type: "bounds", points: line.coordinates, maxZoom: 18 });
     }
@@ -661,12 +687,16 @@ export function createMapEditingActions(context) {
       nextName = `${baseName} (part ${partNumber})`;
     }
     const splitAt = pointIndex + 1;
-    const firstPart = { ...lineDraft, name: baseName, coordinates: lineDraft.coordinates.slice(0, splitAt), isNew: undefined };
+    const splitSchedule = scheduleWithoutDates(lineDraft.schedule ?? []);
+    const splitReview = { ...(lineDraft.review ?? {}), is_brgy_confirmed: false };
+    const firstPart = { ...lineDraft, name: baseName, coordinates: lineDraft.coordinates.slice(0, splitAt), schedule: splitSchedule, review: splitReview, isNew: undefined };
     const secondPart = {
       ...lineDraft,
       id: createId("line"),
       name: nextName,
       coordinates: lineDraft.coordinates.slice(splitAt),
+      schedule: splitSchedule,
+      review: splitReview,
       isNew: undefined,
     };
     const wasNew = Boolean(lineDraft.isNew);
@@ -680,7 +710,7 @@ export function createMapEditingActions(context) {
       action: "Disconnected firing-line segment",
       itemType: "Firing line",
       itemName: baseName,
-      details: `Disconnected node ${pointIndex + 1} from node ${pointIndex + 2}; created ${baseName} and ${nextName}`,
+      details: `Disconnected node ${pointIndex + 1} from node ${pointIndex + 2}; created ${baseName} and ${nextName}; confirmation cleared for both segments`,
     });
     setSelectedLineId(firstPart.id);
     setLineDraft(null);
@@ -688,7 +718,7 @@ export function createMapEditingActions(context) {
     setShowLineNodeStreetView(false);
     setMode("browse");
     setPinManagerCollapsed(false);
-    setNotice({ kind: "success", text: `Disconnected the segment. The line is now “${baseName}” and “${nextName}”.` });
+    setNotice({ kind: "success", text: `Disconnected the segment. The line is now “${baseName}” and “${nextName}”. Confirm each segment separately.` });
   }
 
   function deleteSelectedLineNode(pointIndex = selectedLineNodeIndex) {

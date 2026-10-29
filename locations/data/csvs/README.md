@@ -29,6 +29,29 @@ CSV files are grouped by their role in the collection-location workflow. The ori
 - `mapping_audit_swmd_v5.csv` — the 670-row v5 assignment audit.
 - `area_mapping_status.csv` and `area_mapping_status_swmd.csv` — driver schedule mapping summaries.
 
+## `output/bida/`
+
+Six site-summary CSVs exported on 2026-10-29 from the owner-supplied `updated_Oct 29.json` review export:
+
+| File | Barangay in the review JSON | Site records |
+| --- | --- | ---: |
+| `irisan_summary.csv` | Irisan | 60 |
+| `dominican_summary.csv` | Dominican Hill-Mirador | 7 |
+| `bakakeng_central_summary.csv` | Bakakeng Central | 29 |
+| `guisad_central_summary.csv` | Guisad Central | 4 |
+| `gibraltar_summary.csv` | Gibraltar | 13 |
+| `happy_hollow_summary.csv` | Happy Hollow | 8 |
+
+Each CSV has exactly the requested columns: `Site name`, `Purok`, `Longitiude`, `Latitude`, `Googlemaps view`, `Pick-Up`, and `Drop-off`. The requested `Longitiude` spelling is retained. Each row represents one saved site pin, in its source order. The seven firing-line paths in these barangays are separate map features and are not site rows.
+
+The 121 rows retain all site records, including four marked **Removed collection point** (two Irisan, one Dominican Hill-Mirador, one Bakakeng Central). Status is not included in the requested seven columns; these files are not an active-only or confirmed-only inventory. Ten missing purok values and other missing values remain blank. Pickup/drop-off cells use the current saved `schedule`, preserve day/time wording (including unresolved values), and join multiple entries with `; `. Historical `sourceSchedule` values do not replace current schedules. Saved Maps links and coordinates are preserved.
+
+Files use UTF-8 with a BOM, comma delimiters, CRLF line endings, and quoted fields where required. All 121 rows were read back with a CSV parser and checked against the supplied JSON. The source JSON and app files were not changed.
+
+The owner's follow-up adds **`firing_lines_summary.csv`** alongside the six site summaries. It contains all seven saved firing lines for the selected barangays: six Bakakeng Central paths and one Gibraltar path, totaling 143 points. The other four selected barangays have no firing lines in this review JSON. The first row is `Firing line name` followed by each original line name as a column header. The first point row starts with `Points`; following row labels are blank. Each coordinate cell contains `longitude,latitude`, with blank cells after a shorter path ends. The source stores points as latitude/longitude arrays, so only the pair order is reversed for the requested export. Source precision, path order, and repeated points are preserved. All coordinate cells and blank padding were checked against the JSON after CSV parsing. The original six site-summary CSVs are unchanged.
+
+**`firing_lines_summary_with_maps.csv`** is the subsequent version requested by the owner. Each original firing-line coordinate column is immediately followed by a Google Maps URL column named `<firing line name> - Google Maps`. All 143 points have a link, with blank coordinate/link pairs after shorter paths end. Coordinate cells remain `longitude,latitude`; Maps URLs use `https://www.google.com/maps?q=latitude,longitude`. CSV parsing verified that every link matches its adjacent coordinates and that removing only the link columns reproduces the earlier firing-line CSV exactly. The original firing-line CSV, site summaries, and source JSON remain unchanged. This CSV contains plain URLs rather than spreadsheet hyperlink formulas.
+
 ## Data flow
 
 ```text

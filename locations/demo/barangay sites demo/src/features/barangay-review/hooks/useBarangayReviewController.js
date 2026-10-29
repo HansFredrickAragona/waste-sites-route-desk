@@ -33,6 +33,10 @@ import {
 
 const EMPTY_ACTIVITY = [];
 
+function siteStatusForFilter(pin) {
+  return String(pin.statusType || pin.sourceStatusLabel || pin.status?.type || "").trim();
+}
+
 function emptyReviewData(activityLog = []) {
   return { schemaVersion: 1, source: null, jsonSource: null, barangays: [], activityLog };
 }
@@ -62,6 +66,7 @@ export function useBarangayReviewController(sourceUrl) {
   const [selectedPinId, setSelectedPinId] = useState(null);
   const [selectedLineId, setSelectedLineId] = useState(null);
   const [pinManagerCollapsed, setPinManagerCollapsed] = useState(false);
+  const [expandedToolsPanel, setExpandedToolsPanel] = useState(null);
   const [pinDraft, setPinDraft] = useState(null);
   const [pinEditorOpen, setPinEditorOpen] = useState(false);
   const [isLocatingCurrentPosition, setIsLocatingCurrentPosition] = useState(false);
@@ -78,6 +83,8 @@ export function useBarangayReviewController(sourceUrl) {
   const [mapView, setMapView] = useState(null);
   const [pinLocationInput, setPinLocationInput] = useState("");
   const [pinSearch, setPinSearch] = useState("");
+  const [mapPurokFilter, setMapPurokFilter] = useState("all");
+  const [mapSiteStatusFilter, setMapSiteStatusFilter] = useState("all");
   const [pendingDelete, setPendingDelete] = useState(null);
   const [showJsonDeleteConfirmation, setShowJsonDeleteConfirmation] = useState(false);
   const fileInputRef = useRef(null);
@@ -101,7 +108,10 @@ export function useBarangayReviewController(sourceUrl) {
     pinDraft,
     pinEditorOpen,
     pinManagerCollapsed,
+    expandedToolsPanel,
     pinSearch,
+    mapPurokFilter,
+    mapSiteStatusFilter,
     pinLocationInput: pinDraft ? pinLocationInput : "",
     lineDraft,
     linePoints,
@@ -115,7 +125,7 @@ export function useBarangayReviewController(sourceUrl) {
     confirmationContactDraft,
   }), [
     page, selectedBarangayId, search, listFilter, mode, selectedPinId, selectedLineId,
-    pinDraft, pinEditorOpen, pinManagerCollapsed, pinSearch, pinLocationInput,
+    pinDraft, pinEditorOpen, pinManagerCollapsed, expandedToolsPanel, pinSearch, mapPurokFilter, mapSiteStatusFilter, pinLocationInput,
     lineDraft, linePoints, selectedLineNodeIndex, lineNodeLocationInput, mapView,
     showActivity, showBarangayDetails, barangayDetailsDraft, showConfirmationContact,
     confirmationContactDraft,
@@ -215,7 +225,10 @@ export function useBarangayReviewController(sourceUrl) {
         setPinDraft(restoredPinDraft);
         setPinEditorOpen(Boolean(restoredPinDraft && savedWorkspace?.pinEditorOpen));
         setPinManagerCollapsed(Boolean(restoredBarangay && savedWorkspace?.pinManagerCollapsed));
+        setExpandedToolsPanel(restoredBarangay ? savedWorkspace?.expandedToolsPanel ?? null : null);
         setPinSearch(savedWorkspace?.pinSearch ?? "");
+        setMapPurokFilter(savedWorkspace?.mapPurokFilter ?? "all");
+        setMapSiteStatusFilter(savedWorkspace?.mapSiteStatusFilter ?? "all");
         setPinLocationInput(restoredPinDraft ? savedWorkspace?.pinLocationInput ?? "" : "");
         setLineDraft(restoredLineDraft);
         setLinePoints(restoredMode === "draw-line" ? savedWorkspace?.linePoints ?? [] : []);
@@ -367,13 +380,30 @@ export function useBarangayReviewController(sourceUrl) {
 
   const barangays = review?.barangays ?? [];
   const selectedBarangay = barangays.find((barangay) => barangay.id === selectedBarangayId) ?? null;
+  const activeToolsPanel = pinDraft ? "pins" : lineDraft || mode === "draw-line" ? "lines" : expandedToolsPanel;
   const selectedPin = selectedBarangay?.pins.find((pin) => pin.id === selectedPinId) ?? null;
   const selectedPinForMap = pinDraft?.id === selectedPinId ? pinDraft : selectedPin;
-  const mapPinPoints = (selectedBarangay?.pins ?? [])
+  const mapPurokOptions = [...new Set((selectedBarangay?.pins ?? []).map((pin) => String(pin.purok ?? "").trim()))]
+    .sort((left, right) => left.localeCompare(right))
+    .map((value) => ({ value, label: value || "Not assigned" }));
+  const mapSiteStatusOptions = [...new Set((selectedBarangay?.pins ?? []).map(siteStatusForFilter))]
+    .sort((left, right) => left.localeCompare(right))
+    .map((value) => ({ value, label: value || "No status" }));
+  const activeMapPurokFilter = mapPurokFilter === "all" || mapPurokOptions.some((option) => option.value === mapPurokFilter)
+    ? mapPurokFilter : "all";
+  const activeMapSiteStatusFilter = mapSiteStatusFilter === "all" || mapSiteStatusOptions.some((option) => option.value === mapSiteStatusFilter)
+    ? mapSiteStatusFilter : "all";
+  const mapFilteredPins = (selectedBarangay?.pins ?? []).filter((pin) =>
+    (activeMapPurokFilter === "all" || String(pin.purok ?? "").trim() === activeMapPurokFilter) &&
+    (activeMapSiteStatusFilter === "all" || siteStatusForFilter(pin) === activeMapSiteStatusFilter)
+  );
+  const mapPinPoints = mapFilteredPins
     .map((pin) => pinDraft?.id === pin.id ? pinDraft : pin)
     .filter(hasMapCoordinates)
     .map((pin) => [Number(pin.latitude), Number(pin.longitude)]);
-  if (pinDraft?.isNew && hasMapCoordinates(pinDraft)) mapPinPoints.push([Number(pinDraft.latitude), Number(pinDraft.longitude)]);
+  if (pinDraft && !mapFilteredPins.some((pin) => pin.id === pinDraft.id) && hasMapCoordinates(pinDraft)) {
+    mapPinPoints.push([Number(pinDraft.latitude), Number(pinDraft.longitude)]);
+  }
   const selectedPinHasMapCoordinates = Boolean(selectedPinId && hasMapCoordinates(selectedPinForMap));
   const selectedLine = selectedBarangay?.firingLines.find((line) => line.id === selectedLineId) ?? null;
   const selectedLineNode = lineDraft && Number.isInteger(selectedLineNodeIndex)
@@ -467,7 +497,10 @@ export function useBarangayReviewController(sourceUrl) {
     setLinePoints([]);
     setMode("browse");
     setPinManagerCollapsed(false);
+    setExpandedToolsPanel(null);
     setPinSearch("");
+    setMapPurokFilter("all");
+    setMapSiteStatusFilter("all");
   }
 
   function returnToBarangayList() {
@@ -502,7 +535,10 @@ export function useBarangayReviewController(sourceUrl) {
     setLinePoints([]);
     setMode("browse");
     setPinManagerCollapsed(false);
+    setExpandedToolsPanel(null);
     setPinSearch("");
+    setMapPurokFilter("all");
+    setMapSiteStatusFilter("all");
     setPinLocationInput("");
     setLineNodeLocationInput("");
     setShowActivity(false);
@@ -589,6 +625,7 @@ export function useBarangayReviewController(sourceUrl) {
     setPinDraft,
     setPinEditorOpen,
     setPinManagerCollapsed,
+    setExpandedToolsPanel,
     setSelectedLineId,
     setSelectedLineNodeIndex,
     setSelectedPinId,
@@ -637,13 +674,13 @@ export function useBarangayReviewController(sourceUrl) {
     });
   }, [barangays, search, listFilter]);
 
-  const visiblePins = selectedBarangay?.pins.filter((pin) => {
+  const visiblePins = mapFilteredPins.filter((pin) => {
     const query = pinSearch.trim().toLocaleLowerCase("en-US");
-    return !query || [pin.name, pin.purok, ...pin.sourceNames].join(" ").toLocaleLowerCase("en-US").includes(query);
-  }) ?? [];
-  const mappedSiteCount = selectedBarangay?.pins.filter(hasMapCoordinates).length ?? 0;
-  const unlocatedSiteCount = (selectedBarangay?.pins.length ?? 0) - mappedSiteCount;
-  const removedSiteCount = selectedBarangay?.pins.filter((pin) => pin.sourceStatus === "removed").length ?? 0;
+    return !query || [pin.name, pin.purok, ...(pin.sourceNames ?? [])].join(" ").toLocaleLowerCase("en-US").includes(query);
+  });
+  const mappedSiteCount = mapFilteredPins.filter(hasMapCoordinates).length;
+  const unlocatedSiteCount = mapFilteredPins.length - mappedSiteCount;
+  const removedSiteCount = mapFilteredPins.filter((pin) => pin.sourceStatus === "removed").length;
 
   return {
     review,
@@ -693,6 +730,9 @@ export function useBarangayReviewController(sourceUrl) {
     setSelectedLineId,
     pinManagerCollapsed,
     setPinManagerCollapsed,
+    expandedToolsPanel,
+    setExpandedToolsPanel,
+    activeToolsPanel,
     pinDraft,
     setPinDraft,
     pinEditorOpen,
@@ -725,6 +765,10 @@ export function useBarangayReviewController(sourceUrl) {
     setLinePoints,
     pinSearch,
     setPinSearch,
+    mapPurokFilter: activeMapPurokFilter,
+    setMapPurokFilter,
+    mapSiteStatusFilter: activeMapSiteStatusFilter,
+    setMapSiteStatusFilter,
     pendingDelete,
     setPendingDelete,
     showJsonDeleteConfirmation,
@@ -801,6 +845,9 @@ export function useBarangayReviewController(sourceUrl) {
     openExportConfirmation,
     exportReview,
     visiblePins,
+    mapFilteredPins,
+    mapPurokOptions,
+    mapSiteStatusOptions,
     mappedSiteCount,
     unlocatedSiteCount,
     removedSiteCount,

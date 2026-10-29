@@ -105,6 +105,7 @@ function MapResizeObserver() {
 
 export function BarangayMap({
   barangay,
+  mapPins,
   focus,
   mapView,
   deviceLocation,
@@ -130,8 +131,8 @@ export function BarangayMap({
   onRemoveLine,
 }) {
   const [nodeMenu, setNodeMenu] = useState(null);
-  const pins = barangay.pins.map((pin) => pinDraft?.id === pin.id ? pinDraft : pin).filter(hasMapCoordinates);
-  if (pinDraft?.isNew && hasMapCoordinates(pinDraft)) pins.push(pinDraft);
+  const pins = mapPins.map((pin) => pinDraft?.id === pin.id ? pinDraft : pin).filter(hasMapCoordinates);
+  if (pinDraft && !mapPins.some((pin) => pin.id === pinDraft.id) && hasMapCoordinates(pinDraft)) pins.push(pinDraft);
   const canDisconnectAtMenuNode = Boolean(nodeMenu && lineDraft && nodeMenu.index >= 1 && nodeMenu.index < lineDraft.coordinates.length - 2);
   const canDeleteAtMenuNode = Boolean(lineDraft && lineDraft.coordinates.length > 2);
 

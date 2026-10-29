@@ -1,15 +1,25 @@
 import GoogleStreetViewEditor from "./GoogleStreetViewEditor.jsx";
 import AnimatedSize from "../../../shared/ui/AnimatedSize.jsx";
+import CollectionScheduleFields from "./CollectionScheduleFields.jsx";
 import { formatNumber } from "../../../shared/utils/reviewFormatting.js";
+import { sourceScheduleRows } from "../utils/pinFormHelpers.js";
 
 export default function FiringLinesCard({ data, ui, actions }) {
   const { selectedBarangay, selectedLine, selectedLineNode } = data;
-  const { mode, lineDraft, selectedLineId, selectedLineNodeIndex, showLineNodeStreetView, lineNodeLocationInput, lineNodeLocationError, lineNodeLocationMessage, isResolvingLineNodeLocation } = ui;
-  const { beginLineDrawing, saveLine, cancelMapMode, setLineDraft, finishLineNodePlacement, beginLineNodePlacement, deleteSelectedLineNode, setShowLineNodeStreetView, setLineNodeLocationInput, setLineNodeLocationError, setLineNodeLocationMessage, applyLineNodeLocation, handleLineNodeStreetViewPosition, beginEditLine, requestDelete, selectLine } = actions;
+  const { mode, pinDraft, lineDraft, activeToolsPanel, selectedLineId, selectedLineNodeIndex, showLineNodeStreetView, lineNodeLocationInput, lineNodeLocationError, lineNodeLocationMessage, isResolvingLineNodeLocation } = ui;
+  const { beginLineDrawing, saveLine, cancelMapMode, setLineDraft, setExpandedToolsPanel, finishLineNodePlacement, beginLineNodePlacement, deleteSelectedLineNode, setShowLineNodeStreetView, setLineNodeLocationInput, setLineNodeLocationError, setLineNodeLocationMessage, applyLineNodeLocation, handleLineNodeStreetViewPosition, beginEditLine, requestDelete, selectLine } = actions;
+  const panelCollapsed = activeToolsPanel === "pins" && !lineDraft && mode !== "draw-line";
+  const editInProgress = Boolean(pinDraft || lineDraft || mode === "draw-line");
   return (
-              <section className="review-panel line-manager-panel">
-                <div className="tools-heading"><div><p className="eyebrow">Route features</p><h2>Firing lines <span>{formatNumber(selectedBarangay.firingLines.length)}</span></h2></div><button className={`small-action small-action--line${mode === "draw-line" ? " small-action--active" : ""}`} type="button" onClick={beginLineDrawing} aria-pressed={mode === "draw-line"}>{mode === "draw-line" ? "Cancel line" : "＋ Add line"}</button></div>
-                <AnimatedSize className="line-content-size-transition">
+              <section className={`review-panel line-manager-panel${panelCollapsed ? " line-manager-panel--collapsed" : ""}${activeToolsPanel === "lines" ? " line-manager-panel--expanded" : ""}`}>
+                <div className="tools-heading">
+                  <div><p className="eyebrow">Route features</p><h2>Firing lines <span>{formatNumber(selectedBarangay.firingLines.length)}</span></h2></div>
+                  <div className="line-manager-heading-actions">
+                    {!panelCollapsed && <button className={`small-action small-action--line${mode === "draw-line" ? " small-action--active" : ""}`} type="button" onClick={beginLineDrawing} aria-pressed={mode === "draw-line"}>{mode === "draw-line" ? "Cancel line" : "＋ Add line"}</button>}
+                    <button className="small-action small-action--line panel-expand-button" type="button" aria-pressed={activeToolsPanel === "lines"} aria-label={activeToolsPanel === "lines" ? "Restore Firing lines panel width" : "Expand Firing lines panel width"} disabled={editInProgress} title={editInProgress ? "Finish the current edit before changing panel size" : undefined} onClick={() => setExpandedToolsPanel((current) => current === "lines" ? null : "lines")}>{activeToolsPanel === "lines" ? (lineDraft || mode === "draw-line" ? "Expanded" : "Restore") : "Expand"}</button>
+                  </div>
+                </div>
+                <AnimatedSize className="line-content-size-transition" collapsed={panelCollapsed}>
                   <>
                 {lineDraft ? (
                   <form className="line-editor" onSubmit={saveLine}>
@@ -87,6 +97,26 @@ export default function FiringLinesCard({ data, ui, actions }) {
                       </section>
                     )}
                     {lineDraft.sample && <p className="sample-line-note">This illustrative demo line is labeled for verification.</p>}
+                    <label className={`confirmation-control line-review-confirmation${lineDraft.review?.is_brgy_confirmed ? " confirmation-control--on" : ""}`}>
+                      <span className="confirmation-copy"><strong>Barangay confirmed</strong><small>Mark this firing line as confirmed</small></span>
+                      <input
+                        type="checkbox"
+                        checked={lineDraft.review?.is_brgy_confirmed === true}
+                        onChange={(event) => setLineDraft((current) => current ? ({
+                          ...current,
+                          review: { ...(current.review ?? {}), is_brgy_confirmed: event.target.checked },
+                        }) : current)}
+                        aria-label={`Barangay confirmed for ${lineDraft.name}`}
+                      />
+                      <span className="confirmation-switch" aria-hidden="true"><i /></span>
+                    </label>
+                    <section className="line-schedule-section" aria-label="Firing line collection schedule">
+                      <div className="pin-editor-section-heading"><h4>Collection schedule</h4><span>One row per day · time optional</span></div>
+                      <CollectionScheduleFields
+                        schedule={lineDraft.schedule}
+                        onChange={(schedule) => setLineDraft((current) => current ? ({ ...current, schedule }) : current)}
+                      />
+                    </section>
                     <label className="field-label">Review note<textarea value={lineDraft.notes} onChange={(event) => setLineDraft((current) => ({ ...current, notes: event.target.value }))} rows="2" placeholder="Add a note about this route" /></label>
                     <div className="editor-actions"><button className="primary-small-button primary-small-button--violet" type="submit">{lineDraft.isNew ? "Save firing line" : "Save line changes"}</button><button className="quiet-small-button" type="button" onClick={cancelMapMode}>Cancel</button></div>
                   </form>
@@ -94,7 +124,11 @@ export default function FiringLinesCard({ data, ui, actions }) {
                   <div className="line-detail-card">
                     <div className="line-detail-topline"><span className="line-swatch" /><span className="eyebrow">Firing line · {selectedLine.coordinates.length} nodes</span>{selectedLine.sample && <span className="demo-badge">Demo example</span>}</div>
                     <h3>{selectedLine.name}</h3>
-                    {selectedLine.notes && <p className="line-review-note">{selectedLine.notes}</p>}
+                    <dl className="pin-detail-list">
+                      {["pick up", "drop off"].map((label) => <div key={label}><dt>{label}</dt><dd>{sourceScheduleRows(selectedLine.schedule).find((row) => row.label === label)?.value || <span className="missing-value">Not provided</span>}</dd></div>)}
+                      <div><dt>Barangay confirmed</dt><dd>{selectedLine.review?.is_brgy_confirmed === true ? "Yes" : "No"}</dd></div>
+                      <div><dt>Review note</dt><dd>{selectedLine.notes || <span className="missing-value">Not provided</span>}</dd></div>
+                    </dl>
                     <div className="line-detail-actions"><button className="quiet-small-button" type="button" onClick={() => beginEditLine(selectedLine)}>Edit line</button><button className="danger-text-button" type="button" onClick={() => requestDelete("line", selectedLine)}>Delete</button></div>
                   </div>
                 ) : selectedBarangay.firingLines.length === 0 ? (
