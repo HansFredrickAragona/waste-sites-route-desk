@@ -254,3 +254,16 @@ Overview pins now use stable draft-cluster colors, with gray for Unassigned and 
 
 ## Barangay site-coverage polygons — 2026-11-03
 Added translucent convex-hull polygons around each filtered barangay’s mapped site points, colored by draft cluster. Polygon click opens barangay details; pins remain visible. Shapes are approximate recorded-site coverage, not official boundaries; may overlap. Fewer than three distinct non-collinear points yields no polygon; no coordinates invented. Cluster/search/review filters apply to polygons. Build passed with existing >500 kB warning; geometry checks cover interior/duplicate points, collinear points and sparse data. Browser appearance not checked. Local only; no deployment.
+
+## One marker per barangay — 2026-11-03
+Supersedes zoom-aware geographic pin grouping: owner requires one pin per mapped barangay at every zoom. Removed proximity grouping from marker rendering; retained calculated centers, cluster colors, tooltips, selection and coverage polygons. Pins may overlap at wide zoom or identical centers; no positions fabricated. Unmapped barangays remain in the unplaced list. Build verification recorded below; browser interaction pending. Local only, not deployed.
+Verification: Vite build passed after removing pin grouping, with existing >500 kB chunk advisory.
+
+## Coincident barangay markers — 2026-11-03
+Cluster 2 has four CSV assignments. Bundled Rock Quarry Middle and Upper share exactly [16.40877088,120.5861243], causing marker occlusion. Exact coincident centers now fan marker symbols horizontally in deterministic 36px steps; geographic positions and source data remain unchanged. Tooltip explains shared recorded center and visual offset. Build checked below; browser visual check pending. Local only. Inspection also found a source Asin Road latitude 160.407109; left untouched as uncertain source data, requiring review.
+
+## Bida Barangays label — 2026-11-03
+Renamed the Unassigned display category to Bida Barangays in cluster filter, legend, marker/polygon tooltips and barangay details. Internal unassigned filter value and CSV assignments remain unchanged; no confirmation status changed. Local only.
+
+## Upper Magsaysay cluster alias — 2026-11-03
+Fixed display/filter lookup: CSV explicitly includes Upper Magsaysay as alias of Magsaysay, Upper in Cluster 16. Shared assignedCluster helper now resolves both names for filter, details, marker/polygon colors and tooltips. Source names/records unchanged. Other unknown names retain Bida Barangays fallback label from previous owner request. Local only; browser check pending.
