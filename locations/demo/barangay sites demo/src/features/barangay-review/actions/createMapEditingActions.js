@@ -2,6 +2,7 @@ import { createId } from "../../json-library/services/reviewRepository.js";
 import { resolveMapCoordinates } from "../data/mapCoordinates.js";
 import { hasMapCoordinates } from "../../../shared/utils/reviewFormatting.js";
 import { coordinateText, formatStatusUpdatedAt, scheduleWithoutDates } from "../utils/pinFormHelpers.js";
+import { addAssignedPuroks, normalizeAssignedPuroks } from "../../../shared/utils/purokAssignments.js";
 
 const PRECISE_LOCATION_OPTIONS = { enableHighAccuracy: true, timeout: 25000, maximumAge: 10000 };
 const FALLBACK_LOCATION_OPTIONS = { enableHighAccuracy: false, timeout: 15000, maximumAge: 30000 };
@@ -350,7 +351,7 @@ export function createMapEditingActions(context) {
   function finishLineDrawing() {
     if (linePoints.length < 2) return;
     const id = createId("line");
-    setLineDraft({ id, isNew: true, name: "New firing line", coordinates: linePoints, schedule: [], review: { is_brgy_confirmed: false }, notes: "", sample: false });
+    setLineDraft({ id, isNew: true, name: "New firing line", coordinates: linePoints, puroks: [], purokInput: "", schedule: [], review: { is_brgy_confirmed: false }, notes: "", sample: false });
     setSelectedLineId(id);
     setSelectedPinId(null);
     setSelectedLineNodeIndex(0);
@@ -539,9 +540,11 @@ export function createMapEditingActions(context) {
       setNotice({ kind: "error", text: "Enter a name for this firing line." });
       return;
     }
+    const { purokInput, ...lineFields } = lineDraft;
     const nextLine = {
-      ...lineDraft,
+      ...lineFields,
       name,
+      puroks: addAssignedPuroks(lineDraft.puroks, purokInput, selectedBarangay.puroks),
       schedule: scheduleWithoutDates(lineDraft.schedule ?? []),
       review: { ...(lineDraft.review ?? {}), is_brgy_confirmed: lineDraft.review?.is_brgy_confirmed === true },
       notes: lineDraft.notes.trim(),
@@ -551,6 +554,7 @@ export function createMapEditingActions(context) {
     const placementsChanged = originalLine && JSON.stringify(originalLine.coordinates) !== JSON.stringify(nextLine.coordinates);
     const detailsChanged = originalLine && (
       originalLine.name !== nextLine.name || originalLine.notes !== nextLine.notes ||
+      JSON.stringify(normalizeAssignedPuroks(originalLine.puroks ?? originalLine.purok)) !== JSON.stringify(nextLine.puroks) ||
       JSON.stringify(scheduleWithoutDates(originalLine.schedule ?? [])) !== JSON.stringify(nextLine.schedule) ||
       (originalLine.review?.is_brgy_confirmed === true) !== nextLine.review.is_brgy_confirmed
     );
@@ -584,6 +588,8 @@ export function createMapEditingActions(context) {
     setLineDraft({
       ...line,
       coordinates: line.coordinates.map((point) => [...point]),
+      puroks: normalizeAssignedPuroks(line.puroks ?? line.purok),
+      purokInput: "",
       schedule: Array.isArray(line.schedule) ? line.schedule : [],
       review: { ...(line.review ?? {}), is_brgy_confirmed: line.review?.is_brgy_confirmed === true },
       isNew: false,
@@ -680,12 +686,14 @@ export function createMapEditingActions(context) {
     const splitAt = pointIndex + 1;
     const splitSchedule = scheduleWithoutDates(lineDraft.schedule ?? []);
     const splitReview = { ...(lineDraft.review ?? {}), is_brgy_confirmed: false };
-    const firstPart = { ...lineDraft, name: baseName, coordinates: lineDraft.coordinates.slice(0, splitAt), schedule: splitSchedule, review: splitReview, isNew: undefined };
+    const firstPart = { ...lineDraft, name: baseName, coordinates: lineDraft.coordinates.slice(0, splitAt), puroks: addAssignedPuroks(lineDraft.puroks, lineDraft.purokInput, selectedBarangay.puroks), purokInput: undefined, schedule: splitSchedule, review: splitReview, isNew: undefined };
     const secondPart = {
       ...lineDraft,
       id: createId("line"),
       name: nextName,
       coordinates: lineDraft.coordinates.slice(splitAt),
+      puroks: [...firstPart.puroks],
+      purokInput: undefined,
       schedule: splitSchedule,
       review: splitReview,
       isNew: undefined,

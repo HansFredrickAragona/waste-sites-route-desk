@@ -1,5 +1,6 @@
 import GoogleStreetViewEditor from "./GoogleStreetViewEditor.jsx";
 import CollectionScheduleFields from "./CollectionScheduleFields.jsx";
+import AssignedPuroksField from "./AssignedPuroksField.jsx";
 import { formatNumber } from "../../../shared/utils/reviewFormatting.js";
 import { sourceScheduleRows } from "../utils/pinFormHelpers.js";
 
@@ -19,6 +20,7 @@ export default function FiringLinesCard({ data, ui, actions }) {
                   <form className="line-editor" onSubmit={saveLine}>
                     <div className="editor-topline"><div><p className="eyebrow">{lineDraft.isNew ? "New feature" : "Edit feature"}</p><h3>{lineDraft.name}</h3></div><button className="icon-close icon-close--small" type="button" aria-label="Cancel line editing" onClick={cancelMapMode}>×</button></div>
                     <label className="field-label">Firing-line name<input autoFocus value={lineDraft.name} onChange={(event) => setLineDraft((current) => ({ ...current, name: event.target.value }))} placeholder="Name this line" /></label>
+                    <AssignedPuroksField barangayPuroks={selectedBarangay.puroks} lineDraft={lineDraft} setLineDraft={setLineDraft} />
                     <div className="line-node-summary"><span className="line-node-icon">⌁</span><span><strong>{lineDraft.coordinates.length} map nodes</strong><small>Select a blue node to review it. Right-click for node and line actions; Backspace deletes the selected node.</small></span></div>
                     {selectedLineNode && Number.isInteger(selectedLineNodeIndex) && (
                       <section className="firing-line-node-panel" aria-labelledby="firing-line-node-title" aria-live="polite">
@@ -119,6 +121,7 @@ export default function FiringLinesCard({ data, ui, actions }) {
                     <div className="line-detail-topline"><span className="line-swatch" /><span className="eyebrow">Firing line · {selectedLine.coordinates.length} nodes</span>{selectedLine.sample && <span className="demo-badge">Demo example</span>}</div>
                     <h3>{selectedLine.name}</h3>
                     <dl className="pin-detail-list">
+                      <div><dt>Assigned puroks</dt><dd>{selectedLine.puroks?.length ? selectedLine.puroks.join(", ") : <span className="missing-value">Not assigned</span>}</dd></div>
                       {["pick up", "drop off"].map((label) => <div key={label}><dt>{label}</dt><dd>{sourceScheduleRows(selectedLine.schedule).find((row) => row.label === label)?.value || <span className="missing-value">Not provided</span>}</dd></div>)}
                       <div><dt>Barangay confirmed</dt><dd>{selectedLine.review?.is_brgy_confirmed === true ? "Yes" : "No"}</dd></div>
                       <div><dt>Review note</dt><dd>{selectedLine.notes || <span className="missing-value">Not provided</span>}</dd></div>
@@ -131,7 +134,7 @@ export default function FiringLinesCard({ data, ui, actions }) {
                 <ul className="firing-line-list" aria-label="Firing lines">
                   {selectedBarangay.firingLines.map((line) => (
                     <li key={line.id} className={selectedLineId === line.id ? "firing-line-row--active" : ""}>
-                      <button className="firing-line-select" type="button" onClick={() => selectLine(line.id)}><span className="line-swatch" /><span><strong>{line.name}</strong><small>{line.coordinates.length} nodes{line.sample ? " · demo example" : ""}</small></span></button>
+                      <button className="firing-line-select" type="button" onClick={() => selectLine(line.id)}><span className="line-swatch" /><span><strong>{line.name}</strong><small>{line.coordinates.length} nodes{line.puroks?.length ? ` · ${line.puroks.join(", ")}` : ""}{line.sample ? " · demo example" : ""}</small></span></button>
                       <div className="firing-line-actions"><button type="button" className="line-edit-button" onClick={() => beginEditLine(line)}>Edit</button><button type="button" className="danger-text-button" onClick={() => requestDelete("line", line)}>Delete</button></div>
                     </li>
                   ))}

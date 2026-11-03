@@ -137,6 +137,8 @@ test("firing-line days and confirmation survive save and JSON reimport", () => {
       isNew: true,
       name: "  Test firing line  ",
       coordinates: [[16.416, 120.556], [16.417, 120.557]],
+      puroks: ["Purok 1"],
+      purokInput: "Purok 2",
       schedule,
       review: { is_brgy_confirmed: true },
       notes: "  Checked with barangay  ",
@@ -162,6 +164,8 @@ test("firing-line days and confirmation survive save and JSON reimport", () => {
     "drop-off": { day: "Saturday" },
   }]);
   assert.equal(line.review.is_brgy_confirmed, true);
+  assert.deepEqual(line.puroks, ["Purok 1", "Purok 2"]);
+  assert.equal("purokInput" in line, false, "Draft input must not be exported");
   assert.equal(line.notes, "Checked with barangay");
   assert.deepEqual(line.coordinates, [[16.416, 120.556], [16.417, 120.557]]);
 
@@ -173,6 +177,7 @@ test("firing-line days and confirmation survive save and JSON reimport", () => {
       ...line,
       isNew: false,
       schedule: updateScheduleEntry(line.schedule, "drop-off", 0, { day: "Sunday" }),
+      puroks: ["Purok 2", "Purok 3"],
       review: { is_brgy_confirmed: false },
     },
     clearDraftUndoHistory() {},
@@ -192,5 +197,54 @@ test("firing-line days and confirmation survive save and JSON reimport", () => {
   }))).barangays.find((item) => item.id === barangay.id).firingLines[0];
   assert.deepEqual(edited.schedule[0]["drop-off"], { day: "Sunday" });
   assert.equal(edited.review.is_brgy_confirmed, false);
+  assert.deepEqual(edited.puroks, ["Purok 2", "Purok 3"]);
   assert.deepEqual(edited.schedule[0]["pick-up"], line.schedule[0]["pick-up"]);
+});
+
+test("old firing lines without assignments remain unassigned on import", () => {
+  const review = buildInitialReview(records);
+  const barangay = review.barangays.find((item) => item.name === "Irisan");
+  const oldLine = { id: "old-line", name: "Old line", coordinates: [[16.416, 120.556], [16.417, 120.557]], schedule: [], notes: "" };
+  barangay.firingLines = [oldLine];
+  const restored = normalizeReviewData(JSON.parse(JSON.stringify(review)));
+  assert.deepEqual(restored.barangays.find((item) => item.id === barangay.id).firingLines[0].puroks, []);
+  oldLine.purok = "Purok 4";
+  const legacy = normalizeReviewData(JSON.parse(JSON.stringify(review)));
+  assert.deepEqual(legacy.barangays.find((item) => item.id === barangay.id).firingLines[0].puroks, ["Purok 4"]);
+});
+
+test("disconnecting a firing line preserves assigned puroks on both segments", () => {
+  const review = buildInitialReview(records);
+  const barangay = review.barangays.find((item) => item.name === "Irisan");
+  const lineDraft = {
+    id: "split-line",
+    name: "Split line",
+    coordinates: [[16.416, 120.556], [16.417, 120.557], [16.418, 120.558], [16.419, 120.559]],
+    puroks: ["Purok 1"],
+    purokInput: "Purok 2",
+    schedule: [],
+    review: { is_brgy_confirmed: true },
+    notes: "",
+    isNew: true,
+  };
+  let savedBarangay;
+  const actions = createMapEditingActions({
+    selectedBarangay: barangay,
+    lineDraft,
+    clearDraftUndoHistory() {},
+    commitBarangay(_id, transform) { savedBarangay = transform(barangay); },
+    setSelectedLineId() {},
+    setLineDraft() {},
+    setSelectedLineNodeIndex() {},
+    setShowLineNodeStreetView() {},
+    setMode() {},
+    setPinManagerCollapsed() {},
+    setNotice() {},
+  });
+  actions.disconnectFiringLine(1);
+  assert.equal(savedBarangay.firingLines.length, 2);
+  for (const line of savedBarangay.firingLines) {
+    assert.deepEqual(line.puroks, ["Purok 1", "Purok 2"]);
+    assert.equal(line.review.is_brgy_confirmed, false);
+  }
 });

@@ -1,3 +1,5 @@
+import { normalizeAssignedPuroks } from "../../../shared/utils/purokAssignments.js";
+
 const REVIEW_STORAGE_KEY = "baguio-barangay-site-review-v2";
 const REVIEW_DATA_STORAGE_PREFIX = `${REVIEW_STORAGE_KEY}:`;
 const JSON_LIBRARY_STORAGE_KEY = "baguio-barangay-site-json-library-v1";
@@ -220,6 +222,7 @@ export function normalizeReviewData(value) {
       id: typeof line.id === "string" ? line.id : `line-import-${index + 1}-${lineIndex + 1}`,
       name: typeof line.name === "string" && line.name.trim() ? line.name.trim() : `Firing line ${lineIndex + 1}`,
       coordinates: line.coordinates.map((point) => [Number(point[0]), Number(point[1])]),
+      puroks: normalizeAssignedPuroks(line.puroks ?? line.purok),
       schedule: normalizeSchedule(line.schedule),
       review: normalizeSiteReview(line.review),
       notes: typeof line.notes === "string" ? line.notes : "",
@@ -303,7 +306,7 @@ export function loadWorkspaceSession(jsonId = BUNDLED_JSON_ID) {
     const value = JSON.parse(window.localStorage.getItem(workspaceSessionStorageKey(jsonId)) || "null");
     if (!value || value.version !== 1 || !value.state || typeof value.state !== "object") return null;
     const state = value.state;
-    const validPages = ["barangays", "map", "dashboard"];
+    const validPages = ["barangays", "overview", "map", "dashboard"];
     const validModes = ["browse", "place-pin", "draw-line", "edit-line", "add-line-node"];
     return {
       savedAt: typeof value.savedAt === "string" ? value.savedAt : "",

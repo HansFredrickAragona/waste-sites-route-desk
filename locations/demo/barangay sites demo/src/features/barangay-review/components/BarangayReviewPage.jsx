@@ -7,7 +7,7 @@ import { formatNumber } from "../../../shared/utils/reviewFormatting.js";
 export default function BarangayReviewPage({ data, ui, actions, refs, helpers }) {
   const { selectedBarangay, activeJson, mapFilteredPins, mapPurokOptions, mapSiteStatusOptions } = data;
   const { page, pinDraft, lineDraft, mode, toolsPanelWidthRatio, mapPurokFilter, mapSiteStatusFilter } = ui;
-  const { openDetailsEditor, setConfirmed, openConfirmationContactEditor, setMapPurokFilter, setMapSiteStatusFilter, setSelectedPinId, setToolsPanelWidthRatio } = actions;
+  const { openDetailsEditor, setConfirmed, openConfirmationContactEditor, exportSelectedBarangayCsv, setMapPurokFilter, setMapSiteStatusFilter, setSelectedPinId, setToolsPanelWidthRatio } = actions;
   return (
     <>
       {page === "map" && selectedBarangay && (
@@ -24,6 +24,19 @@ export default function BarangayReviewPage({ data, ui, actions, refs, helpers })
                 <span className="confirmation-switch" aria-hidden="true"><i /></span>
               </label>
               {selectedBarangay.confirmed && <button className="confirmation-contact-edit" type="button" onClick={openConfirmationContactEditor}>{selectedBarangay.confirmationContact?.name ? "Edit contact" : "Add contact"}</button>}
+              {pinDraft || lineDraft || mode === "draw-line" ? (
+                <button className="confirmation-contact-edit" type="button" disabled title="Save or cancel the current edit before exporting saved records">Export CSV ↓</button>
+              ) : selectedBarangay.firingLines.length ? (
+                <details className="barangay-csv-menu">
+                  <summary className="confirmation-contact-edit">Export CSV ↓</summary>
+                  <div className="barangay-csv-options">
+                    <button type="button" onClick={() => exportSelectedBarangayCsv("sites")}>Sites CSV</button>
+                    <button type="button" onClick={() => exportSelectedBarangayCsv("firingLines")}>Firing lines CSV</button>
+                  </div>
+                </details>
+              ) : (
+                <button className="confirmation-contact-edit" type="button" onClick={() => exportSelectedBarangayCsv("sites")} title="Download all saved sites in this barangay as CSV">Export CSV ↓</button>
+              )}
             </div>
           </div>
 

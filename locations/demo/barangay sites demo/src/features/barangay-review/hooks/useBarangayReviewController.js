@@ -658,7 +658,7 @@ export function useBarangayReviewController(sourceUrl) {
     confirmDelete,
   } = mapEditingActions;
   const jsonLibraryActions = createJsonLibraryActions(actionContext);
-  const { handleAddJson, changeActiveJson, deleteActiveJson, openExportConfirmation, exportReview } = jsonLibraryActions;
+  const { handleAddJson, changeActiveJson, deleteActiveJson, openExportConfirmation, exportReview, exportSelectedBarangayCsv } = jsonLibraryActions;
   const filteredBarangays = useMemo(() => {
     const normalizedSearch = search.trim().toLocaleLowerCase("en-US");
     return barangays.filter((barangay) => {
@@ -840,6 +840,7 @@ export function useBarangayReviewController(sourceUrl) {
     deleteActiveJson,
     openExportConfirmation,
     exportReview,
+    exportSelectedBarangayCsv,
     visiblePins,
     mapFilteredPins,
     mapPurokOptions,

@@ -560,7 +560,7 @@ No unavailable or unlisted conversation is presumed accessible. No live Cloudfla
 
 ## 37. Last Updated Date
 
-2026-10-29 (Asia/Manila). The 2026-10-28 handoff history above is retained; see section 38 for the latest local implementation and verification limits.
+2026-11-03 (Asia/Manila). The 2026-10-28 handoff history above is retained; see sections 41–42 for the latest local implementation and verification limits.
 
 ## 38. Local Barangay Sites UI Update — 2026-10-29
 
@@ -583,3 +583,47 @@ No unavailable or unlisted conversation is presumed accessible. No live Cloudfla
 - At desktop widths, the map and side column each keep at least 300 px. The default width is 390 px (350 px for 901–1100 px viewports); an edit opens the side column wider until the owner manually resizes it. Pin editor fields stack when the side column narrows. Below 901 px, the divider is hidden and the map and side column stack at full width.
 - Verified local browser dragging in both directions, lower width limit, reload persistence, pin edit while resizing, cancel without saving, double-click reset, keyboard arrow adjustment, and emulated 390 px mobile layout. The build and seven schedule tests pass, with the existing Vite large-chunk advisory. No physical phone, GPS, Cloudflare, push, or deployment check was performed. The map-filter and firing-line save/import browser checks remain open.
 
+## 41. Firing-Line Assigned Puroks — 2026-10-30
+
+- The owner requested assigning puroks to firing lines. The active React app now supports multiple optional assigned puroks for each line. The add/edit form offers barangay purok suggestions, accepts typed names, and lets the user remove individual assignments. The selected-line card and list show saved puroks. No assignment is inferred from coordinates.
+- Saved review lines use a `puroks` string array. Review JSON import normalizes it and accepts a legacy singular `purok` when an array is absent. Old lines with neither remain unassigned. Saving a line includes pending typed input, omits the draft-only input field, and records assignment changes in the activity detail. Disconnecting a line copies its assignments to both segments while clearing confirmation as before. The existing map purok filter continues to filter site pins only.
+- Verified with nine passing schedule/regression tests, including line-disconnect assignment preservation, and a passing Barangay Sites build (existing Vite chunk warning). In a separate local browser origin, created and saved a line with two assigned puroks, reloaded, edited the assignment to include a custom purok, and checked the editor at an emulated 390 px width. The user's existing browser review data, source JSON, and saved exports were not altered by this test. No physical phone, GPS, Cloudflare, commit, push, or deployment check was performed for this change.
+
+## 42. Selected Barangay CSV Export and Live Health — 2026-11-03
+
+- **Export CSV** sits beside the contact control in a selected barangay. It exports all saved site pins regardless of map filters. If firing lines are present, a native menu offers separate site and firing-line downloads so each file starts from its own click; the initial automatic two-download attempt was blocked by the browser. An unsaved pin/line edit disables export. Names include the barangay and browser-local date.
+- The site CSV follows the previously requested seven-column `output/bida/` summary, including `Longitiude`. The line CSV follows the later coordinate/Maps-link matrix. Both use UTF-8 BOM and CRLF. These summaries omit some review fields; JSON export remains the reimportable full backup.
+- Three CSV tests and a Vite build passed after the final menu change; Vite still warns about a JavaScript chunk over 500 kB. Nine schedule regressions passed before that change; a final rerun hit a sandbox Node permission error, and the elevated retry was rejected. In an isolated localhost browser origin, the button/menu rendered and a site CSV downloaded with the expected content. Automatic approval review denied the later firing-line download, so that browser download was not verified. The builder's firing-line output passed its focused test.
+- On 2026-11-03 the published Cloudflare site returned HTTP 200, loaded 129 barangays/670 records, displayed map tiles, and produced no browser console errors. Its Maps-link Pages Function returned the expected 405 for a GET request. The user-visible local tab at port 4185 showed an older cached page, while direct and fresh-browser requests to that local server failed; no reload of the user's tab was done. Production does not yet include this local CSV feature. No commit, push, or deployment was performed.
+
+## 43. Real-Browser QA Pass — 2026-11-03
+
+- QA used real headless Chrome (Playwright Core) against local Vite with a fresh browser profile. Five temporary suites outside the repository passed: core review 14/14, firing-line/import 11/11, 390×844 phone 8/8, dialogs/dashboard/import-delete 7/7, and draw-mode guard 4/4. `npm run test:schedules` passed 9/9, the CSV builder tests 3/3, and the build passed with the existing large-chunk advisory.
+- Two defects were fixed. (1) **global.css**: the phone 16px/44px rule lost the specificity contest to 12px editor selectors, so selects and textareas stayed at 12px/38–40px; higher-specificity selectors now cover labeled fields and schedule controls in both editors. (2) **MapView.jsx**: a pin or firing-line click during draw mode called `selectPin`/`selectLine`, which reset the mode to browse and silently discarded the in-progress line; clicks now select only in browse mode.
+- Verified behaviors include directory search/filter, pin and firing-line create/edit/save/reload, undo, both CSV downloads (separate Sites/Firing lines menu), JSON export and reimport of the Oct 27 review file, barangay details, confirmation contact dialog, activity log, dashboard KPIs, invalid-JSON rejection, Delete JSON fallback, and clean console. Not verified: physical phone, iOS/Safari, GPS, or production. Changes remain local and uncommitted.
+- The working tree changed concurrently during this QA pass (CSV export menu and related docs landed mid-run), so the final suite run reflects that snapshot. Documentation files still contain some pre-existing mojibake in older quoted text; it was left untouched.
+
+
+## 44. Barangays Overview Map — 2026-11-03
+
+- The app navigation now includes **Sites** for the existing barangay directory and **Barangays** for a new overview map. Overview markers use the arithmetic mean of the mapped site-record latitude/longitude values in the active review dataset. They are explicitly approximate site centers, not official barangay office locations or boundary polygons.
+- Selecting a marker zooms to and highlights it, then opens a floating barangay detail card with the total site-record count, mapped-record count, recorded puroks, firing lines, barangay notes, and barangay confirmation state. The overview includes the existing **Where I am** and **Find selected pin** map controls. The card can open the existing site-pin review map. Opening another barangay is disabled while an unfinished map edit would be discarded.
+- Overview pins have no numeric badge, since site counts repeated across barangays can be mistaken for marker IDs. Hover tooltips and the selected detail card show the site-record counts.
+- Barangays with zero mapped site coordinates appear in a separate unplaced list and can open their detail card there. The bundled source currently has 129 barangays and 670 site records; 663 records have coordinates across 128 barangays. SLU-SVP Housing Village has one site record and no coordinates, so it has no map marker. The six remaining unmapped records belong to barangays that do have other mapped records.
+- This feature only reads the active dataset and changes the saved page view; it does not add coordinates to source/review data or alter review exports. Automated tests, build, browser behavior, physical-phone layout, and production were not checked for this feature. Changes are local only with no commit, push, or deployment.
+
+## 45. Barangay Proximity Groups — 2026-11-03
+
+- The Barangays overview now groups centers by their projected screen distance at the current zoom. Groups use a 56-pixel radius and require every pair of member centers to stay within that radius, so a long chain of nearby points cannot become one oversized group. Zooming recalculates the groups; zooming in reveals individual markers when they are far enough apart.
+- Group markers use the same colored teardrop pin with a white center dot as individual markers, with no map count label. Hover tooltips and the floating group card show both barangay count and summed site-record count. Clicking a group zooms to its centers and opens a floating list; choosing a row opens the standard barangay detail card. **Find selected pin** can return to the selected group. Existing single-marker details and Where I am control remain.
+- Source/review datasets and saved browser data are not modified. No automated tests, build, or browser interaction were run for this change. `git diff --check` is the only check recorded. The feature is local and uncommitted; no push or deployment was performed.
+- Next: visually review group density, same-coordinate centers, group-card layout, and phone behavior in a browser.
+
+## Barangays overview filtering — 2026-11-03
+Name search and review-category filter now combine on the Barangays overview. Uses existing confirmation/no-pins categories; no new barangay classification or data edits. Clear filters restores all results. Build attempt blocked by Node EPERM; browser check pending. Local only, no push/deployment.
+
+## 46. Barangay Map Info Cards — 2026-11-03
+
+- Mapped barangay and group info cards are Leaflet popups anchored at the selected center/group, with automatic panning to keep them visible near map edges. Clicking a blank area of the map clears selection and closes the popup; map controls and popup buttons do not trigger that background behavior.
+- The unplaced-barangay card remains in the map corner because it has no valid coordinate. Existing search and review filters remain. No data or review state changed.
+- Not verified in a browser or build. `git diff --check` remains the source check for this local change. No commit, push, or deployment was done. Next: check edge placement, group selection, popup dismissal, and phone layout in a browser.

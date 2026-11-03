@@ -2,6 +2,7 @@ import barangaySitesUrl from "../../../../data/jsons/barangays/barangay_sites_v2
 import AppHeader from "../layouts/AppHeader.jsx";
 import { Dashboard } from "../features/dashboard/components/Dashboard.jsx";
 import BarangaysDirectory from "../features/barangays/components/BarangaysDirectory.jsx";
+import BarangaysOverview from "../features/barangays/components/BarangaysOverview.jsx";
 import BarangayReviewPage from "../features/barangay-review/components/BarangayReviewPage.jsx";
 import ReviewDialogs from "../features/barangay-review/components/ReviewDialogs.jsx";
 import { useBarangayReviewController } from "../features/barangay-review/hooks/useBarangayReviewController.js";
@@ -142,6 +143,7 @@ function App() {
     showJsonDeleteConfirmation,
     pendingDelete,
     exportReview,
+    exportSelectedBarangayCsv,
     saveBarangayDetails,
     setShowBarangayDetails,
     saveConfirmationContact,
@@ -210,6 +212,7 @@ function App() {
     openDetailsEditor,
     setConfirmed,
     openConfirmationContactEditor,
+    exportSelectedBarangayCsv,
     finishLineNodePlacement,
     cancelMapMode,
     finishLineDrawing,
@@ -267,6 +270,7 @@ function App() {
           resetWorkspaceSession,
           openActivityLog: () => setShowActivity(true),
           returnToBarangayList,
+          showOverview: () => { setMapFocus(null); setPage("overview"); },
           showMap: () => { setMapFocus(null); setPage("map"); },
           showDashboard: () => setPage("dashboard"),
         }}
@@ -291,6 +295,28 @@ function App() {
         setListFilter={setListFilter}
         openBarangay={openBarangay}
       />
+
+      {page === "overview" && (
+        <BarangaysOverview
+          barangays={barangays}
+          activeJsonName={activeJson?.name ?? "No JSON loaded"}
+          selectedBarangay={selectedBarangay}
+          hasPendingEdit={Boolean(pinDraft || lineDraft || mode !== "browse")}
+          deviceLocation={deviceLocation}
+          isLocatingCurrentPosition={isLocatingCurrentPosition}
+          mapFocus={mapFocus}
+          recenterOnCurrentLocation={recenterOnCurrentLocation}
+          setMapFocus={setMapFocus}
+          onOpenBarangay={(barangay) => {
+            if (selectedBarangay?.id === barangay.id) {
+              setMapFocus(null);
+              setPage("map");
+            } else {
+              openBarangay(barangay);
+            }
+          }}
+        />
+      )}
 
       <BarangayReviewPage data={data} ui={ui} actions={actions} refs={refs} helpers={helpers} />
 

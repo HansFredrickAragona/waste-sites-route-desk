@@ -190,7 +190,7 @@ export function BarangayMap({
             bubblingMouseEvents={false}
             zIndexOffset={selected ? 1000 : 0}
             eventHandlers={{
-              click: () => onSelectPin(pin.id),
+              click: () => { if (mode === "browse") onSelectPin(pin.id); },
               ...(editable ? {
                 dragstart: () => onPinDragStart(pin.id),
                 dragend: (event) => {
@@ -220,7 +220,7 @@ export function BarangayMap({
             }}
             interactive={mode === "browse"}
             bubblingMouseEvents={false}
-            eventHandlers={{ click: () => onSelectLine(line.id) }}
+            eventHandlers={{ click: () => { if (mode === "browse") onSelectLine(line.id); } }}
           >
             <Tooltip sticky>{line.name}{line.sample ? " · demo example" : ""}</Tooltip>
           </Polyline>

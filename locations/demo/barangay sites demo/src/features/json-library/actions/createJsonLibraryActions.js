@@ -12,6 +12,7 @@ import {
   removeWorkspaceSession,
   siteRecordCount,
 } from "../services/reviewRepository.js";
+import { barangayCsvFilenames, firingLinesCsv, siteSummaryCsv } from "../../barangay-review/utils/selectedBarangayCsv.js";
 
 export function createJsonLibraryActions(context) {
   const {
@@ -28,6 +29,7 @@ export function createJsonLibraryActions(context) {
     setBundledJsonHidden,
     canDeleteActiveJson,
     activeJson,
+    selectedBarangay,
     exportFilename,
     setExportFilename,
     setShowExportConfirmation,
@@ -213,5 +215,25 @@ export function createJsonLibraryActions(context) {
     setNotice({ kind: "success", text: `${downloadName} exported as JSON.` });
   }
 
-  return { handleAddJson, changeActiveJson, deleteActiveJson, openExportConfirmation, exportReview };
+  function exportSelectedBarangayCsv(kind = "sites") {
+    if (!selectedBarangay) return;
+    const filenames = barangayCsvFilenames(selectedBarangay.name);
+    const csv = kind === "firingLines" ? firingLinesCsv(selectedBarangay) : siteSummaryCsv(selectedBarangay);
+    if (!csv) return;
+    const name = kind === "firingLines" ? filenames.firingLines : filenames.sites;
+    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = name;
+    document.body.append(link);
+    link.click();
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 30_000);
+    setNotice({
+      kind: "success",
+      text: `Started ${selectedBarangay.name} ${kind === "firingLines" ? "firing-line" : "site"} CSV download.`,
+    });
+  }
+
+  return { handleAddJson, changeActiveJson, deleteActiveJson, openExportConfirmation, exportReview, exportSelectedBarangayCsv };
 }
