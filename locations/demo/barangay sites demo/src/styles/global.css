@@ -1583,3 +1583,6 @@ body {
   }
 }
 .barangays-overview-controls { flex-wrap: wrap; margin-bottom: 12px; }
+
+.barangays-cluster-legend summary { cursor: pointer; font-size: 11px; font-weight: 600; }
+.barangays-cluster-legend-items { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 14px; max-height: 180px; overflow-y: auto; margin-top: 10px; font-size: 10px; }

@@ -3,13 +3,15 @@ import L from "leaflet";
 import { Marker, Tooltip, useMap } from "react-leaflet";
 import { formatNumber } from "../../../shared/utils/reviewFormatting.js";
 
+import { clusterName, clusterColor } from "../data/clusterColors.js";
+
 const CLUSTER_RADIUS = 56;
 
 function centerIcon(barangay, selected) {
   const state = barangay.confirmed ? "confirmed" : "review";
   return L.divIcon({
     className: "barangay-overview-marker-shell",
-    html: `<span class="barangays-overview-marker barangays-overview-marker--${state}${selected ? " barangays-overview-marker--selected" : ""}"></span>`,
+    html: `<span style="background:${clusterColor(clusterName(barangay.name))}" class="barangays-overview-marker barangays-overview-marker--${state}${selected ? " barangays-overview-marker--selected" : ""}"></span>`,
     iconSize: [32, 38],
     iconAnchor: [16, 36],
   });
@@ -17,9 +19,10 @@ function centerIcon(barangay, selected) {
 
 function clusterIcon(cluster, selected) {
   const confirmed = cluster.items.every(({ barangay }) => barangay.confirmed);
+  const color = clusterColor(clusterName(cluster.items[0].barangay.name));
   return L.divIcon({
     className: "barangay-overview-marker-shell",
-    html: `<span class="barangays-overview-marker barangays-overview-marker--${confirmed ? "confirmed" : "review"} barangays-overview-marker--cluster${selected ? " barangays-overview-marker--selected" : ""}"></span>`,
+    html: `<span style="background:${color}" class="barangays-overview-marker barangays-overview-marker--${confirmed ? "confirmed" : "review"} barangays-overview-marker--cluster${selected ? " barangays-overview-marker--selected" : ""}"></span>`,
     iconSize: [36, 38],
     iconAnchor: [18, 36],
   });
@@ -36,7 +39,7 @@ function clusterLocations(locations, map, zoom) {
         group,
         distances: group.items.map((member) => item.point.distanceTo(member.point)),
       }))
-      .filter(({ distances }) => distances.every((distance) => distance <= CLUSTER_RADIUS))
+      .filter(({ group, distances }) => clusterName(group.items[0].barangay.name) === clusterName(item.barangay.name) && distances.every((distance) => distance <= CLUSTER_RADIUS))
       .sort((a, b) => a.distances.reduce((sum, distance) => sum + distance, 0) - b.distances.reduce((sum, distance) => sum + distance, 0))[0]?.group;
 
     if (nearestGroup) nearestGroup.items.push(item);
@@ -82,7 +85,7 @@ export default function BarangayOverviewMarkers({ locations, selectedId, selecte
         riseOnHover
         eventHandlers={{ click: () => onSelectBarangay(barangay.id, center) }}
       >
-        <Tooltip>{barangay.name} · {formatNumber(barangay.pins.length)} site records</Tooltip>
+        <Tooltip>{barangay.name} · {clusterName(barangay.name)} · {formatNumber(barangay.pins.length)} site records</Tooltip>
       </Marker>;
     }
 
@@ -98,7 +101,7 @@ export default function BarangayOverviewMarkers({ locations, selectedId, selecte
       riseOnHover
       eventHandlers={{ click: () => onSelectGroup(group) }}
     >
-      <Tooltip>{formatNumber(ids.length)} barangays · {formatNumber(group.siteRecordCount)} site records · click to zoom in</Tooltip>
+      <Tooltip>{clusterName(group.items[0].barangay.name)} · {formatNumber(ids.length)} barangays · {formatNumber(group.siteRecordCount)} site records · click to zoom in</Tooltip>
     </Marker>;
   });
 }

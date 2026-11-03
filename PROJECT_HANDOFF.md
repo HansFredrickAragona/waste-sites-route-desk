@@ -627,3 +627,12 @@ Name search and review-category filter now combine on the Barangays overview. Us
 - Mapped barangay and group info cards are Leaflet popups anchored at the selected center/group, with automatic panning to keep them visible near map edges. Clicking a blank area of the map clears selection and closes the popup; map controls and popup buttons do not trigger that background behavior.
 - The unplaced-barangay card remains in the map corner because it has no valid coordinate. Existing search and review filters remain. No data or review state changed.
 - Not verified in a browser or build. `git diff --check` remains the source check for this local change. No commit, push, or deployment was done. Next: check edge placement, group selection, popup dismissal, and phone layout in a browser.
+
+## Draft cluster filter — 2026-11-03
+Added the 128 CSV barangay assignments across 26 draft proximity clusters as a separate UI lookup; source CSV and review records unchanged. Barangays overview cluster filter combines with name search and review filters; unmatched names remain Unassigned. Details show draft cluster. Build passed using bundled Node, with existing >500 kB warning. Browser interaction not checked. Barangay boundaries remain pending: CSV contains no geometry and repository has no boundary dataset; asked owner about GeoJSON or public-data lookup. Local only, no deployment.
+
+## Cluster colors — 2026-11-03
+Overview pins now use stable draft-cluster colors, with gray for Unassigned and a collapsible cluster legend. Geographic proximity groups only combine barangays with the same CSV cluster assignment, preserving meaningful colors. Confirmation remains available in details and its filter. No polygons added for this simplified request. Build passed with existing >500 kB advisory; browser appearance not verified. Local only, no deployment.
+
+## Barangay site-coverage polygons — 2026-11-03
+Added translucent convex-hull polygons around each filtered barangay’s mapped site points, colored by draft cluster. Polygon click opens barangay details; pins remain visible. Shapes are approximate recorded-site coverage, not official boundaries; may overlap. Fewer than three distinct non-collinear points yields no polygon; no coordinates invented. Cluster/search/review filters apply to polygons. Build passed with existing >500 kB warning; geometry checks cover interior/duplicate points, collinear points and sparse data. Browser appearance not checked. Local only; no deployment.

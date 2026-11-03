@@ -1,8 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import L from "leaflet";
 import { Circle, CircleMarker, MapContainer, Popup, TileLayer, useMap } from "react-leaflet";
+import BarangayCoverage from "./BarangayCoverage.jsx";
 import BarangayOverviewMarkers from "./BarangayOverviewMarkers.jsx";
 import { formatNumber, hasMapCoordinates } from "../../../shared/utils/reviewFormatting.js";
+import barangayClusters from "../data/barangayClusters.json";
+import { clusterName, clusterColor } from "../data/clusterColors.js";
+const clusterOptions = [...new Set(Object.values(barangayClusters))].sort((a,b) => a.localeCompare(b, undefined, {numeric:true}));
 const BAGUIO_CENTER = [16.41, 120.593];
 const TILE_URL = import.meta.env.VITE_MAP_TILE_URL || "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
 function siteCenter(pins) {
@@ -34,6 +38,7 @@ function BarangayDetailsCard({ selected, hasPendingEdit, selectedBarangay, onOpe
     <button className="barangays-overview-card-close" type="button" aria-label="Close barangay details" onClick={onClose}>×</button>
     <div className="barangays-overview-card-heading"><div><p className="eyebrow">Barangay details</p><h2 id="overview-card-title">{selected.barangay.name}</h2></div><span className={`barangays-overview-status${selected.barangay.confirmed ? " barangays-overview-status--confirmed" : ""}`}>{selected.barangay.confirmed ? "Confirmed" : "Needs review"}</span></div>
     <p className="barangays-overview-card-location">{selected.center ? `Approximate center from ${formatNumber(selected.mappedCount)} mapped site records.` : "No mapped site coordinates are available, so this barangay has no marker."}</p>
+    <p className="barangays-overview-card-location">Draft proximity cluster: {barangayClusters[selected.barangay.name] || "Unassigned"}</p>
     <dl className="barangays-overview-details"><div><dt>Site records</dt><dd>{formatNumber(selected.barangay.pins.length)}</dd></div><div><dt>Mapped records</dt><dd>{formatNumber(selected.mappedCount)}</dd></div><div><dt>Puroks</dt><dd>{formatNumber(selected.barangay.puroks.length)}</dd></div><div><dt>Firing lines</dt><dd>{formatNumber(selected.barangay.firingLines.length)}</dd></div></dl>
     {selected.barangay.notes && <p className="barangays-overview-notes"><strong>Barangay notes</strong>{selected.barangay.notes}</p>}
     <div className="barangays-overview-card-actions"><button className="primary-small-button" type="button" disabled={hasPendingEdit && selectedBarangay?.id !== selected.barangay.id} onClick={() => onOpenBarangay(selected.barangay)}>Open site pins <span aria-hidden="true">→</span></button></div>
@@ -49,11 +54,12 @@ function BarangayGroupCard({ selectedGroup, onSelectBarangay, onClose }) {
   </article>;
 }
 export default function BarangaysOverview({barangays,activeJsonName,selectedBarangay,hasPendingEdit,deviceLocation,isLocatingCurrentPosition,mapFocus,recenterOnCurrentLocation,setMapFocus,onOpenBarangay}) {
+  const [clusterFilter,setClusterFilter] = useState("all");
   const [search,setSearch] = useState("");
   const [typeFilter,setTypeFilter] = useState("all");
   const [selectedId,setSelectedId] = useState(null);
   const [selectedGroupIds,setSelectedGroupIds] = useState(null);
-  const filtered = useMemo(() => barangays.filter(b => b.name.toLowerCase().includes(search.trim().toLowerCase()) && (typeFilter === "all" || typeFilter === "confirmed" && b.confirmed || typeFilter === "unconfirmed" && !b.confirmed || typeFilter === "no-sites" && b.pins.length === 0)),[barangays,search,typeFilter]);
+  const filtered = useMemo(() => barangays.filter(b => (clusterFilter === "all" || (barangayClusters[b.name] || "unassigned") === clusterFilter) && b.name.toLowerCase().includes(search.trim().toLowerCase()) && (typeFilter === "all" || typeFilter === "confirmed" && b.confirmed || typeFilter === "unconfirmed" && !b.confirmed || typeFilter === "no-sites" && b.pins.length === 0)),[barangays,search,typeFilter,clusterFilter]);
   const locations = useMemo(() => filtered.map(barangay => ({barangay,mappedCount:barangay.pins.filter(hasMapCoordinates).length,center:siteCenter(barangay.pins)})),[filtered]);
   const placed = useMemo(() => locations.filter(x => x.center),[locations]);
   const unplaced = locations.filter(x => !x.center);
@@ -61,7 +67,7 @@ export default function BarangaysOverview({barangays,activeJsonName,selectedBara
   const selected = locations.find(x => x.barangay.id === selectedId);
   const selectedGroup = selectedGroupIds?.map(id => locations.find(x => x.barangay.id === id)).filter(Boolean);
   const selectedGroupCenter = selectedGroup?.length ? L.latLngBounds(selectedGroup.map(x => x.center)).getCenter() : null;
-  useEffect(() => {setSelectedId(null);setSelectedGroupIds(null);},[search,typeFilter]);
+  useEffect(() => {setSelectedId(null);setSelectedGroupIds(null);},[search,typeFilter,clusterFilter]);
   const clearSelection = useCallback(() => {setSelectedId(null);setSelectedGroupIds(null);},[]);
   function selectBarangay(id,center) {setSelectedGroupIds(null);setSelectedId(id);if(center)setMapFocus({type:"point",point:center,zoom:16});}
   function selectGroup(group) {setSelectedId(null);setSelectedGroupIds(group.items.map(x => x.barangay.id));setMapFocus({type:"bounds",points:group.items.map(x => x.center),maxZoom:18});}
@@ -71,20 +77,22 @@ export default function BarangaysOverview({barangays,activeJsonName,selectedBara
     <div className="directory-controls barangays-overview-controls">
       <label className="directory-search"><input type="search" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search by barangay" aria-label="Search by barangay"/></label>
       <label className="directory-filter"><span className="sr-only">Barangay type</span><select aria-label="Barangay type" value={typeFilter} onChange={e=>setTypeFilter(e.target.value)}><option value="all">All barangays</option><option value="confirmed">Confirmed</option><option value="unconfirmed">Needs confirmation</option><option value="no-sites">No site pins</option></select></label>
-      {(search || typeFilter !== "all") && <button className="small-quiet" type="button" onClick={()=>{setSearch("");setTypeFilter("all");}}>Clear filters</button>}
+      <label className="directory-filter"><span className="sr-only">Draft proximity cluster</span><select aria-label="Draft proximity cluster" value={clusterFilter} onChange={e=>setClusterFilter(e.target.value)}><option value="all">All clusters (draft)</option>{clusterOptions.map(cluster=><option key={cluster} value={cluster}>{cluster}</option>)}<option value="unassigned">Unassigned</option></select></label>
+      {(search || typeFilter !== "all" || clusterFilter !== "all") && <button className="small-quiet" type="button" onClick={()=>{setSearch("");setTypeFilter("all");setClusterFilter("all");}}>Clear filters</button>}
     </div>
     <div className="barangays-overview-stats" aria-label="Filtered map totals"><span><strong>{formatNumber(filtered.length)}</strong> of {formatNumber(barangays.length)} barangays</span><span><strong>{formatNumber(placed.length)}</strong> approximate centers</span><span><strong>{formatNumber(filtered.reduce((s,b)=>s+b.pins.length,0))}</strong> site records</span><span><strong>{formatNumber(locations.reduce((s,x)=>s+x.mappedCount,0))}</strong> site records with coordinates</span></div>
-    <p className="barangays-overview-note">Markers show approximate centers calculated from mapped site records. They do not show official barangay boundaries or offices.</p>
+    <p className="barangays-overview-note">Shaded polygons surround each barangay’s outermost recorded site points; overlaps are possible. Areas with fewer than three non-collinear mapped points have no polygon. Pins show approximate site centers. They do not show official barangay boundaries or offices. Cluster assignments are draft proximity groups from the mapping CSV; travel times and interview locations are not verified.</p>
     <div className="barangays-overview-map-frame">
       <MapContainer className="barangays-overview-map" center={BAGUIO_CENTER} zoom={12} scrollWheelZoom><ClearSelectionOnMapClick onClear={clearSelection}/><TileLayer attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>' url={TILE_URL} maxZoom={19}/><FitBarangayCenters points={mapPoints}/><FocusOverviewMap focus={mapFocus}/>
         {deviceLocation && <>{Number.isFinite(deviceLocation.accuracy) && deviceLocation.accuracy > 0 && <Circle center={[deviceLocation.latitude,deviceLocation.longitude]} radius={deviceLocation.accuracy} pathOptions={{color:"#4389e8",weight:1,fillOpacity:0.12}} interactive={false}/>}<CircleMarker center={[deviceLocation.latitude,deviceLocation.longitude]} radius={7} pathOptions={{color:"#fff",weight:3,fillColor:"#4389e8",fillOpacity:1}} interactive={false}/></>}
+        <BarangayCoverage barangays={filtered} selectedId={selectedId} onSelect={selectBarangay}/>
         <BarangayOverviewMarkers locations={placed} selectedId={selectedId} selectedGroupIds={selectedGroupIds} onSelectBarangay={selectBarangay} onSelectGroup={selectGroup}/>
         {selectedGroup?.length > 1 && <Popup className="barangays-overview-popup" position={selectedGroupCenter} closeButton={false} maxWidth={390} autoPan autoPanPadding={[24,24]}><BarangayGroupCard selectedGroup={selectedGroup} onSelectBarangay={selectBarangay} onClose={clearSelection}/></Popup>}
         {selected?.center && <Popup className="barangays-overview-popup" position={selected.center} closeButton={false} maxWidth={390} autoPan autoPanPadding={[24,24]}><BarangayDetailsCard selected={selected} hasPendingEdit={hasPendingEdit} selectedBarangay={selectedBarangay} onOpenBarangay={onOpenBarangay} onClose={clearSelection} anchored/></Popup>}
       </MapContainer>
       <button className={`map-recenter-button${isLocatingCurrentPosition ? " map-recenter-button--loading" : ""}`} type="button" onClick={recenterOnCurrentLocation} disabled={isLocatingCurrentPosition} aria-label="Recenter map on my current location" title="Where I am"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5.25"/><circle className="map-recenter-dot" cx="12" cy="12" r="1.5"/><path d="M12 2.75v3.1M12 18.15v3.1M2.75 12h3.1M18.15 12h3.1"/></svg></button>
       <button className="map-recenter-button map-recenter-button--pin" type="button" disabled={!mapPoints.length} onClick={findSelectedPin} aria-label="Find selected barangay pin" title="Find selected pin"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 10c0 5-7 11-7 11S5 15 5 10a7 7 0 1 1 14 0Z"/><circle cx="12" cy="10" r="2.25"/></svg></button>
-      <div className="barangays-overview-legend" aria-label="Map marker legend"><span><i className="barangays-overview-legend-dot barangays-overview-legend-dot--confirmed"/>Confirmed</span><span><i className="barangays-overview-legend-dot barangays-overview-legend-dot--review"/>Needs review</span><small>Group counts appear on hover and in the detail card.</small></div>
+      <details className="barangays-overview-legend barangays-cluster-legend"><summary>Draft cluster colors</summary><div className="barangays-cluster-legend-items">{[...new Set(filtered.map(b => clusterName(b.name)))].sort((a,b)=>a.localeCompare(b,undefined,{numeric:true})).map(cluster=><span key={cluster}><i className="barangays-overview-legend-dot" style={{background:clusterColor(cluster)}}/>{cluster}</span>)}</div></details>
       {selected && !selected.center && <BarangayDetailsCard selected={selected} hasPendingEdit={hasPendingEdit} selectedBarangay={selectedBarangay} onOpenBarangay={onOpenBarangay} onClose={clearSelection} anchored={false}/>}
       {!filtered.length && <p className="barangays-overview-empty">{barangays.length ? "No barangays match your search and filter." : "No barangays are available in this JSON."}</p>}
     </div>
