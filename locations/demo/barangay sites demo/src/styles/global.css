@@ -1234,7 +1234,7 @@ input:focus-visible, textarea:focus-visible { outline: 3px solid #87bea4; outlin
 @media (max-width: 720px) {
   .sticky-header { position: static; z-index: auto; }
   .desktop-app-tabs { display: none; }
-  .app-tabs.mobile-app-tabs { position: sticky; top: 0; z-index: 1000; display: flex; background: #f4f6f2; }
+  .review-navigation.mobile-app-tabs { position: sticky; top: 0; z-index: 1000; display: block; background: #f4f6f2; }
   .global-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; gap: 8px; }
   .global-actions .json-library-control { grid-column: 1 / -1; width: 100%; min-width: 0; }
   .global-actions .json-library-control select { width: 100%; }
@@ -1586,3 +1586,19 @@ body {
 
 .barangays-cluster-legend summary { cursor: pointer; font-size: 11px; font-weight: 600; }
 .barangays-cluster-legend-items { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 14px; max-height: 180px; overflow-y: auto; margin-top: 10px; font-size: 10px; }
+
+.barangay-subnavigation { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 8px 28px; border-bottom: 1px solid #e3e9e3; background: #f7faf7; }
+.barangay-subtabs { display: flex; gap: 4px; padding: 3px; background: #e9efe9; border-radius: 9px; }
+.barangay-subtab { border: 0; border-radius: 6px; background: transparent; color: #607568; padding: 8px 20px; font: inherit; font-size: 12px; cursor: pointer; }
+.barangay-subtab--active { background: white; color: #236344; font-weight: 700; box-shadow: 0 1px 4px #20332915; }
+.barangay-resume-link { border: 1px solid #b8cdbf; border-radius: 7px; background: #fff; color: #326b4d; padding: 8px 14px; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; text-align: left; box-shadow: 0 1px 2px #2033290d; }
+.barangay-resume-link:hover { background: #edf5ef; border-color: #719b80; }
+.barangay-resume-link:focus-visible { outline: 2px solid #326b4d; outline-offset: 3px; }
+@media (max-width: 720px) { .barangay-subnavigation { padding: 8px 12px; gap: 8px; } .barangay-subtab, .barangay-resume-link { min-height: 44px; } }
+
+.barangay-selected-shortcut { display: inline-flex; align-items: stretch; border: 1px solid #b8cdbf; border-radius: 7px; background: white; }
+.barangay-selected-shortcut .barangay-resume-link { border: 0; box-shadow: none; border-radius: 7px 0 0 7px; }
+.barangay-shortcut-close { border: 0; border-left: 1px solid #e3e9e3; border-radius: 0 7px 7px 0; background: transparent; color: #607568; padding: 0 10px; font-size: 18px; cursor: pointer; opacity: 0; }
+.barangay-selected-shortcut:hover .barangay-shortcut-close, .barangay-selected-shortcut:focus-within .barangay-shortcut-close { opacity: 1; }
+.barangay-shortcut-close:hover { background: #e9efe9; color: #203329; }
+@media (hover: none) { .barangay-shortcut-close { opacity: 1; min-width: 44px; min-height: 44px; } }

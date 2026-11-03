@@ -270,6 +270,14 @@ function App() {
           resetWorkspaceSession,
           openActivityLog: () => setShowActivity(true),
           returnToBarangayList,
+          closeSelectedBarangay: () => {
+            if (pinDraft || lineDraft || mode !== "browse") {
+              setNotice("Save or cancel the current edit before closing this barangay.");
+              return;
+            }
+            if (page === "map") returnToBarangayList();
+            controller.setSelectedBarangayId(null);
+          },
           showOverview: () => { setMapFocus(null); setPage("overview"); },
           showMap: () => { setMapFocus(null); setPage("map"); },
           showDashboard: () => setPage("dashboard"),

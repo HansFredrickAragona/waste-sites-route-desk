@@ -649,3 +649,10 @@ Renamed the Unassigned display category to Bida Barangays in cluster filter, leg
 
 ## Upper Magsaysay cluster alias — 2026-11-03
 Fixed display/filter lookup: CSV explicitly includes Upper Magsaysay as alias of Magsaysay, Upper in Cluster 16. Shared assignedCluster helper now resolves both names for filter, details, marker/polygon colors and tooltips. Source names/records unchanged. Other unknown names retain Bida Barangays fallback label from previous owner request. Local only; browser check pending.
+
+## Barangays navigation hierarchy — 2026-11-03
+Combined former Sites and Barangays top-level tabs into Barangays, with Sites and Map subtabs. Sites covers directory and selected-barangay review; Map opens cluster/polygon overview. Retained Dashboard, review controls and selected-barangay resume/all-barangays navigation. Desktop/mobile share navigation component. No persistence schema or review data changes. Local only; browser layout/interaction check pending.
+Vite build passed with existing >500 kB advisory. Updated mobile visibility selector for the navigation wrapper; physical/browser verification pending.
+
+## Selected barangay shortcut close — 2026-11-03
+Added browser-tab-style close button beside selected barangay shortcut, shown on hover/keyboard focus and always on touch. Closing clears selected barangay and returns to directory if reviewing its sites; overview stays open otherwise. Unsaved pin/line edits block closing with a save/cancel notice. Saved data unchanged. Browser interaction pending; local only.
