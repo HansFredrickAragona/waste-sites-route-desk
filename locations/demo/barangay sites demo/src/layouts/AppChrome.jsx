@@ -18,7 +18,12 @@ export function ReviewTabs({ className, page, selectedBarangay, onReturnToBarang
         <button className={`barangay-subtab${page !== "overview" ? " barangay-subtab--active" : ""}`} type="button" role="tab" aria-selected={page !== "overview"} onClick={onReturnToBarangayList}>Sites</button>
         <button className={`barangay-subtab${page === "overview" ? " barangay-subtab--active" : ""}`} type="button" role="tab" aria-selected={page === "overview"} onClick={onShowOverview}>Map</button>
       </nav>
-      {selectedBarangay && <div className="barangay-selected-shortcut"><button className="barangay-resume-link" type="button" onClick={page === "map" ? onReturnToBarangayList : onShowMap}>{page === "map" ? "All barangays" : `Resume ${selectedBarangay.name}`}</button><button className="barangay-shortcut-close" type="button" aria-label={`Close ${selectedBarangay.name}`} title="Close selected barangay" onClick={onCloseSelectedBarangay}>×</button></div>}
+      {selectedBarangay && <div className={`barangay-selected-shortcut${page === "map" ? " barangay-selected-shortcut--active" : ""}`}>
+        <button className="barangay-resume-link" type="button" aria-current={page === "map" ? "page" : undefined} title={selectedBarangay.name} onClick={onShowMap}>
+          <span className="barangay-resume-name">{selectedBarangay.name}</span>
+        </button>
+        <button className="barangay-shortcut-close" type="button" aria-label={`Close ${selectedBarangay.name}`} title="Close selected barangay" onClick={onCloseSelectedBarangay}>×</button>
+      </div>}
     </div>}
   </div>;
 }

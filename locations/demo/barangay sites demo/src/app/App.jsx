@@ -1,4 +1,5 @@
 import barangaySitesUrl from "../../../../data/jsons/barangays/barangay_sites_v2.json?url";
+import { useState } from "react";
 import AppHeader from "../layouts/AppHeader.jsx";
 import { Dashboard } from "../features/dashboard/components/Dashboard.jsx";
 import BarangaysDirectory from "../features/barangays/components/BarangaysDirectory.jsx";
@@ -153,6 +154,18 @@ function App() {
     setPendingDelete,
     confirmDelete,
   } = controller;
+
+  // Overview map state lives here so leaving the Map tab (for example via
+  // "Open site pins") and coming back keeps the selected cluster, filters and
+  // selection instead of resetting to all barangays.
+  const [overviewState, setOverviewState] = useState({
+    clusterFilter: "all",
+    search: "",
+    typeFilter: "all",
+    selectedId: null,
+    selectedGroupIds: null,
+    view: null,
+  });
 
   if (loadError) {
     return (
@@ -315,6 +328,8 @@ function App() {
           mapFocus={mapFocus}
           recenterOnCurrentLocation={recenterOnCurrentLocation}
           setMapFocus={setMapFocus}
+          overviewState={overviewState}
+          setOverviewState={setOverviewState}
           onOpenBarangay={(barangay) => {
             if (selectedBarangay?.id === barangay.id) {
               setMapFocus(null);

@@ -1653,12 +1653,16 @@ body {
 .barangay-subtabs { display: flex; gap: 4px; padding: 3px; background: #e9efe9; border-radius: 9px; }
 .barangay-subtab { border: 0; border-radius: 6px; background: transparent; color: #607568; padding: 8px 20px; font: inherit; font-size: 12px; cursor: pointer; }
 .barangay-subtab--active { background: white; color: #236344; font-weight: 700; box-shadow: 0 1px 4px #20332915; }
-.barangay-resume-link { border: 1px solid #b8cdbf; border-radius: 7px; background: #fff; color: #326b4d; padding: 8px 14px; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; text-align: left; box-shadow: 0 1px 2px #2033290d; }
+.barangay-resume-link { display: inline-flex; align-items: center; max-width: 360px; border: 1px solid #b8cdbf; border-radius: 7px; background: #fff; color: #326b4d; padding: 8px 14px; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; text-align: left; box-shadow: 0 1px 2px #2033290d; }
 .barangay-resume-link:hover { background: #edf5ef; border-color: #719b80; }
 .barangay-resume-link:focus-visible { outline: 2px solid #326b4d; outline-offset: 3px; }
+.barangay-resume-name { overflow: hidden; min-width: 0; color: #2c5140; font-size: 12px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
 @media (max-width: 720px) { .barangay-subnavigation { padding: 8px 12px; gap: 8px; } .barangay-subtab, .barangay-resume-link { min-height: 44px; } }
 
-.barangay-selected-shortcut { display: inline-flex; align-items: stretch; border: 1px solid #b8cdbf; border-radius: 7px; background: white; }
+.barangay-selected-shortcut { display: inline-flex; align-items: stretch; border: 1px solid #b8cdbf; border-radius: 7px; background: white; transition: background .15s ease, border-color .15s ease, box-shadow .15s ease; }
+.barangay-selected-shortcut--active { border-color: #5f9a74; background: #e6f2e9; box-shadow: inset 0 0 0 1px #5f9a7433; }
+.barangay-selected-shortcut--active .barangay-resume-link { background: transparent; color: #245239; }
+.barangay-selected-shortcut--active .barangay-resume-name { color: #1c4630; }
 .barangay-selected-shortcut .barangay-resume-link { border: 0; box-shadow: none; border-radius: 7px 0 0 7px; }
 .barangay-shortcut-close { border: 0; border-left: 1px solid #e3e9e3; border-radius: 0 7px 7px 0; background: transparent; color: #607568; padding: 0 10px; font-size: 18px; cursor: pointer; opacity: 0; }
 .barangay-selected-shortcut:hover .barangay-shortcut-close, .barangay-selected-shortcut:focus-within .barangay-shortcut-close { opacity: 1; }
