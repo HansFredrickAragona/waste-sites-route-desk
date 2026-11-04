@@ -495,6 +495,7 @@ input:focus-visible, textarea:focus-visible { outline: 3px solid #87bea4; outlin
 .barangays-overview-marker--confirmed { background: #328056; }
 .barangays-overview-marker--selected { transform: rotate(-45deg) scale(1.18); outline: 3px solid #1a5c42aa; outline-offset: 2px; }
 .barangays-overview-marker--cluster { transform: rotate(-45deg) scale(1.12); border-width: 3px; }
+.barangays-overview-marker--dimmed { opacity: .26; }
 .barangays-overview-legend { position: absolute; z-index: 700; bottom: 12px; left: 12px; display: grid; gap: 6px; min-width: 130px; padding: 9px 11px; border: 1px solid #dfe7df; border-radius: 9px; background: #ffffffed; box-shadow: 0 3px 12px #17271f1a; color: #68786d; font-size: 8px; }
 .barangays-overview-legend span { display: flex; align-items: center; gap: 6px; }
 .barangays-overview-legend-dot { width: 9px; height: 9px; border-radius: 50%; background: #c48b36; }
@@ -1584,8 +1585,69 @@ body {
 }
 .barangays-overview-controls { flex-wrap: wrap; margin-bottom: 12px; }
 
-.barangays-cluster-legend summary { cursor: pointer; font-size: 11px; font-weight: 600; }
-.barangays-cluster-legend-items { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 14px; max-height: 180px; overflow-y: auto; margin-top: 10px; font-size: 10px; }
+.barangays-cluster-panel { position: absolute; z-index: 760; bottom: 12px; left: 12px; display: grid; gap: 6px; width: min(336px, calc(100% - 24px)); max-height: min(60%, 384px); overflow-y: auto; padding: 10px 11px; border: 1px solid #ffffffa6; border-radius: 12px; background: linear-gradient(158deg, rgba(255,255,255,.72), rgba(230,242,233,.52)); box-shadow: 0 10px 30px #10261a33, inset 0 1px 0 #ffffff80; color: #4f6a59; font-size: 10px; backdrop-filter: blur(15px) saturate(160%); -webkit-backdrop-filter: blur(15px) saturate(160%); }
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) { .barangays-cluster-panel { background: rgba(255, 255, 255, 0.95); } }
+.barangays-cluster-panel-head { display: flex; align-items: center; gap: 8px; }
+.barangays-cluster-panel-title { color: #2c4a37; font-size: 11px; font-weight: 700; letter-spacing: .01em; }
+.barangays-cluster-panel-toggle { display: grid; flex: 0 0 auto; width: 20px; height: 20px; place-items: center; border: 1px solid #ffffffa6; border-radius: 5px; background: #ffffff8c; color: #365540; font-size: 13px; font-weight: 700; line-height: 1; cursor: pointer; transition: background .12s ease, color .12s ease; }
+.barangays-cluster-panel-toggle:hover { background: #fff; color: #16311f; }
+.barangays-cluster-panel-toggle:focus-visible { outline: 2px solid #326b4d; outline-offset: 2px; }
+.barangays-cluster-panel--minimized { width: auto; max-width: min(336px, calc(100% - 24px)); gap: 0; padding: 7px 9px; }
+.barangays-cluster-panel--minimized .barangays-cluster-panel-total { margin-left: 2px; }
+.barangays-cluster-panel-body { display: grid; gap: 6px; }
+.barangays-cluster-panel-body[hidden] { display: none; }
+.barangays-cluster-panel-total { margin-left: auto; padding: 1px 6px; border-radius: 999px; background: #ffffff8c; color: #2f5440; font: 700 9px "Manrope", sans-serif; }
+.barangays-cluster-panel-items { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; margin-top: 2px; }
+.barangays-cluster-chip { display: flex; align-items: center; gap: 6px; width: 100%; min-width: 0; padding: 5px 7px; border: 1px solid #ffffff59; border-radius: 7px; background: #ffffff66; color: #3f5c49; font: inherit; font-size: 10px; text-align: left; cursor: pointer; }
+.barangays-cluster-chip:hover { border-color: #ffffffb3; background: #ffffffa6; }
+.barangays-cluster-chip:focus-visible { outline: 2px solid #326b4d; outline-offset: 2px; }
+.barangays-cluster-chip--active { border-color: var(--cluster-color); background: #ffffffd9; box-shadow: 0 1px 6px #17271f24; }
+.barangays-cluster-chip-dot { flex: 0 0 auto; width: 9px; height: 9px; border-radius: 50%; background: var(--cluster-color); }
+.barangays-cluster-chip-name { flex: 1 1 auto; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.barangays-cluster-chip--active .barangays-cluster-chip-name { font-weight: 700; color: #25452f; }
+.barangays-cluster-chip-count { flex: 0 0 auto; min-width: 20px; padding: 1px 5px; border-radius: 999px; background: #e7efe7; color: #3a5a45; font: 700 9px "Manrope", sans-serif; text-align: center; }
+.barangays-cluster-panel-note { margin: 0; color: #6b8375; font-size: 8px; line-height: 1.45; }
+
+.barangays-cluster-card { position: absolute; z-index: 900; top: 118px; right: 12px; display: flex; flex-direction: column; gap: 10px; width: min(344px, calc(100% - 24px)); max-height: min(62%, 420px); overflow-y: auto; padding: 15px; border: 1px solid #ffffff8c; border-radius: 16px; background: linear-gradient(152deg, rgba(255,255,255,.44), rgba(224,240,230,.20)); box-shadow: 0 22px 54px #10261a52, inset 0 1px 0 #ffffff73; backdrop-filter: blur(22px) saturate(170%); -webkit-backdrop-filter: blur(22px) saturate(170%); color: #22402e; }
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) { .barangays-cluster-card { background: rgba(255, 255, 255, 0.9); } }
+.barangays-cluster-card--minimized { gap: 8px; max-height: none; padding-bottom: 13px; }
+.barangays-cluster-card-controls { position: absolute; top: 9px; right: 9px; display: flex; gap: 5px; }
+.barangays-cluster-card-control { display: grid; width: 26px; height: 26px; place-items: center; border: 1px solid #ffffff8f; border-radius: 50%; background: #ffffff9e; color: #3f5e4c; font-size: 17px; line-height: 1; cursor: pointer; transition: background .12s ease, color .12s ease; }
+.barangays-cluster-card-control:hover { background: #fff; color: #16311f; }
+.barangays-cluster-card-head { display: flex; align-items: flex-start; gap: 9px; padding-right: 64px; }
+.barangays-cluster-card-head .eyebrow { margin: 0; color: #6d8375; font-size: 8px; }
+.barangays-cluster-card-head h2 { margin: 3px 0 0; color: #1f3d2b; font-size: 17px; line-height: 1.15; }
+.barangays-cluster-card-swatch { flex: 0 0 auto; width: 11px; height: 11px; margin-top: 4px; border-radius: 50%; box-shadow: 0 0 0 3px #ffffff8c; }
+.barangays-cluster-card-total { display: flex; align-items: baseline; gap: 7px; margin: 0; padding: 9px 11px; border: 1px solid #ffffff7a; border-radius: 11px; background: #ffffff5c; }
+.barangays-cluster-card-total strong { color: #1b4b31; font: 800 24px/1 "Manrope", sans-serif; }
+.barangays-cluster-card-total span { color: #4d6a58; font-size: 9px; letter-spacing: .06em; text-transform: uppercase; }
+.barangays-cluster-card-body { display: grid; gap: 10px; }
+.barangays-cluster-card-body[hidden] { display: none; }
+.barangays-cluster-card-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin: 0; }
+.barangays-cluster-card-stats div { padding: 6px 8px; border-radius: 9px; background: #ffffff47; }
+.barangays-cluster-card-stats dt { color: #57705f; font-size: 8px; letter-spacing: .05em; text-transform: uppercase; }
+.barangays-cluster-card-stats dd { margin: 2px 0 0; color: #1d452c; font: 800 13px "Manrope", sans-serif; }
+.barangays-cluster-card-location { margin: 0; color: #4c6656; font-size: 9px; line-height: 1.45; }
+.barangays-cluster-card-list { display: grid; gap: 5px; margin: 0; padding: 0; list-style: none; }
+.barangays-cluster-card-list button { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; padding: 7px 9px; border: 1px solid #ffffff66; border-radius: 9px; background: #ffffff3d; color: #264534; font: inherit; text-align: left; cursor: pointer; }
+.barangays-cluster-card-list button:hover { border-color: #ffffffcc; background: #ffffff8c; }
+.barangays-cluster-card-name { display: grid; gap: 2px; min-width: 0; }
+.barangays-cluster-card-name strong { overflow: hidden; font-size: 10px; text-overflow: ellipsis; }
+.barangays-cluster-card-name small { color: #7a8a80; font-size: 8px; }
+.barangays-cluster-card-name small.is-confirmed { color: #2f7a52; }
+.barangays-cluster-card-sites { display: grid; flex: 0 0 auto; justify-items: end; color: #1c4a31; font: 800 12px "Manrope", sans-serif; }
+.barangays-cluster-card-sites small { color: #7a8a80; font: 400 7px "Manrope", sans-serif; }
+
+@media (max-width: 640px) {
+  .barangays-cluster-panel { top: 10px; right: auto; bottom: auto; left: 10px; width: min(300px, calc(100% - 20px)); max-height: 44%; }
+  .barangays-cluster-panel--minimized { width: auto; }
+  .barangays-cluster-panel-toggle { width: 28px; height: 28px; font-size: 15px; }
+  .barangays-cluster-card { top: auto; right: auto; bottom: 10px; left: 10px; width: calc(100% - 20px); max-height: 56%; padding: 13px; }
+  .barangays-cluster-card-total strong { font-size: 21px; }
+  .barangays-cluster-card-head { padding-right: 78px; }
+  .barangays-cluster-chip, .barangays-cluster-card-list button { min-height: 38px; }
+  .barangays-cluster-card-control { width: 34px; height: 34px; font-size: 18px; }
+}
 
 .barangay-subnavigation { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 8px 28px; border-bottom: 1px solid #e3e9e3; background: #f7faf7; }
 .barangay-subtabs { display: flex; gap: 4px; padding: 3px; background: #e9efe9; border-radius: 9px; }
