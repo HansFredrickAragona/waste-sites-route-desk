@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Barangay Outreach Tracker</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%228%22%20fill%3D%22%23172438%22%2F%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23a7edd7%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%3E%3Crect%20x%3D%227%22%20y%3D%229%22%20width%3D%2218%22%20height%3D%2216%22%20rx%3D%223%22%2F%3E%3Cpath%20d%3D%22M7%2014h18M12%207v4m8-4v4m-7%209%202%202%204-4%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E">
+<link rel="stylesheet" href="/style.css">
+<main>
+  <header>
+    <p class="eyebrow">BAGUIO CITY / FIELD OUTREACH</p>
+    <h1>Barangay Outreach</h1>
+    <p>Track invitations, text replies, and meetings in one place.</p>
+  </header>
+  <section id="summary" class="summary" aria-label="Outreach totals"></section>
+  <section class="glass workspace" aria-label="Outreach records">
+    <div class="toolbar">
+      <div class="tabs" aria-label="View">
+        <button id="meetings" type="button" aria-pressed="true">Meetings</button>
+        <button id="barangays" type="button" aria-pressed="false">Barangay status</button>
+      </div>
+      <input id="search" type="search" aria-label="Search records" placeholder="Search barangays">
+      <select id="filter" aria-label="Filter records"></select>
+      <button id="add" class="primary" type="button">+ Add meeting</button>
+      <button id="snapshot" type="button">Save CSV version</button>
+      <span id="snapshot-message" role="status"></span>
+    </div>
+    <p id="message" role="status"></p>
+    <div class="table-wrap" tabindex="0" aria-label="Records table"><table><thead></thead><tbody></tbody></table></div>
+  </section>
+  <footer>Changes are saved to local CSV files on this laptop.</footer>
+</main>
+<dialog id="editor">
+  <form id="form">
+    <h2 id="editor-title"></h2>
+    <div id="fields"></div>
+    <p id="error" role="alert"></p>
+    <div class="actions">
+      <button id="cancel" type="button">Cancel</button>
+      <button class="primary" type="submit">Save changes</button>
+    </div>
+  </form>
+</dialog>
+<script src="/app.js" defer></script>
+</html>

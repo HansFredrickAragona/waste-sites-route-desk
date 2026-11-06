@@ -656,3 +656,7 @@ Vite build passed with existing >500 kB advisory. Updated mobile visibility sele
 
 ## Selected barangay shortcut close — 2026-11-03
 Added browser-tab-style close button beside selected barangay shortcut, shown on hover/keyboard focus and always on touch. Closing clears selected barangay and returns to directory if reviewing its sites; overview stays open otherwise. Unsaved pin/line edits block closing with a save/cancel notice. Saved data unchanged. Browser interaction pending; local only.
+
+## Separate barangay outreach tracker (2026-11-06)
+
+The outreach tracker in contact_barangays/outreach-tracker is a plain HTML page with a loopback-only Python server. The two ignored CSVs in its data folder hold outreach flags and meeting history. Follow-ups are separate rows and has-meeting is derived from scheduled or completed records. The updated contact source and the original outreach checklist are read for seeding. This tracker is independent of the Barangay Sites map app.
