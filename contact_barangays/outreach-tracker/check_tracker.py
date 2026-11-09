@@ -30,3 +30,15 @@ with TemporaryDirectory(dir=Path(__file__).resolve().parent / "data") as folder:
     assert first != second
     assert (first / "meetings.csv").read_bytes() == (second / "meetings.csv").read_bytes()
     assert (first / "barangay-status.csv").read_bytes() != (second / "barangay-status.csv").read_bytes()
+    restored = tracker.import_version(output, contacts=(first / "barangay-status.csv").read_text(encoding="utf-8-sig"))
+    row = next(row for row in restored["barangays"] if row["No."] == "8")
+    assert row["Email sent"] == "No"
+    assert restored["meetings"] == state["meetings"]
+    assert (Path(folder) / restored["backup"] / "barangay-status.csv").read_bytes() == (second / "barangay-status.csv").read_bytes()
+    try:
+        tracker.import_version(output, meetings="Barangay,Status\nAtok Trail,Complete")
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("Invalid meeting columns were accepted.")
+    assert tracker.state()["meetings"] == restored["meetings"]

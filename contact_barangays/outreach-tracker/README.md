@@ -11,6 +11,8 @@ Both CSVs live in the ignored **data/** folder. Back up both files together. Clo
 
 Click **Save CSV version** to copy both working files to a new Manila-time folder under **output/**. These snapshots are ignored by Git because they contain contact and outreach data.
 
+Click **Import CSV** to load one or both files from a current tracker export, including renamed exports. Confirming replaces the selected tables. The tracker validates the file columns and meeting references, then backs up the current pair under **output/** before applying the import.
+
 On a fresh copy, run `python server.py --checklist "C:/path/to/Barangay Outreach Checklist.csv"` on first launch to seed past meetings and emails. Later launches keep the saved CSVs. The contact roster comes from the repository source CSV.
 
 Run `python check_tracker.py` to verify persistence and separate follow-up rows.

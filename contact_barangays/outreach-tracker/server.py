@@ -2,6 +2,7 @@ import argparse
 import csv
 from datetime import date, datetime, timezone, timedelta
 from http.server import BaseHTTPRequestHandler, HTTPServer
+from io import StringIO
 import json
 from pathlib import Path
 import re
@@ -10,13 +11,25 @@ from tempfile import TemporaryDirectory
 
 HERE = Path(__file__).resolve().parent
 CONTACTS = ("No.", "Barangay Name", "Barangay Email Address", "Name of Punong Barangay",
-            "isMeeting", "isreplied", "Email sent", "Meeting override", "isTextSent")
+            "isMeeting", "isreplied", "Email sent", "Meeting override", "isTextSent",
+            "Official Barangay Landline or Barangay CP Number", "Official Contact Number of Punong Barangay")
 MEETINGS = ("Barangay", "Meeting date", "Time", "Status", "Remark")
 
 
 def read_csv(path):
     with path.open(encoding="utf-8-sig", newline="") as file:
         return list(csv.DictReader(file))
+
+
+def import_rows(content, fields, label):
+    reader = csv.DictReader(StringIO(content.removeprefix("\ufeff"), newline=""), strict=True)
+    columns = reader.fieldnames or []
+    if len(columns) != len(fields) or set(columns) != set(fields):
+        raise ValueError(f"{label} must have the columns from a current tracker export.")
+    rows = list(reader)
+    if any(None in row or None in row.values() for row in rows):
+        raise ValueError(f"{label} contains a row with the wrong number of columns.")
+    return rows
 
 
 def read_meetings(path):
@@ -48,7 +61,7 @@ class Tracker:
         history = read_csv(checklist) if checklist and (not self.contacts.exists() or not self.meetings.exists()) else []
         if not self.contacts.exists():
             emailed = {row["Barangay"] for row in history if row["Email sent"] == "Yes"}
-            rows = [{**{field: row[field] for field in CONTACTS[:4]},
+            rows = [{**{field: row[field] for field in (*CONTACTS[:4], *CONTACTS[-2:])},
                      "isMeeting": "No", "isreplied": "",
                      "Email sent": "Yes" if row["Barangay Name"] in emailed else ""}
                     for row in read_csv(roster)]
@@ -116,10 +129,48 @@ class Tracker:
             folder.rename(output / stamp)
         return stamp
 
-    def meeting(self, values, index=None):
-        row = {field: values[field].strip() for field in MEETINGS if field != "Remark"}
-        row["Remark"] = values.get("Remark", "").strip()
-        names = {item["Barangay Name"] for item in read_csv(self.contacts)}
+    def import_version(self, output, contacts=None, meetings=None):
+        if contacts is None and meetings is None:
+            raise ValueError("Select at least one CSV to import.")
+        current = self.state()
+        roster = current["barangays"] if contacts is None else import_rows(contacts, CONTACTS, "Barangay status")
+        schedule = current["meetings"] if meetings is None else import_rows(meetings, MEETINGS, "Meetings")
+        numbers = {row["No."] for row in roster}
+        if not roster or "" in numbers or len(numbers) != len(roster):
+            raise ValueError("Barangay status must contain unique, nonblank roster numbers.")
+        for row in roster:
+            for field in ("isMeeting", "isreplied", "Email sent", "Meeting override", "isTextSent"):
+                value = row[field].strip().capitalize()
+                if value not in ("", "Yes", "No"):
+                    raise ValueError(f"Invalid {field} value on roster row {row['No.']}.")
+                row[field] = value
+        names = {row["Barangay Name"] for row in roster}
+        for row in schedule:
+            self.validate_meeting(row, names)
+        backup = self.snapshot(output)
+        with TemporaryDirectory(dir=self.contacts.parent) as staging:
+            folder = Path(staging)
+            new_contacts = folder / self.contacts.name
+            new_meetings = folder / self.meetings.name
+            old_contacts = folder / "previous.csv"
+            if contacts is not None:
+                old_contacts.write_bytes(self.contacts.read_bytes())
+                write_csv(new_contacts, CONTACTS, roster)
+            if meetings is not None:
+                write_csv(new_meetings, MEETINGS, schedule)
+            if contacts is not None:
+                new_contacts.replace(self.contacts)
+            try:
+                if meetings is not None:
+                    new_meetings.replace(self.meetings)
+            except OSError:
+                if contacts is not None:
+                    old_contacts.replace(self.contacts)
+                raise
+        return {**self.state(), "backup": "output/" + backup}
+
+    @staticmethod
+    def validate_meeting(row, names):
         if row["Barangay"] not in names or not row["Barangay"] or row["Barangay"].isdigit():
             raise ValueError("Select a barangay from the roster.")
         if row["Status"] not in ("Scheduled", "Complete", "Not set"):
@@ -128,6 +179,12 @@ class Tracker:
             date.fromisoformat(row["Meeting date"])
         elif row["Status"] != "Not set":
             raise ValueError("Enter the meeting date.")
+
+    def meeting(self, values, index=None):
+        row = {field: values[field].strip() for field in MEETINGS if field != "Remark"}
+        row["Remark"] = values.get("Remark", "").strip()
+        names = {item["Barangay Name"] for item in read_csv(self.contacts)}
+        self.validate_meeting(row, names)
         rows = read_meetings(self.meetings)
         if index is None:
             if row not in rows:
@@ -174,7 +231,8 @@ def handler(tracker, address):
                 return
             try:
                 length = int(self.headers.get("Content-Length", 0))
-                if not 0 < length <= 8192:
+                limit = 2_000_000 if self.path == "/api/import" else 8192
+                if not 0 < length <= limit:
                     raise ValueError("Invalid request size.")
                 data = json.loads(self.rfile.read(length))
                 if self.path == "/api/outreach":
@@ -185,13 +243,16 @@ def handler(tracker, address):
                     version = tracker.snapshot(HERE / "output", **data)
                     self.respond_json({"folder": "output/" + version})
                     return
+                elif self.path == "/api/import":
+                    self.respond_json(tracker.import_version(HERE / "output", **data))
+                    return
                 elif self.path == "/api/meeting":
                     tracker.meeting(data["meeting"], data.get("index"))
                 else:
                     self.send_error(404)
                     return
                 self.respond_json(tracker.state())
-            except (ValueError, TypeError, KeyError, AttributeError) as error:
+            except (ValueError, TypeError, KeyError, AttributeError, csv.Error) as error:
                 self.respond_json({"error": str(error)}, 400)
             except OSError:
                 self.respond_json({"error": "Could not save the CSV. Close it in Excel and retry."}, 500)

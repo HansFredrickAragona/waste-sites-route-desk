@@ -20,8 +20,20 @@
       </div>
       <input id="search" type="search" aria-label="Search records" placeholder="Search barangays">
       <select id="filter" aria-label="Filter records"></select>
+      <select id="meeting-day" aria-label="Filter by weekday">
+        <option value="">All weekdays</option>
+        <option>Monday</option>
+        <option>Tuesday</option>
+        <option>Wednesday</option>
+        <option>Thursday</option>
+        <option>Friday</option>
+        <option>Saturday</option>
+        <option>Sunday</option>
+      </select>
+      <label id="meeting-date-filter">Date <input id="meeting-date" type="date"></label>
       <button id="add" class="primary" type="button">+ Add meeting</button>
       <button id="snapshot" type="button">Save CSV version</button>
+      <button id="import" type="button">Import CSV</button>
       <span id="snapshot-message" role="status"></span>
     </div>
     <p id="message" role="status"></p>

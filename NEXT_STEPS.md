@@ -296,3 +296,7 @@ The overview map used to reset whenever you left the Map tab — for example sel
 ## Barangay outreach tracker (2026-11-06)
 
 A separate localhost tracker in contact_barangays/outreach-tracker records meeting status, email sent, and text replies in two private working CSVs. The initial import uses the updated contact roster and the existing outreach checklist. Five complete meetings, seven scheduled meetings, and four sent emails were seeded. Python persistence and JavaScript syntax checks passed. The browser flow remains to be checked on the laptop because the verification environment blocked loopback HTTP requests.
+
+## Everyday drop-off (2026-11-09)
+
+The Drop-off day picker now offers **Everyday** for pins and firing lines. It saves as one schedule row with optional times. The rendered form and JSON round trip passed a targeted check, all nine schedule tests passed, and the build passed with the existing 500 kB chunk advisory. Browser interaction is pending. Local only.

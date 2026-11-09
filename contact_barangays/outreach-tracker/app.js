@@ -25,7 +25,8 @@ function field(name, label, value, choices, type = "text") {
   input.name = name;
   if (choices) fillSelect(input, choices);
   else input.type = type;
-  input.value = value;
+  if (type === "file") input.accept = ".csv,text/csv";
+  else input.value = value;
   wrapper.append(input);
   $("#fields").append(wrapper);
 }
@@ -54,13 +55,17 @@ function openEditor(title, submit, submitLabel = "Save changes") {
   editor.showModal();
 }
 
-async function save(path, body) {
+async function post(path, body) {
   const response = await fetch(path, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body)
   });
-  state = await saveResponse(response);
+  return saveResponse(response);
+}
+
+async function save(path, body) {
+  state = await post(path, body);
 }
 
 async function saveResponse(response) {
@@ -106,6 +111,10 @@ function addRow(cells, edit) {
   button.onclick = edit;
   row.append(document.createElement("td"));
   row.lastChild.append(button);
+  const headers = $("thead").rows[0].cells;
+  Array.from(row.cells).forEach((cell, index) => {
+    cell.dataset.label = headers[index].textContent;
+  });
   $("tbody").append(row);
 }
 
@@ -150,8 +159,10 @@ function render(flippedIndex) {
   const query = $("#search").value.trim().toLowerCase();
   const matches = (...values) => values.some((value) => value.toLowerCase().includes(query));
   const meetingView = view === "meetings";
+  $("table").classList.toggle("roster-table", !meetingView);
   const headers = meetingView ? ["Barangay", "Meeting date", "Day", "Time", "Status", "Remark"]
-    : ["No.", "Barangay", "Email address", "Punong Barangay", "Has meeting", "Emailed", "Texted", "Replied by text"];
+    : ["No.", "Barangay", "Email address", "Barangay phone", "Punong Barangay", "Punong Barangay phone",
+      "Has meeting", "Emailed", "Texted", "Replied by text"];
   const header = document.createElement("tr");
   header.append(...[...headers, "Action"].map((title) => element("th", title)));
   $("thead").replaceChildren(header);
@@ -159,6 +170,8 @@ function render(flippedIndex) {
   $("#add").hidden = !meetingView;
 
   if (meetingView) {
+    const selectedDay = $("#meeting-day").value;
+    const selectedDate = $("#meeting-date").value;
     const ordered = meetings.map((row, index) => ({ row, index }));
     const sortKey = (row) => {
       const time = row.Time.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
@@ -168,6 +181,10 @@ function render(flippedIndex) {
     ordered.sort((a, b) => sortKey(a.row).localeCompare(sortKey(b.row)));
     for (const { row, index } of ordered) {
       if (!matches(row.Barangay) || (filter && row.Status !== filter)) continue;
+      const date = row["Meeting date"];
+      const timestamp = Date.parse(date);
+      const day = Number.isFinite(timestamp) ? weekday.format(timestamp) : "—";
+      if ((selectedDay && day !== selectedDay) || (selectedDate && date !== selectedDate)) continue;
       const canFlip = row.Status === "Scheduled" || row.Status === "Complete";
       const badge = element(canFlip ? "button" : "span", row.Status);
       badge.className = "badge " + row.Status.toLowerCase();
@@ -188,9 +205,6 @@ function render(flippedIndex) {
         };
         if (index === flippedIndex) badge.classList.add("flipped");
       }
-      const date = row["Meeting date"];
-      const timestamp = Date.parse(date);
-      const day = Number.isFinite(timestamp) ? weekday.format(timestamp) : "—";
       addRow([row.Barangay, date || "Pending", day, row.Time || "Pending", badge, row.Remark ?? ""],
         () => editMeeting(row, index));
       if (index === flippedIndex) badge.focus({ preventScroll: true });
@@ -211,7 +225,9 @@ function render(flippedIndex) {
         outreachBadge(row, "isTextSent", "Texted", flippedIndex),
         outreachBadge(row, "isreplied", "Replied by text", flippedIndex)
       ];
-      addRow([row["No."], label, row["Barangay Email Address"], row["Name of Punong Barangay"],
+      addRow([row["No."], label, row["Barangay Email Address"],
+        row["Official Barangay Landline or Barangay CP Number"] || "—",
+        row["Name of Punong Barangay"], row["Official Contact Number of Punong Barangay"] || "—",
         ...flags], () => editOutreach(row));
       flags.find((badge) => badge.classList.contains("flipped"))?.focus({ preventScroll: true });
     }
@@ -220,6 +236,8 @@ function render(flippedIndex) {
 }
 
 function switchView(next) {
+  $("#meeting-day").hidden = next !== "meetings";
+  $("#meeting-date-filter").hidden = next !== "meetings";
   view = next;
   for (const tab of Object.keys(options)) $("#" + tab).setAttribute("aria-pressed", tab === view);
   fillSelect($("#filter"), options[view].map((label, index) => [index ? label : "", label]));
@@ -230,8 +248,24 @@ $("#meetings").onclick = () => switchView("meetings");
 $("#barangays").onclick = () => switchView("barangays");
 $("#search").oninput = render;
 $("#filter").onchange = render;
+$("#meeting-day").onchange = render;
+$("#meeting-date").oninput = render;
 $("#add").onclick = () => editMeeting();
 $("#cancel").onclick = () => editor.close();
+$("#import").onclick = () => {
+  openEditor("Import tracker CSV", async (values) => {
+    const selected = Object.entries(values).filter(([, file]) => file.name);
+    if (!selected.length) throw new Error("Choose at least one CSV.");
+    if (selected.some(([, file]) => file.size > 500_000)) throw new Error("Each CSV must be under 500 KB.");
+    const files = await Promise.all(selected.map(async ([key, file]) => [key, await file.text()]));
+    state = await post("/api/import", Object.fromEntries(files));
+    $("#snapshot-message").textContent = "Import complete. Previous version saved to " + state.backup;
+    switchView(view);
+  }, "Confirm import");
+  $("#fields").append(element("p", "Choose one or both CSVs from a current tracker export. Each selected file replaces its corresponding table. A backup is saved first."));
+  field("contacts", "Barangay status CSV", "", null, "file");
+  field("meetings", "Meetings CSV", "", null, "file");
+};
 $("#snapshot").onclick = () => {
   openEditor("Confirm CSV export", async (values) => {
     const filenames = Object.fromEntries(Object.entries(values).map(([key, value]) => {
