@@ -18,7 +18,7 @@ function scheduleTime(timing) {
   return start && end ? `${start} - ${end}` : start || end;
 }
 
-function scheduleText(schedule, kind) {
+export function scheduleText(schedule, kind) {
   if (!Array.isArray(schedule)) return "";
   return schedule.flatMap((group) => {
     const value = group?.[kind];

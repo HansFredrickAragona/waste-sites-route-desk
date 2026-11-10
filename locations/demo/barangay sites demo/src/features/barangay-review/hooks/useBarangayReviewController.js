@@ -339,6 +339,8 @@ export function useBarangayReviewController(sourceUrl) {
     };
     const restored = {
       ...lastChange.review,
+      barangays: lastChange.review.barangays.map((item) =>
+        item.id === lastChange.barangayId ? { ...item, updatedAt: timestamp } : item),
       updatedAt: timestamp,
       activityLog: [entry, ...(current.activityLog ?? [])].slice(0, 500),
     };
@@ -437,7 +439,7 @@ export function useBarangayReviewController(sourceUrl) {
     const next = {
       ...current,
       updatedAt: timestamp,
-      barangays: current.barangays.map((item) => item.id === barangayId ? transform(item) : item),
+      barangays: current.barangays.map((item) => item.id === barangayId ? { ...transform(item), updatedAt: timestamp } : item),
       activityLog: entry ? [entry, ...(current.activityLog ?? [])].slice(0, 500) : current.activityLog ?? [],
     };
     reviewUndoRef.current.push({

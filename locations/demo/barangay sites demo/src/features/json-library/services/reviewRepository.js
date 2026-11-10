@@ -161,6 +161,7 @@ export function normalizeReviewData(value) {
     puroks: Array.isArray(item.puroks) ? [...new Set(item.puroks.filter((name) => typeof name === "string" && name.trim()).map((name) => name.trim()))] : [],
     notes: typeof item.notes === "string" ? item.notes : "",
     confirmed: item.confirmed === true,
+    ...(typeof item.updatedAt === "string" ? { updatedAt: item.updatedAt } : {}),
     confirmationContact: item.confirmationContact && typeof item.confirmationContact === "object" && !Array.isArray(item.confirmationContact)
       ? {
         name: typeof item.confirmationContact.name === "string" ? item.confirmationContact.name : "",
