@@ -3,8 +3,8 @@ import { ActivityLogButton, ReviewTabs } from "./AppChrome.jsx";
 
 export default function AppHeader({ data, ui, actions, refs }) {
   const { activeJson, activeJsonId, availableJsonCount, bundledJsonHidden, jsonLibrary, activityLog } = data;
-  const { page, selectedBarangay, undoCount } = ui;
-  const { changeActiveJson, handleAddJson, deleteJson, openExportConfirmation, undoLastAction, resetWorkspaceSession, openActivityLog, returnToBarangayList, closeSelectedBarangay, showOverview, showMap, showDashboard } = actions;
+  const { page, selectedBarangay, undoCount, dashboardTabs } = ui;
+  const { changeActiveJson, handleAddJson, deleteJson, openExportConfirmation, undoLastAction, resetWorkspaceSession, openActivityLog, returnToBarangayList, closeSelectedBarangay, showOverview, showMap, showDashboard, showDashboardTab, closeDashboardTab } = actions;
   const { fileInputRef } = refs;
 
   return (
@@ -36,9 +36,9 @@ export default function AppHeader({ data, ui, actions, refs }) {
             <button className="secondary-action reset-session-action" type="button" title="Clear the current place and unfinished edits, while keeping saved review changes" onClick={resetWorkspaceSession}>Reset session</button>
           </div>
         </div>
-        <ReviewTabs className="desktop-app-tabs" page={page} selectedBarangay={selectedBarangay} onReturnToBarangayList={returnToBarangayList} onCloseSelectedBarangay={closeSelectedBarangay} onShowOverview={showOverview} onShowMap={showMap} onShowDashboard={showDashboard} />
+        <ReviewTabs className="desktop-app-tabs" page={page} selectedBarangay={selectedBarangay} onReturnToBarangayList={returnToBarangayList} onCloseSelectedBarangay={closeSelectedBarangay} onShowOverview={showOverview} onShowMap={showMap} onShowDashboard={showDashboard} dashboardTabs={dashboardTabs} onShowDashboardTab={showDashboardTab} onCloseDashboardTab={closeDashboardTab} />
       </header>
-      <ReviewTabs className="mobile-app-tabs" page={page} selectedBarangay={selectedBarangay} onReturnToBarangayList={returnToBarangayList} onCloseSelectedBarangay={closeSelectedBarangay} onShowOverview={showOverview} onShowMap={showMap} onShowDashboard={showDashboard} />
+      <ReviewTabs className="mobile-app-tabs" page={page} selectedBarangay={selectedBarangay} onReturnToBarangayList={returnToBarangayList} onCloseSelectedBarangay={closeSelectedBarangay} onShowOverview={showOverview} onShowMap={showMap} onShowDashboard={showDashboard} dashboardTabs={dashboardTabs} onShowDashboardTab={showDashboardTab} onCloseDashboardTab={closeDashboardTab} />
     </>
   );
 }

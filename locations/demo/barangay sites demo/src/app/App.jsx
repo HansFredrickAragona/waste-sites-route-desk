@@ -1,6 +1,7 @@
 import barangaySitesUrl from "../../../../data/jsons/barangays/barangay_sites_v2.json?url";
 import { useState } from "react";
 import AppHeader from "../layouts/AppHeader.jsx";
+import { ConfirmedReportPage } from "../features/dashboard/components/ConfirmedReport.jsx";
 import { Dashboard } from "../features/dashboard/components/Dashboard.jsx";
 import BarangaysDirectory from "../features/barangays/components/BarangaysDirectory.jsx";
 import BarangaysOverview from "../features/barangays/components/BarangaysOverview.jsx";
@@ -158,6 +159,20 @@ function App() {
   // Overview map state lives here so leaving the Map tab (for example via
   // "Open site pins") and coming back keeps the selected cluster, filters and
   // selection instead of resetting to all barangays.
+  const [dashboardTabs, setDashboardTabs] = useState([]);
+  const activeDashboardTab = dashboardTabs.find((tab) => tab.id === page);
+
+  function openDashboardTab(id, label) {
+    setDashboardTabs((tabs) => tabs.some((tab) => tab.id === id) ? tabs : [...tabs, { id, label }]);
+    setPage(id);
+  }
+
+  function closeDashboardTab(id) {
+    setDashboardTabs((tabs) => tabs.filter((tab) => tab.id !== id));
+    if (id === "confirmed-report") setReportSelection(null);
+    if (page === id) setPage("dashboard");
+  }
+  const [reportSelection, setReportSelection] = useState(null);
   const [overviewState, setOverviewState] = useState({
     clusterFilter: "all",
     search: "",
@@ -273,7 +288,7 @@ function App() {
     <main className="app-shell">
       <AppHeader
         data={{ activeJson, activeJsonId, availableJsonCount, bundledJsonHidden, jsonLibrary, activityLog }}
-        ui={{ page, selectedBarangay, undoCount }}
+        ui={{ page, selectedBarangay, undoCount, dashboardTabs }}
         actions={{
           changeActiveJson,
           handleAddJson,
@@ -294,6 +309,8 @@ function App() {
           showOverview: () => { setMapFocus(null); setPage("overview"); },
           showMap: () => { setMapFocus(null); setPage("map"); },
           showDashboard: () => setPage("dashboard"),
+          showDashboardTab: setPage,
+          closeDashboardTab,
         }}
         refs={{ fileInputRef }}
       />
@@ -343,14 +360,27 @@ function App() {
 
       <BarangayReviewPage data={data} ui={ui} actions={actions} refs={refs} helpers={helpers} />
 
-      {page === "dashboard" && (
+      {(page === "dashboard" || (activeDashboardTab && page !== "confirmed-report")) && (
         <Dashboard
+          key={page}
+          detail={activeDashboardTab}
           barangays={barangays}
           siteCount={siteCount}
           confirmedCount={confirmedCount}
           activityLog={activityLog}
           activeJsonName={activeJson?.name ?? "No JSON loaded"}
           onOpenBarangay={openBarangay}
+          onOpenKpi={openDashboardTab}
+        />
+      )}
+
+      {page === "confirmed-report" && activeDashboardTab && (
+        <ConfirmedReportPage
+          barangays={barangays}
+          activityLog={activityLog}
+          selectedId={reportSelection?.datasetId === activeJsonId ? reportSelection?.barangayId : null}
+          onSelect={(barangayId) => setReportSelection({ datasetId: activeJsonId, barangayId })}
+          onOpenMap={openBarangay}
         />
       )}
 

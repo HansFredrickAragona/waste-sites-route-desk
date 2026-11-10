@@ -300,3 +300,13 @@ A separate localhost tracker in contact_barangays/outreach-tracker records meeti
 ## Everyday drop-off (2026-11-09)
 
 The Drop-off day picker now offers **Everyday** for pins and firing lines. It saves as one schedule row with optional times. The rendered form and JSON round trip passed a targeted check, all nine schedule tests passed, and the build passed with the existing 500 kB chunk advisory. Browser interaction is pending. Local only.
+
+## Confirmed barangay reporting — 2026-11-10
+
+The Dashboard's **Confirmed barangays** metric now opens a summary sorted by last saved update, newest first. A barangay row opens its breakdown with a link to the existing map. Export All downloads an Excel workbook with the same summary and one breakdown sheet per confirmed barangay. The report excludes source-removed pins, counts recorded barangay puroks, and reads dumping schedules from Drop-off. Older records use available activity dates and sort last if no date is recorded.
+
+Local checks covered the report, existing schedule and CSV regressions, workbook contents, and production build. The build reports chunks over 500 kB, including the separately loaded Excel export library. Browser interaction and Google Sheets import still need a check. Local only.
+
+The Confirmed Report now opens as a temporary full-page tab after Dashboard. Switching tabs keeps the selected breakdown, and closing the report returns to Dashboard and resets the selection. Build and 13 tests passed locally. Browser navigation remains unverified.
+
+Dashboard KPI details now share the same sliding, closable subtab navigation. The three detail lists keep their existing content and map links. Multiple tabs can remain open in the session. The local build and regression tests passed. Browser navigation remains unverified.

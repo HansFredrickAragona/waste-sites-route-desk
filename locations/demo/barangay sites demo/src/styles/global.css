@@ -1665,6 +1665,6 @@ body {
 .barangay-selected-shortcut--active .barangay-resume-name { color: #1c4630; }
 .barangay-selected-shortcut .barangay-resume-link { border: 0; box-shadow: none; border-radius: 7px 0 0 7px; }
 .barangay-shortcut-close { border: 0; border-left: 1px solid #e3e9e3; border-radius: 0 7px 7px 0; background: transparent; color: #607568; padding: 0 10px; font-size: 18px; cursor: pointer; opacity: 0; }
-.barangay-selected-shortcut:hover .barangay-shortcut-close, .barangay-selected-shortcut:focus-within .barangay-shortcut-close { opacity: 1; }
+:is(.barangay-selected-shortcut, .dashboard-detail-tab):is(:hover, :focus-within) .barangay-shortcut-close { opacity: 1; }
 .barangay-shortcut-close:hover { background: #e9efe9; color: #203329; }
 @media (hover: none) { .barangay-shortcut-close { opacity: 1; min-width: 44px; min-height: 44px; } }

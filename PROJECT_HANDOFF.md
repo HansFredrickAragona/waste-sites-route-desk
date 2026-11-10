@@ -660,3 +660,11 @@ Added browser-tab-style close button beside selected barangay shortcut, shown on
 ## Separate barangay outreach tracker (2026-11-06)
 
 The outreach tracker in contact_barangays/outreach-tracker is a plain HTML page with a loopback-only Python server. The two ignored CSVs in its data folder hold outreach flags and meeting history. Follow-ups are separate rows and has-meeting is derived from scheduled or completed records. The updated contact source and the original outreach checklist are read for seeding. This tracker is independent of the Barangay Sites map app.
+
+### Confirmed dashboard report — 2026-11-10
+
+The confirmed dashboard summary and Excel workbook share a report derived from the active review dataset. Barangay updates now record an optional per-barangay timestamp that survives review JSON normalization. Existing activity entries supply dates for older records. The report leaves unknown dates blank. Existing selected-barangay CSVs retain their own scope and format.
+
+The Confirmed Report uses a closable navigation tab shared by the desktop and phone layouts. Its selected breakdown is session state scoped to the active dataset.
+
+Dashboard keeps open KPI views in session state and renders their shared subtab row on desktop and mobile. Confirmed Report retains its dataset-scoped breakdown selection.

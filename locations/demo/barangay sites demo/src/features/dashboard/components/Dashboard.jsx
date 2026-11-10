@@ -1,12 +1,10 @@
-import { useMemo, useState } from "react";
-import { DialogShell } from "../../../shared/ui/DialogShell.jsx";
+import { DashboardDetailPage } from "./DashboardDetailPage.jsx";
+import { useMemo } from "react";
 import { MetricCard } from "../../../shared/ui/MetricCard.jsx";
 import { formatNumber, formatTime, hasMapCoordinates } from "../../../shared/utils/reviewFormatting.js";
 
-export function Dashboard({ barangays, siteCount, confirmedCount, activityLog, activeJsonName, onOpenBarangay }) {
-  const [openKpi, setOpenKpi] = useState(null);
+export function Dashboard({ barangays, siteCount, confirmedCount, activityLog, activeJsonName, onOpenBarangay, onOpenKpi, detail }) {
   const allBarangays = useMemo(() => [...barangays].sort((a, b) => a.name.localeCompare(b.name)), [barangays]);
-  const confirmedBarangays = allBarangays.filter((barangay) => barangay.confirmed);
   const allSiteEntries = useMemo(() => allBarangays.flatMap((barangay) => barangay.pins.map((pin) => ({ barangay, pin }))), [allBarangays]);
   const largestBarangays = [...barangays].sort((a, b) => b.pins.length - a.pins.length || a.name.localeCompare(b.name)).slice(0, 8);
   const maximumSiteCount = Math.max(1, ...largestBarangays.map((barangay) => barangay.pins.length));
@@ -15,23 +13,19 @@ export function Dashboard({ barangays, siteCount, confirmedCount, activityLog, a
   const barangaysWithSites = barangays.filter((barangay) => barangay.pins.length > 0).length;
   const confirmedWithSites = barangays.filter((barangay) => barangay.confirmed && barangay.pins.length > 0).length;
   const siteCoverage = barangaysWithSites === 0 ? 0 : Math.round((confirmedWithSites / barangaysWithSites) * 100);
-  const metricDetails = {
-    barangays: { title: "Barangays", count: barangays.length },
-    sites: { title: "Collection sites", count: siteCount },
-    confirmed: { title: "Confirmed barangays", count: confirmedCount },
-    changes: { title: "Review changes", count: activityLog.length },
-  };
-  const selectedMetric = openKpi ? metricDetails[openKpi] : null;
+  if (detail) {
+    return <DashboardDetail detail={detail} allBarangays={allBarangays} allSiteEntries={allSiteEntries}
+      activityLog={activityLog} siteCount={siteCount} onOpenBarangay={onOpenBarangay} />;
+  }
 
   return (
-    <>
     <section className="dashboard-view barangay-dashboard" aria-labelledby="dashboard-title">
       <div className="dashboard-heading"><div><h1 id="dashboard-title">Review dashboard</h1></div><div className="dashboard-schedule-chip"><span className="dashboard-live-dot" /><span>Active dataset</span><strong>{activeJsonName} · browser saved</strong></div></div>
       <div className="dashboard-metrics">
-        <MetricCard tone="green" label="Barangays" value={barangays.length} compact onClick={() => setOpenKpi("barangays")} />
-        <MetricCard tone="orange" label="Collection sites" value={siteCount} compact onClick={() => setOpenKpi("sites")} />
-        <MetricCard tone="violet" label="Confirmed barangays" value={confirmedCount} compact onClick={() => setOpenKpi("confirmed")} />
-        <MetricCard tone="teal" label="Review changes" value={activityLog.length} compact onClick={() => setOpenKpi("changes")} />
+        <MetricCard tone="green" label="Barangays" value={barangays.length} compact onClick={() => onOpenKpi("dashboard-barangays", "Barangays")} />
+        <MetricCard tone="orange" label="Collection sites" value={siteCount} compact onClick={() => onOpenKpi("dashboard-sites", "Collection sites")} />
+        <MetricCard tone="violet" label="Confirmed barangays" value={confirmedCount} compact onClick={() => onOpenKpi("confirmed-report", "Confirmed Report")} />
+        <MetricCard tone="teal" label="Review changes" value={activityLog.length} compact onClick={() => onOpenKpi("dashboard-changes", "Review changes")} />
       </div>
 
       <section className="dashboard-coverage-panel" aria-labelledby="coverage-title">
@@ -59,18 +53,18 @@ export function Dashboard({ barangays, siteCount, confirmedCount, activityLog, a
         {recentEntries.length ? <ol className="dashboard-recent-list">{recentEntries.map((entry) => <li key={entry.id}><span className="recent-activity-icon">↶</span><div><strong>{entry.action}</strong><small>{entry.itemName} · {entry.barangayName}</small></div><time dateTime={entry.timestamp}>{formatTime(entry.timestamp)}</time></li>)}</ol> : <p className="dashboard-activity-empty">The activity log will fill in as you review barangays together.</p>}
       </section>
     </section>
-    <DialogShell open={Boolean(selectedMetric)} onClose={() => setOpenKpi(null)} titleId="dashboard-kpi-title" className="kpi-detail-dialog">
-      <header className="dialog-header kpi-detail-header">
-        <div><h2 id="dashboard-kpi-title">{selectedMetric?.title ?? "Dashboard details"}</h2><p>{formatNumber(selectedMetric?.count ?? 0)} {openKpi === "sites" ? "collection sites" : openKpi === "changes" ? "review changes" : "barangays"}</p></div>
-        <button className="icon-close" type="button" aria-label="Close details" onClick={() => setOpenKpi(null)}>×</button>
-      </header>
-      <div className="kpi-detail-content">
-        {openKpi === "barangays" && (allBarangays.length ? <ul className="kpi-detail-list">{allBarangays.map((barangay) => <li key={barangay.id}><button className="kpi-detail-row" type="button" onClick={() => { setOpenKpi(null); onOpenBarangay(barangay); }}><span className="kpi-detail-row-main"><strong>{barangay.name}</strong><small>{formatNumber(barangay.pins.length)} collection sites · {barangay.confirmed ? "Confirmed" : "Needs review"}</small></span><span className="kpi-detail-row-arrow" aria-hidden="true">↗</span></button></li>)}</ul> : <p className="kpi-detail-empty">No barangays are in this JSON.</p>)}
-        {openKpi === "sites" && (allSiteEntries.length ? <ul className="kpi-detail-list">{allSiteEntries.map(({ barangay, pin }) => <li key={`${barangay.id}-${pin.id}`}><button className="kpi-detail-row" type="button" onClick={() => { setOpenKpi(null); onOpenBarangay(barangay); }}><span className="kpi-detail-row-main"><strong>{pin.name}</strong><small>{barangay.name} · {pin.purok || "Purok not assigned"} · {hasMapCoordinates(pin) ? `${Number(pin.latitude).toFixed(5)}, ${Number(pin.longitude).toFixed(5)}` : "Coordinates not recorded"}</small></span><span className="kpi-detail-row-arrow" aria-hidden="true">↗</span></button></li>)}</ul> : <p className="kpi-detail-empty">No collection sites are in this JSON.</p>)}
-        {openKpi === "confirmed" && (confirmedBarangays.length ? <ul className="kpi-detail-list">{confirmedBarangays.map((barangay) => <li key={barangay.id}><button className="kpi-detail-row" type="button" onClick={() => { setOpenKpi(null); onOpenBarangay(barangay); }}><span className="kpi-detail-row-main"><strong>{barangay.name}</strong><small>{formatNumber(barangay.pins.length)} collection sites · Confirmed</small></span><span className="kpi-detail-row-arrow" aria-hidden="true">↗</span></button></li>)}</ul> : <p className="kpi-detail-empty">No barangays have been confirmed yet.</p>)}
-        {openKpi === "changes" && (activityLog.length ? <ol className="kpi-detail-list">{activityLog.map((entry) => <li key={entry.id}><article className="kpi-detail-row kpi-detail-row--static"><span className="kpi-detail-row-main"><strong>{entry.action}</strong><small>{entry.itemName || entry.itemType} · {entry.barangayName}{entry.details ? ` · ${entry.details}` : ""}</small></span><time dateTime={entry.timestamp}>{formatTime(entry.timestamp)}</time></article></li>)}</ol> : <p className="kpi-detail-empty">No review changes have been recorded yet.</p>)}
-      </div>
-    </DialogShell>
-    </>
+  );
+}
+
+function DashboardDetail({ detail, allBarangays, allSiteEntries, activityLog, siteCount, onOpenBarangay }) {
+  const openKpi = detail.id;
+  const count = openKpi === "dashboard-sites" ? siteCount : openKpi === "dashboard-changes" ? activityLog.length : allBarangays.length;
+
+  return (
+    <DashboardDetailPage title={detail.label} count={count}>
+        {openKpi === "dashboard-barangays" && (allBarangays.length ? <ul className="kpi-detail-list">{allBarangays.map((barangay) => <li key={barangay.id}><button className="kpi-detail-row" type="button" onClick={() => onOpenBarangay(barangay)}><span className="kpi-detail-row-main"><strong>{barangay.name}</strong><small>{formatNumber(barangay.pins.length)} collection sites · {barangay.confirmed ? "Confirmed" : "Needs review"}</small></span><span className="kpi-detail-row-arrow" aria-hidden="true">↗</span></button></li>)}</ul> : <p className="kpi-detail-empty">No barangays are in this JSON.</p>)}
+        {openKpi === "dashboard-sites" && (allSiteEntries.length ? <ul className="kpi-detail-list">{allSiteEntries.map(({ barangay, pin }) => <li key={`${barangay.id}-${pin.id}`}><button className="kpi-detail-row" type="button" onClick={() => onOpenBarangay(barangay)}><span className="kpi-detail-row-main"><strong>{pin.name}</strong><small>{barangay.name} · {pin.purok || "Purok not assigned"} · {hasMapCoordinates(pin) ? `${Number(pin.latitude).toFixed(5)}, ${Number(pin.longitude).toFixed(5)}` : "Coordinates not recorded"}</small></span><span className="kpi-detail-row-arrow" aria-hidden="true">↗</span></button></li>)}</ul> : <p className="kpi-detail-empty">No collection sites are in this JSON.</p>)}
+        {openKpi === "dashboard-changes" && (activityLog.length ? <ol className="kpi-detail-list">{activityLog.map((entry) => <li key={entry.id}><article className="kpi-detail-row kpi-detail-row--static"><span className="kpi-detail-row-main"><strong>{entry.action}</strong><small>{entry.itemName || entry.itemType} · {entry.barangayName}{entry.details ? ` · ${entry.details}` : ""}</small></span><time dateTime={entry.timestamp}>{formatTime(entry.timestamp)}</time></article></li>)}</ol> : <p className="kpi-detail-empty">No review changes have been recorded yet.</p>)}
+    </DashboardDetailPage>
   );
 }

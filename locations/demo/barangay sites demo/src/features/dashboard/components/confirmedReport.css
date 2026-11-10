@@ -1,0 +1,118 @@
+.dashboard-detail-tab {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: stretch;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .dashboard-detail-tab,
+  .dashboard-kpi-page {
+    animation: confirmed-report-enter 180ms ease-out both;
+  }
+}
+
+@keyframes confirmed-report-enter {
+  from { opacity: 0; transform: translateX(12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.dashboard-kpi-content {
+  padding: 16px;
+  border: 1px solid #dfe6df;
+  border-radius: 12px;
+  background: #fff;
+}
+.confirmed-report {
+  min-width: 0;
+}
+
+.confirmed-report-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.confirmed-report-actions > button:only-child {
+  margin-left: auto;
+}
+
+.confirmed-report button {
+  padding: 8px 12px;
+  border: 1px solid #cbdccf;
+  border-radius: 8px;
+  background: #f5faf5;
+  color: #34513d;
+  font: inherit;
+  font-weight: 750;
+}
+
+.confirmed-report-scroll {
+  max-width: 100%;
+  overflow: auto;
+}
+
+.dashboard-kpi-content {
+  color: #394d3e;
+  font-size: 14px;
+}
+
+.confirmed-report button:not(:disabled):hover {
+  background: #e6f2e9;
+}
+
+.confirmed-report button:focus-visible {
+  outline: 3px solid #79a987;
+  outline-offset: 2px;
+}
+
+.confirmed-report thead th {
+  background: #f5faf5;
+  color: #34513d;
+}
+
+.confirmed-report tbody th {
+  color: #34513d;
+}
+
+.confirmed-report table {
+  width: 100%;
+  min-width: 740px;
+  border-spacing: 0;
+  text-align: left;
+}
+
+.confirmed-report th,
+.confirmed-report td {
+  padding: 10px;
+  border-bottom: 1px solid #e4ebe4;
+  vertical-align: top;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.confirmed-report tr > :first-child {
+  position: sticky;
+  left: 0;
+  width: 145px;
+  min-width: 115px;
+  background: #fff;
+}
+
+.confirmed-report thead tr > :first-child {
+  background: #f5faf5;
+}
+
+.confirmed-report tr:has(button) {
+  cursor: pointer;
+}
+
+.dashboard-detail-tab > .barangay-subtab {
+  white-space: nowrap;
+}
+
+.barangay-subtabs:has(.dashboard-detail-tab) {
+  max-width: 100%;
+  overflow-x: auto;
+}
