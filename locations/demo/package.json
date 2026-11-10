@@ -9,6 +9,7 @@
     "build:barangay-sites": "npm run build --prefix \"barangay sites demo\""
   },
   "dependencies": {
+    "exceljs": "^4.4.0",
     "leaflet": "^1.9.4",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
