@@ -2,6 +2,7 @@ const $ = (selector) => document.querySelector(selector);
 const form = $("#form");
 const editor = $("#editor");
 const weekday = new Intl.DateTimeFormat("en", { weekday: "long", timeZone: "UTC" });
+const manilaDate = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Manila", dateStyle: "short" });
 const options = {
   meetings: ["All meetings", "Scheduled", "Complete", "Not set"],
   barangays: ["All barangays", "Scheduled", "Complete", "Emailed", "Texted", "Replied by text"]
@@ -172,6 +173,7 @@ function render(flippedIndex) {
   if (meetingView) {
     const selectedDay = $("#meeting-day").value;
     const selectedDate = $("#meeting-date").value;
+    const today = selectedDay === "today" ? manilaDate.format(new Date()) : "";
     const ordered = meetings.map((row, index) => ({ row, index }));
     const sortKey = (row) => {
       const time = row.Time.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
@@ -184,7 +186,8 @@ function render(flippedIndex) {
       const date = row["Meeting date"];
       const timestamp = Date.parse(date);
       const day = Number.isFinite(timestamp) ? weekday.format(timestamp) : "—";
-      if ((selectedDay && day !== selectedDay) || (selectedDate && date !== selectedDate)) continue;
+      const matchesDay = today ? date === today : !selectedDay || day === selectedDay;
+      if (!matchesDay || (selectedDate && date !== selectedDate)) continue;
       const canFlip = row.Status === "Scheduled" || row.Status === "Complete";
       const badge = element(canFlip ? "button" : "span", row.Status);
       badge.className = "badge " + row.Status.toLowerCase();
