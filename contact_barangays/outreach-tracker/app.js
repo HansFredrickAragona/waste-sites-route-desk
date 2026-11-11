@@ -339,13 +339,33 @@ function switchView(next) {
   $("#meeting-day").hidden = next !== "meetings";
   $("#meeting-date-filter").hidden = next !== "meetings";
   view = next;
-  for (const tab of Object.keys(options)) $("#" + tab).setAttribute("aria-pressed", tab === view);
+  for (const tab of Object.keys(options)) {
+    const button = $("#" + tab);
+    button.setAttribute("aria-selected", tab === view);
+    button.tabIndex = tab === view ? 0 : -1;
+  }
+  $("#outreach-panel").setAttribute("aria-labelledby", view);
   fillSelect($("#filter"), options[view].map((label, index) => [index ? label : "", label]));
   render();
 }
 
-$("#meetings").onclick = () => switchView("meetings");
-$("#barangays").onclick = () => switchView("barangays");
+for (const tab of Object.keys(options)) {
+  $("#" + tab).onclick = () => {
+    if (tab !== view) switchView(tab);
+  };
+}
+$(".tabs").onkeydown = (event) => {
+  let next;
+  if (event.key === "Home") next = "meetings";
+  if (event.key === "End") next = "barangays";
+  if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+    next = view === "meetings" ? "barangays" : "meetings";
+  }
+  if (!next) return;
+  event.preventDefault();
+  if (next !== view) switchView(next);
+  $("#" + next).focus();
+};
 $("#search").oninput = render;
 $("#filter").onchange = render;
 $("#meeting-day").onchange = render;

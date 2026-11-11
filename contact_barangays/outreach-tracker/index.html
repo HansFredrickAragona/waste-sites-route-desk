@@ -10,12 +10,12 @@
     <h1>Barangay Outreach</h1>
   </header>
   <section id="summary" class="summary" aria-label="Outreach totals"></section>
+  <div class="tabs" role="tablist" aria-label="Outreach views">
+    <button id="meetings" type="button" role="tab" aria-selected="true" aria-controls="outreach-panel">Meetings</button>
+    <button id="barangays" type="button" role="tab" aria-selected="false" aria-controls="outreach-panel" tabindex="-1">Barangay status</button>
+  </div>
   <section class="glass workspace" aria-label="Outreach records">
     <div class="toolbar">
-      <div class="tabs" aria-label="View">
-        <button id="meetings" type="button" aria-pressed="true">Meetings</button>
-        <button id="barangays" type="button" aria-pressed="false">Barangay status</button>
-      </div>
       <input id="search" type="search" aria-label="Search records" placeholder="Search barangays">
       <select id="filter" aria-label="Filter records"></select>
       <select id="meeting-day" aria-label="Filter by day">
@@ -35,8 +35,10 @@
       <button id="import" type="button">Import CSV</button>
       <span id="snapshot-message" role="status"></span>
     </div>
-    <p id="message" role="status"></p>
-    <div class="table-wrap" tabindex="0" aria-label="Records table"><table><thead></thead><tbody></tbody></table></div>
+    <div id="outreach-panel" role="tabpanel" aria-labelledby="meetings">
+      <p id="message" role="status"></p>
+      <div class="table-wrap" tabindex="0" aria-label="Records table"><table><thead></thead><tbody></tbody></table></div>
+    </div>
   </section>
   <footer>Changes are saved to local CSV files on this laptop.</footer>
 </main>
