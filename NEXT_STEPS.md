@@ -310,3 +310,6 @@ Local checks covered the report, existing schedule and CSV regressions, workbook
 The Confirmed Report now opens as a temporary full-page tab after Dashboard. Switching tabs keeps the selected breakdown, and closing the report returns to Dashboard and resets the selection. Build and 13 tests passed locally. Browser navigation remains unverified.
 
 Dashboard KPI details now share the same sliding, closable subtab navigation. The three detail lists keep their existing content and map links. Multiple tabs can remain open in the session. The local build and regression tests passed. Browser navigation remains unverified.
+
+## Outreach meeting row navigation - 2026-11-11
+Meeting rows now open Barangay status with the associated name searched and matching row highlighted/focused. Edit/status buttons retain their actions; Enter/Space also opens a focused row. Added a subtle 3px hover/focus slide and highlight, respecting reduced motion. Updated tracker app.js, style.css and README.md. JavaScript syntax and diff whitespace checks passed; browser interaction/appearance still needs verification. Local only; no commit, push or deployment.
