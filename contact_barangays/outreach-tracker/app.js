@@ -1,4 +1,15 @@
 const $ = (selector) => document.querySelector(selector);
+const cursorGlow = matchMedia("(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)");
+
+document.documentElement.addEventListener("pointermove", (event) => {
+  if (!cursorGlow.matches || event.pointerType !== "mouse") return;
+  document.body.style.setProperty("--cursor-x", event.clientX + "px");
+  document.body.style.setProperty("--cursor-y", event.clientY + "px");
+});
+document.documentElement.addEventListener("pointerleave", () => {
+  document.body.style.removeProperty("--cursor-x");
+  document.body.style.removeProperty("--cursor-y");
+});
 const form = $("#form");
 const editor = $("#editor");
 const weekday = new Intl.DateTimeFormat("en", { weekday: "long", timeZone: "UTC" });
@@ -9,6 +20,11 @@ const options = {
 };
 let state = { barangays: [], meetings: [] };
 let view = "meetings";
+const meetingMenu = document.createElement("div");
+meetingMenu.id = "meeting-menu";
+meetingMenu.setAttribute("popover", "auto");
+meetingMenu.setAttribute("aria-label", "Meeting actions");
+document.body.append(meetingMenu);
 
 function element(tag, value) {
   const node = document.createElement(tag);
@@ -30,6 +46,7 @@ function field(name, label, value, choices, type = "text") {
   else input.value = value;
   wrapper.append(input);
   $("#fields").append(wrapper);
+  return input;
 }
 
 function openEditor(title, submit, submitLabel = "Save changes") {
@@ -92,6 +109,54 @@ function editMeeting(row = {}, index) {
   field("Remark", "Remark (optional)", row.Remark ?? "");
 }
 
+function meetingDetails(row) {
+  return [row.Barangay, row["Meeting date"] || "Date pending", row.Time || "Time pending", row.Status].join(" · ");
+}
+
+function deleteMeeting(row, index) {
+  openEditor("Delete meeting?", () => save("/api/meeting/delete", { index, expected: row }), "Confirm delete");
+  $("#fields").append(element("p", meetingDetails(row)));
+}
+
+function mergeMeeting(row, index, targets) {
+  openEditor("Merge meetings?", ({ target }) => {
+    const kept = targets.find((candidate) => String(candidate.index) === target);
+    return save("/api/meeting/merge", {
+      index, expected: row, keep_index: kept.index, keep_expected: kept.row
+    });
+  }, "Confirm merge");
+  $("#fields").append(element("p", "Remove " + meetingDetails(row)));
+  const picker = field("target", "Scheduled meeting to keep", String(targets[0].index),
+    targets.map((target) => [String(target.index), meetingDetails(target.row)]));
+  const preview = element("p", "");
+  preview.style.whiteSpace = "pre-wrap";
+  picker.onchange = () => {
+    const kept = targets.find((target) => String(target.index) === picker.value).row;
+    const remarks = [kept.Remark, row.Remark].filter(Boolean).join("\n");
+    preview.textContent = remarks ? "Merged remark\n" + remarks : "No remarks to merge.";
+  };
+  picker.onchange();
+  $("#fields").append(preview);
+}
+
+function showMeetingMenu(row, index, targets, x, y) {
+  meetingMenu.hidePopover();
+  const actions = [["Delete meeting", () => deleteMeeting(row, index)]];
+  if (targets.length) actions.push(["Merge meeting", () => mergeMeeting(row, index, targets)]);
+  meetingMenu.replaceChildren(...actions.map(([label, action]) => {
+    const button = element("button", label);
+    button.onclick = () => {
+      meetingMenu.hidePopover();
+      action();
+    };
+    return button;
+  }));
+  meetingMenu.showPopover();
+  meetingMenu.style.left = Math.max(0, Math.min(x, innerWidth - meetingMenu.offsetWidth - 8)) + "px";
+  meetingMenu.style.top = Math.max(0, Math.min(y, innerHeight - meetingMenu.offsetHeight - 8)) + "px";
+  meetingMenu.firstElementChild.focus({ preventScroll: true });
+}
+
 function editOutreach(row) {
   const choices = [["", "Not recorded"], ["Yes", "Yes"], ["No", "No"]];
   openEditor(row["Barangay Name"] || "Roster row " + row["No."],
@@ -117,6 +182,18 @@ function addRow(cells, edit) {
     cell.dataset.label = headers[index].textContent;
   });
   $("tbody").append(row);
+  return row;
+}
+
+function openBarangay(name) {
+  $("#search").value = name;
+  switchView("barangays");
+  const row = Array.from($("tbody").rows).find((item) => item.cells[1].textContent === name);
+  if (row) {
+    row.classList.add("selected-barangay");
+    row.tabIndex = -1;
+    row.focus();
+  }
 }
 
 function outreachBadge(row, field, label, flippedIndex) {
@@ -142,6 +219,7 @@ function outreachBadge(row, field, label, flippedIndex) {
 }
 
 function render(flippedIndex) {
+  meetingMenu.hidePopover();
   const { meetings, barangays } = state;
   const summary = [
     ["Scheduled", meetings.filter((row) => row.Status === "Scheduled").length],
@@ -208,8 +286,27 @@ function render(flippedIndex) {
         };
         if (index === flippedIndex) badge.classList.add("flipped");
       }
-      addRow([row.Barangay, date || "Pending", day, row.Time || "Pending", badge, row.Remark ?? ""],
+      const meetingRow = addRow([row.Barangay, date || "Pending", day, row.Time || "Pending", badge, row.Remark ?? ""],
         () => editMeeting(row, index));
+      const targets = row.Status === "Not set"
+        ? ordered.filter((target) => target.row.Barangay === row.Barangay && target.row.Status === "Scheduled")
+        : [];
+      meetingRow.oncontextmenu = (event) => {
+        event.preventDefault();
+        showMeetingMenu(row, index, targets, event.clientX, event.clientY);
+      };
+      meetingRow.classList.add("meeting-row");
+      meetingRow.tabIndex = 0;
+      meetingRow.setAttribute("aria-label", "Open " + row.Barangay + " in Barangay status");
+      meetingRow.onclick = (event) => {
+        if (!event.target.closest("button")) openBarangay(row.Barangay);
+      };
+      meetingRow.onkeydown = (event) => {
+        if (event.target === meetingRow && (event.key === "Enter" || event.key === " ")) {
+          event.preventDefault();
+          openBarangay(row.Barangay);
+        }
+      };
       if (index === flippedIndex) badge.focus({ preventScroll: true });
     }
   } else {
