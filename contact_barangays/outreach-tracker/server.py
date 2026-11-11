@@ -198,6 +198,24 @@ class Tracker:
         write_csv(self.meetings, MEETINGS, rows)
 
 
+    def remove_meeting(self, index, expected, keep_index=None, keep_expected=None):
+        rows = read_meetings(self.meetings)
+
+        def confirmed_row(position, snapshot):
+            if type(position) is not int or not 0 <= position < len(rows) or rows[position] != snapshot:
+                raise ValueError("The meeting changed. Refresh the page and confirm again.")
+            return rows[position]
+
+        removed = confirmed_row(index, expected)
+        if keep_index is not None or keep_expected is not None:
+            kept = confirmed_row(keep_index, keep_expected)
+            if (removed["Status"], kept["Status"]) != ("Not set", "Scheduled") or removed["Barangay"] != kept["Barangay"]:
+                raise ValueError("Choose a scheduled meeting for the same barangay.")
+            kept["Remark"] = "\n".join(filter(None, (kept["Remark"], removed["Remark"])))
+        del rows[index]
+        write_csv(self.meetings, MEETINGS, rows)
+
+
 def handler(tracker, address):
     assets = {"/": ("index.html", "text/html"), "/app.js": ("app.js", "text/javascript"),
               "/style.css": ("style.css", "text/css")}
@@ -248,6 +266,13 @@ def handler(tracker, address):
                     return
                 elif self.path == "/api/meeting":
                     tracker.meeting(data["meeting"], data.get("index"))
+                elif self.path == "/api/meeting/delete":
+                    tracker.remove_meeting(data["index"], data["expected"])
+                elif self.path == "/api/meeting/merge":
+                    if type(data["keep_index"]) is not int:
+                        raise ValueError("Choose a scheduled meeting to keep.")
+                    tracker.remove_meeting(data["index"], data["expected"],
+                                           data["keep_index"], data["keep_expected"])
                 else:
                     self.send_error(404)
                     return
