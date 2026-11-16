@@ -318,3 +318,17 @@ Meeting rows now open Barangay status with the associated name searched and matc
 ClusterSummaryCard.jsx and global.css group the selected cluster by barangay confirmation, with counts for the visible rows. The existing Barangay type dropdown filters the map and cluster list together. Schedule regression tests passed 9/9. Browser layout and interactions remain to be checked. Local only.
 
 The overview now offers All confirmed barangays when a cluster or search is active, and explains when confirmation or mapped coordinates are missing. The bundled raw dataset starts with zero confirmed barangays. Browser interaction remains unverified.
+
+## Barangay overview site previews (2026-11-16)
+Selecting a barangay from the map or cluster list shows its mapped collection sites and saved firing lines, and frames their coordinates. BarangaySiteOverlay.jsx renders the preview and BarangaysOverview.jsx connects it to the current selection. Browser and mobile layout remain unverified. Local only.
+
+The selected barangay details now sit below the overview map so the site markers and firing lines are visible. The card retains its counts, notes, close button, and Open site pins action. Browser layout remains unverified.
+
+The details card now sits to the left of the overview map on wide screens and above it on narrow screens, superseding the below-map layout. Leaflet recalculates its size when the map column changes. Browser layout remains unverified.
+
+The overview details card now matches the map height on the right at desktop widths, with single-column counts. At narrow widths it remains stacked above the map. Browser layout remains unverified.
+
+The Barangay Details panel shares the site review divider for drag and keyboard resizing. Its width is remembered during the current app session. Both the panel and selected barangay tab already have an upper-right close button.
+
+## Whole-hour schedule formatting (2026-11-16)
+The shared schedule serializer adds :00 to whole-hour start and end inputs when saving. Explicit minutes and AM/PM are preserved. The regression suite passed 10/10 and the local build passed with the existing chunk-size warning. Browser save flow remains unverified.
