@@ -313,3 +313,8 @@ Dashboard KPI details now share the same sliding, closable subtab navigation. Th
 
 ## Outreach meeting row navigation - 2026-11-11
 Meeting rows now open Barangay status with the associated name searched and matching row highlighted/focused. Edit/status buttons retain their actions; Enter/Space also opens a focused row. Added a subtle 3px hover/focus slide and highlight, respecting reduced motion. Updated tracker app.js, style.css and README.md. JavaScript syntax and diff whitespace checks passed; browser interaction/appearance still needs verification. Local only; no commit, push or deployment.
+
+## Barangay cluster confirmation groups (2026-11-16)
+ClusterSummaryCard.jsx and global.css group the selected cluster by barangay confirmation, with counts for the visible rows. The existing Barangay type dropdown filters the map and cluster list together. Schedule regression tests passed 9/9. Browser layout and interactions remain to be checked. Local only.
+
+The overview now offers All confirmed barangays when a cluster or search is active, and explains when confirmation or mapped coordinates are missing. The bundled raw dataset starts with zero confirmed barangays. Browser interaction remains unverified.

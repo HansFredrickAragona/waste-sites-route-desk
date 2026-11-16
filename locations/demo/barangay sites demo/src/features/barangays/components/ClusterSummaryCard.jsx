@@ -37,17 +37,21 @@ export default function ClusterSummaryCard({ summary, visibleIds, onSelectBarang
         <div><dt>Confirmed</dt><dd>{formatNumber(summary.confirmedCount)}</dd></div>
       </dl>
       <p className="barangays-cluster-card-location">{hiddenCount > 0 ? `${formatNumber(visible.length)} of ${formatNumber(summary.barangayCount)} barangays shown; the rest are hidden by the current search or type filter.` : "Barangays in this cluster, with the site records saved in the active JSON."}</p>
-      <ul className="barangays-cluster-card-list">
-        {visible.map((barangay) => <li key={barangay.id}>
-          <button type="button" onClick={() => onSelectBarangay(barangay.id)}>
-            <span className="barangays-cluster-card-name">
-              <strong>{barangay.name}</strong>
-              <small className={barangay.confirmed ? "is-confirmed" : ""}>{barangay.confirmed ? "Confirmed" : "Needs review"}</small>
-            </span>
-            <span className="barangays-cluster-card-sites">{formatNumber(barangay.pins.length)}<small>sites</small></span>
-          </button>
-        </li>)}
-      </ul>
+      {[true, false].map((confirmed) => {
+        const group = visible.filter((barangay) => Boolean(barangay.confirmed) === confirmed);
+        if (group.length === 0) return null;
+        return <section className="barangays-cluster-card-group" key={String(confirmed)}>
+          <h3>{confirmed ? "Confirmed" : "Needs confirmation"} ({formatNumber(group.length)})</h3>
+          <ul className="barangays-cluster-card-list">
+            {group.map((barangay) => <li key={barangay.id}>
+              <button type="button" onClick={() => onSelectBarangay(barangay.id)}>
+                <span className="barangays-cluster-card-name"><strong>{barangay.name}</strong></span>
+                <span className="barangays-cluster-card-sites">{formatNumber(barangay.pins.length)}<small>sites</small></span>
+              </button>
+            </li>)}
+          </ul>
+        </section>;
+      })}
     </div>
   </article>;
 }
