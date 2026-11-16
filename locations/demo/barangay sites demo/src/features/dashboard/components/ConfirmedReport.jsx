@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { confirmedReport, detailColumns, summaryColumns } from "../confirmedReport.js";
 import { downloadConfirmedWorkbook } from "../confirmedWorkbook.js";
 import { DashboardDetailPage } from "./DashboardDetailPage.jsx";
@@ -6,6 +6,25 @@ import { DashboardDetailPage } from "./DashboardDetailPage.jsx";
 function ConfirmedReport({ report, selected, onSelect, onOpenMap }) {
   const [exporting, setExporting] = useState(false);
   const [error, setError] = useState("");
+  const tableRegion = useRef(null);
+  const summaryPosition = useRef(null);
+
+  function openDetails(id) {
+    summaryPosition.current = {
+      pageTop: window.scrollY,
+      tableTop: tableRegion.current.scrollTop,
+      tableLeft: tableRegion.current.scrollLeft,
+    };
+    onSelect(id);
+  }
+
+  useLayoutEffect(() => {
+    if (selected || !summaryPosition.current || !tableRegion.current) return;
+    const { pageTop, tableTop, tableLeft } = summaryPosition.current;
+    tableRegion.current.scrollTo({ top: tableTop, left: tableLeft, behavior: "instant" });
+    window.scrollTo({ top: pageTop, behavior: "instant" });
+    summaryPosition.current = null;
+  }, [selected]);
 
   async function exportAll() {
     setExporting(true);
@@ -36,17 +55,17 @@ function ConfirmedReport({ report, selected, onSelect, onOpenMap }) {
       </div>
       {error && <p role="alert">{error}</p>}
       {rows.length ? (
-        <div className="confirmed-report-scroll" tabIndex={0} role="region" aria-label={selected ? "Barangay breakdown table" : "Confirmed summary table"}>
+        <div ref={tableRegion} className="confirmed-report-scroll" tabIndex={0} role="region" aria-label={selected ? "Barangay breakdown table" : "Confirmed summary table"}>
           <table>
             <thead><tr>{columns.map((column) => (
               <th key={column} scope="col" aria-sort={column === "Last Updated" ? "descending" : undefined}>{column}</th>
             ))}</tr></thead>
             <tbody>{rows.map(([name, ...values], index) => (
-              <tr key={selected ? index : report[index].barangay.id} onClick={selected ? undefined : () => onSelect(report[index].barangay.id)}>
+              <tr key={selected ? index : report[index].barangay.id} onClick={selected ? undefined : () => openDetails(report[index].barangay.id)}>
                 <th scope="row">{selected ? name : (
                   <button type="button" onClick={(event) => {
                     event.stopPropagation();
-                    onSelect(report[index].barangay.id);
+                    openDetails(report[index].barangay.id);
                   }}>{name} ›</button>
                 )}</th>
                 {values.map((value, column) => <td key={columns[column + 1]}>{value === "" ? "—" : value}</td>)}
