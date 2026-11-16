@@ -19,7 +19,6 @@ export default function CollectionScheduleFields({ schedule, onChange }) {
               <ScheduleDayField
                 label={`${label} row ${index + 1}`}
                 value={entry.day}
-                allowEveryday={kind === "drop-off"}
                 onChange={(day) => onChange(updateScheduleEntry(schedule, kind, index, { day }))}
               />
               <ScheduleTimeRangeField

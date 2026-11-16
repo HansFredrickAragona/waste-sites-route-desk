@@ -2,9 +2,9 @@ import { SCHEDULE_DAYS } from "../utils/pinFormHelpers.js";
 
 const EVERYDAY = "Everyday";
 
-export default function ScheduleDayField({ value, onChange, label, allowEveryday }) {
+export default function ScheduleDayField({ value, onChange, label }) {
   const dayValue = String(value ?? "");
-  const knownDay = (allowEveryday && dayValue === EVERYDAY) ||
+  const knownDay = dayValue === EVERYDAY ||
     SCHEDULE_DAYS.some((day) => day.label === dayValue);
 
   return (
@@ -12,7 +12,7 @@ export default function ScheduleDayField({ value, onChange, label, allowEveryday
       <span>Day</span>
       <select aria-label={`${label} day`} value={dayValue} onChange={(event) => onChange(event.target.value)}>
         <option value="">Select a day</option>
-        {allowEveryday && <option value={EVERYDAY}>{EVERYDAY}</option>}
+        <option value={EVERYDAY}>{EVERYDAY}</option>
         {!knownDay && dayValue && <option value={dayValue}>{dayValue}</option>}
         {SCHEDULE_DAYS.map((day) => <option key={day.code} value={day.label}>{day.label}</option>)}
       </select>
