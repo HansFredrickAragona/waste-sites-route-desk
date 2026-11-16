@@ -248,3 +248,15 @@ test("disconnecting a firing line preserves assigned puroks on both segments", (
     assert.equal(line.review.is_brgy_confirmed, false);
   }
 });
+
+test("saving typed whole hours adds minutes and keeps periods and explicit minutes", () => {
+  let draft = updateScheduleEntry([], "pick-up", 0, {
+    day: "Monday", startTime: "5", startPeriod: "AM", endTime: "11", endPeriod: "AM",
+  });
+  draft = updateScheduleEntry(draft, "drop-off", 0, { day: "Monday", startTime: "7:30" });
+  assert.equal(scheduleDayEntries(draft, "pick-up")[0].startTime, "5");
+  assert.deepEqual(scheduleWithoutDates(draft), [{
+    "pick-up": { day: "Monday", time: "5:00 AM - 11:00 AM" },
+    "drop-off": { day: "Monday", time: "7:30" },
+  }]);
+});

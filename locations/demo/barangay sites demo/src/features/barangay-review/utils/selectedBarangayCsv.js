@@ -26,7 +26,10 @@ export function scheduleText(schedule, kind) {
   }).map((timing) => {
     if (!timing || typeof timing !== "object") return "";
     const day = Array.isArray(timing.day) ? timing.day.join(", ").trim() : String(timing.day ?? "").trim();
-    const time = scheduleTime(timing);
+    const time = scheduleTime(timing).replace(
+      /(^|[-–—]\s*)(\d{1,2})(?=\s*(?:[AP]M\b\s*)?(?:[-–—]|$))/gi,
+      "$1$2:00",
+    );
     return day && time ? `${day}: ${time}` : day || time;
   }).filter(Boolean).join("; ");
 }

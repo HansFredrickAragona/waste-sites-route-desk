@@ -83,10 +83,11 @@ function parseTimeRange(value) {
   };
 }
 
-function formatScheduleTime(timing) {
+function formatScheduleTime(timing, padWholeHours = false) {
   const endpoint = (time, period) => {
     const text = String(time ?? "").trim();
-    return text ? `${text}${period ? ` ${period}` : ""}` : "";
+    const formatted = padWholeHours ? text.replace(/^(\d{1,2})$/, "$1:00") : text;
+    return formatted ? `${formatted}${period ? ` ${period}` : ""}` : "";
   };
   const start = endpoint(timing?.startTime, timing?.startPeriod);
   const end = endpoint(timing?.endTime, timing?.endPeriod);
@@ -159,7 +160,7 @@ export function scheduleWithoutDates(schedule) {
   ["pick-up", "drop-off"].forEach((kind) => {
     const cleanTimings = siteSchedule[kind].flatMap((timing) => {
       const day = String(timing.day ?? "").trim();
-      const time = formatScheduleTime(timing);
+      const time = formatScheduleTime(timing, true);
       const extras = Object.fromEntries(Object.entries(timing).filter(([field]) =>
         !["day", "date", "time", "startTime", "startPeriod", "endTime", "endPeriod"].includes(field),
       ));
