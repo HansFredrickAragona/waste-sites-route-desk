@@ -16,11 +16,19 @@ const weekday = new Intl.DateTimeFormat("en", { weekday: "long", timeZone: "UTC"
 const manilaDate = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Manila", dateStyle: "short" });
 const options = {
   meetings: ["All meetings", "Scheduled", "Complete", "Not set"],
-  barangays: ["All barangays", "Scheduled", "Complete", "Emailed", "Texted", "Replied by text"]
+  barangays: ["All barangays", "Scheduled", "Complete", "Has meeting", "Emailed", "Texted", "Replied by text"]
 };
+const tabs = ["meetings", "barangays", "dashboard"];
+const sidebarTabs = matchMedia("(min-width: 801px)");
+function updateTabOrientation() {
+  $(".tabs").setAttribute("aria-orientation", sidebarTabs.matches ? "vertical" : "horizontal");
+}
+sidebarTabs.addEventListener("change", updateTabOrientation);
+updateTabOrientation();
 let state = { barangays: [], meetings: [] };
 let view = "meetings";
 const meetingMenu = document.createElement("div");
+const compactMeetings = matchMedia("(max-width: 800px)");
 meetingMenu.id = "meeting-menu";
 meetingMenu.setAttribute("popover", "auto");
 meetingMenu.setAttribute("aria-label", "Meeting actions");
@@ -139,10 +147,15 @@ function mergeMeeting(row, index, targets) {
   $("#fields").append(preview);
 }
 
-function showMeetingMenu(row, index, targets, x, y) {
+function showMeetingMenu(row, index, targets, x, y, statusButton) {
   meetingMenu.hidePopover();
   const actions = [["Delete meeting", () => deleteMeeting(row, index)]];
   if (targets.length) actions.push(["Merge meeting", () => mergeMeeting(row, index, targets)]);
+  if (compactMeetings.matches) {
+    actions.unshift(["Edit meeting", () => editMeeting(row, index)],
+      ["Open Barangay status", () => openBarangay(row.Barangay)]);
+    if (statusButton) actions.splice(1, 0, [statusButton.title, () => statusButton.click()]);
+  }
   meetingMenu.replaceChildren(...actions.map(([label, action]) => {
     const button = element("button", label);
     button.onclick = () => {
@@ -158,11 +171,11 @@ function showMeetingMenu(row, index, targets, x, y) {
 }
 
 function editOutreach(row) {
-  const choices = [["", "Not recorded"], ["Yes", "Yes"], ["No", "No"]];
+  const choices = [["Yes", "Yes"], ["No", "No"]];
   openEditor(row["Barangay Name"] || "Roster row " + row["No."],
     (values) => save("/api/outreach", { number: row["No."], ...values }));
-  field("email", "Email sent", row["Email sent"], choices);
-  field("reply", "Replied by text", row.isreplied, choices);
+  field("email", "Email sent", row["Email sent"] || "No", choices);
+  field("reply", "Replied by text", row.isreplied || "No", choices);
 }
 
 function addRow(cells, edit) {
@@ -188,7 +201,7 @@ function addRow(cells, edit) {
 function openBarangay(name) {
   $("#search").value = name;
   switchView("barangays");
-  const row = Array.from($("tbody").rows).find((item) => item.cells[1].textContent === name);
+  const row = Array.from($("tbody").rows).find((item) => item.querySelector(".roster-desktop-name")?.textContent === name);
   if (row) {
     row.classList.add("selected-barangay");
     row.tabIndex = -1;
@@ -197,12 +210,12 @@ function openBarangay(name) {
 }
 
 function outreachBadge(row, field, label, flippedIndex) {
-  const value = row[field];
+  const value = row[field] || "No";
   const key = row["No."] + ":" + field;
-  const badge = element("button", value || "Not recorded");
+  const badge = element("button", value);
   badge.type = "button";
   badge.className = "badge" + (value === "Yes" ? " complete" : "");
-  badge.setAttribute("aria-label", label + ": " + (value || "Not recorded") +
+  badge.setAttribute("aria-label", label + ": " + value +
     ". Set to " + (value === "Yes" ? "No" : "Yes"));
   if (key === flippedIndex) badge.classList.add("flipped");
   badge.onclick = async () => {
@@ -218,8 +231,50 @@ function outreachBadge(row, field, label, flippedIndex) {
   return badge;
 }
 
-function render(flippedIndex) {
-  meetingMenu.hidePopover();
+function meetingMinutes(row) {
+  const time = (row.Time || "").match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+  if (!time) return 1440;
+  const hours = Number(time[1]) % 12 + (time[3].toUpperCase() === "PM" ? 12 : 0);
+  return hours * 60 + Number(time[2]);
+}
+
+function renderOutreachChart() {
+  const selected = new Set([...document.querySelectorAll("#outreach-chart-filter input:checked")]
+    .map((input) => input.value));
+  const series = [
+    ["Email sent", "Emailed", "Not emailed", "#315d43"],
+    ["isTextSent", "Texted", "Not texted", "#7956a0"],
+    ["isreplied", "Replied by text", "No text reply", "#92702f"],
+    ["isMeeting", "Has meeting", "No meeting", "#356b86"]
+  ].filter(([key]) => selected.has(key));
+  const rings = [];
+  const legend = [];
+  const total = state.barangays.length;
+  for (const [index, [key, yesLabel, noLabel, color]] of series.entries()) {
+    const yes = state.barangays.filter((row) => row[key] === "Yes").length;
+    const no = total - yes;
+    const yesEnd = total ? yes / total * 100 : 0;
+    const ring = element("span", "");
+    ring.style.setProperty("--ring-inset", index * 16 + "%");
+    ring.style.background = `conic-gradient(${color} 0% ${yesEnd}%, #a69d87 ${yesEnd}% 100%)`;
+    rings.push(ring);
+    const item = element("li", "");
+    const heading = element("strong", `${yesLabel}: ${yes} · ${noLabel}: ${no}`);
+    heading.style.color = color;
+    item.append(heading);
+    legend.push(item);
+  }
+  $("#outreach-rings").hidden = !rings.length;
+  $("#outreach-rings").replaceChildren(...rings);
+  $("#outreach-chart-legend").replaceChildren(...(legend.length ? legend : [element("li", "Select an outreach status to show its breakdown.")]));
+}
+
+$("#outreach-chart-filter").onchange = renderOutreachChart;
+
+function renderDashboard() {
+  renderOutreachChart();
+  const dayCard = $("#day-card");
+  dayCard.hidePopover();
   const { meetings, barangays } = state;
   const summary = [
     ["Scheduled", meetings.filter((row) => row.Status === "Scheduled").length],
@@ -234,6 +289,105 @@ function render(flippedIndex) {
     card.append(element("strong", count), label);
     return card;
   }));
+  const rosterNames = new Set(barangays.map((row) => row["Barangay Name"].trim()));
+  const barangayStatuses = new Map();
+  const priority = { "Not set": 1, Scheduled: 2, Complete: 3 };
+  const dailyMeetings = new Map();
+  for (const meeting of meetings) {
+    const status = meeting.Status;
+    const name = meeting.Barangay.trim();
+    if (name && rosterNames.has(name) && priority[status] > (priority[barangayStatuses.get(name)] ?? 0)) {
+      barangayStatuses.set(name, status);
+    }
+    const date = meeting["Meeting date"];
+    if (date && (status === "Scheduled" || status === "Complete")) {
+      if (!dailyMeetings.has(date)) dailyMeetings.set(date, []);
+      dailyMeetings.get(date).push(meeting);
+    }
+  }
+  const categories = [
+    ["Complete", "#315d43"], ["Scheduled", "#7956a0"],
+    ["Not set", "#858d58"], ["No meeting", "#d7c7a8"]
+  ];
+  const statuses = [...barangayStatuses.values()];
+  let end = 0;
+  const slices = [];
+  $("#status-legend").replaceChildren(...categories.map(([label, color]) => {
+    const count = label === "No meeting"
+      ? barangays.length - barangayStatuses.size
+      : statuses.filter((status) => status === label).length;
+    if (count) {
+      const start = end;
+      end += count;
+      slices.push(`${color} ${start / barangays.length * 100}% ${end / barangays.length * 100}%`);
+    }
+    const item = element("li", `${label}: ${count}`);
+    item.style.setProperty("--swatch", color);
+    return item;
+  }));
+  $("#status-pie").style.background = slices.length ? `conic-gradient(${slices.join(", ")})` : "#eee8da";
+  const days = [...dailyMeetings].sort(([a], [b]) => a.localeCompare(b));
+  const maxCount = Math.max(1, ...days.map(([, entries]) => entries.length));
+  $("#daily-meetings").replaceChildren(...(days.length ? days.map(([date, entries]) => {
+    const count = entries.length;
+    const item = element("li", "");
+    const bar = element("span", "");
+    bar.className = "daily-bar";
+    bar.setAttribute("aria-hidden", "true");
+    bar.style.width = `${count / maxCount * 100}%`;
+    const complete = entries.filter((meeting) => meeting.Status === "Complete").length;
+    const completedSegment = element("span", "");
+    completedSegment.className = "daily-bar-complete";
+    completedSegment.style.width = `${complete / count * 100}%`;
+    bar.append(completedSegment);
+    const toggle = element("button", "");
+    toggle.type = "button";
+    toggle.className = "daily-toggle";
+    toggle.setAttribute("aria-label", `${date}: ${complete} complete, ${count - complete} scheduled`);
+    toggle.setAttribute("popovertarget", "day-card");
+    const day = element("time", date);
+    day.dateTime = date;
+    toggle.append(day, bar, element("strong", count));
+    const breakdown = element("ul", "");
+    breakdown.className = "daily-breakdown";
+    entries.sort((a, b) => meetingMinutes(a) - meetingMinutes(b));
+    for (const meeting of entries) {
+      const entry = element("li", "");
+      const status = element("span", meeting.Status);
+      status.className = "badge " + meeting.Status.toLowerCase();
+      const timing = element("span", (meeting.Time || "Time pending") + " · ");
+      timing.append(status);
+      entry.append(element("strong", meeting.Barangay), timing);
+      if (meeting.Remark) entry.append(element("small", meeting.Remark));
+      breakdown.append(entry);
+    }
+    toggle.addEventListener("click", (event) => {
+      event.preventDefault();
+      const wasOpen = dayCard.matches(":popover-open");
+      if (wasOpen) {
+        dayCard.hidePopover();
+        if (dayCard.dataset.date === date) return;
+      }
+      dayCard.dataset.date = date;
+      dayCard.replaceChildren(element("h3", date), breakdown);
+      dayCard.showPopover({ source: toggle });
+      const bounds = toggle.getBoundingClientRect();
+      dayCard.style.left = Math.max(8, Math.min(bounds.left, innerWidth - dayCard.offsetWidth - 8)) + "px";
+      const above = bounds.top - dayCard.offsetHeight - 8;
+      dayCard.style.top = Math.max(8, above >= 8 ? above : Math.min(bounds.bottom + 8, innerHeight - dayCard.offsetHeight - 8)) + "px";
+    });
+    item.append(toggle);
+    return item;
+  }) : [element("li", "No dated meetings yet.")]));
+}
+
+function render(flippedIndex) {
+  meetingMenu.hidePopover();
+  if (view === "dashboard") {
+    renderDashboard();
+    return;
+  }
+  const { meetings, barangays } = state;
   const filter = $("#filter").value;
   const query = $("#search").value.trim().toLowerCase();
   const matches = (...values) => values.some((value) => value.toLowerCase().includes(query));
@@ -254,9 +408,7 @@ function render(flippedIndex) {
     const today = selectedDay === "today" ? manilaDate.format(new Date()) : "";
     const ordered = meetings.map((row, index) => ({ row, index }));
     const sortKey = (row) => {
-      const time = row.Time.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
-      const minutes = time ? (Number(time[1]) % 12 + (time[3].toUpperCase() === "PM" ? 12 : 0)) * 60 + Number(time[2]) : 1440;
-      return (row["Meeting date"] || "9999") + String(minutes).padStart(4, "0");
+      return (row["Meeting date"] || "9999") + String(meetingMinutes(row)).padStart(4, "0");
     };
     ordered.sort((a, b) => sortKey(a.row).localeCompare(sortKey(b.row)));
     for (const { row, index } of ordered) {
@@ -293,18 +445,31 @@ function render(flippedIndex) {
         : [];
       meetingRow.oncontextmenu = (event) => {
         event.preventDefault();
-        showMeetingMenu(row, index, targets, event.clientX, event.clientY);
+        showMeetingMenu(row, index, targets, event.clientX, event.clientY, canFlip ? badge : null);
       };
       meetingRow.classList.add("meeting-row");
+      if (canFlip) {
+        const mobileBadge = element("span", row.Status);
+        mobileBadge.className = badge.className + " mobile-meeting-status";
+        badge.parentElement.append(mobileBadge);
+      }
       meetingRow.tabIndex = 0;
-      meetingRow.setAttribute("aria-label", "Open " + row.Barangay + " in Barangay status");
+      meetingRow.setAttribute("aria-label", row.Barangay + " meeting");
+      const activateRow = () => {
+        if (compactMeetings.matches) {
+          const bounds = meetingRow.getBoundingClientRect();
+          showMeetingMenu(row, index, targets, bounds.left + 8, bounds.bottom, canFlip ? badge : null);
+        } else {
+          openBarangay(row.Barangay);
+        }
+      };
       meetingRow.onclick = (event) => {
-        if (!event.target.closest("button")) openBarangay(row.Barangay);
+        if (!event.target.closest("button")) activateRow();
       };
       meetingRow.onkeydown = (event) => {
         if (event.target === meetingRow && (event.key === "Enter" || event.key === " ")) {
           event.preventDefault();
-          openBarangay(row.Barangay);
+          activateRow();
         }
       };
       if (index === flippedIndex) badge.focus({ preventScroll: true });
@@ -317,6 +482,7 @@ function render(flippedIndex) {
       if (filter === "Emailed" && row["Email sent"] !== "Yes") continue;
       if (filter === "Texted" && row.isTextSent !== "Yes") continue;
       if (filter === "Replied by text" && row.isreplied !== "Yes") continue;
+      if (filter === "Has meeting" && row.isMeeting !== "Yes") continue;
       if (["Scheduled", "Complete"].includes(filter) && !meetingNames.has(name)) continue;
       const label = name && !/^\d+$/.test(name) ? name : (name || "Missing name") + " (review source)";
       const flags = [
@@ -325,10 +491,23 @@ function render(flippedIndex) {
         outreachBadge(row, "isTextSent", "Texted", flippedIndex),
         outreachBadge(row, "isreplied", "Replied by text", flippedIndex)
       ];
-      addRow([row["No."], label, row["Barangay Email Address"],
+      const rosterRow = addRow([row["No."], label, row["Barangay Email Address"],
         row["Official Barangay Landline or Barangay CP Number"] || "—",
         row["Name of Punong Barangay"], row["Official Contact Number of Punong Barangay"] || "—",
         ...flags], () => editOutreach(row));
+      const disclosure = element("button", label);
+      disclosure.type = "button";
+      disclosure.className = "roster-disclosure";
+      disclosure.setAttribute("aria-expanded", "false");
+      const desktopName = element("span", label);
+      desktopName.className = "roster-desktop-name";
+      rosterRow.cells[1].replaceChildren(desktopName, disclosure);
+      disclosure.onclick = () => {
+        disclosure.setAttribute("aria-expanded", rosterRow.classList.toggle("roster-expanded"));
+      };
+      rosterRow.onclick = (event) => {
+        if (compactMeetings.matches && !event.target.closest("button, a")) disclosure.click();
+      };
       flags.find((badge) => badge.classList.contains("flipped"))?.focus({ preventScroll: true });
     }
   }
@@ -336,20 +515,27 @@ function render(flippedIndex) {
 }
 
 function switchView(next) {
+  $("#day-card").hidePopover();
   $("#meeting-day").hidden = next !== "meetings";
   $("#meeting-date-filter").hidden = next !== "meetings";
   view = next;
-  for (const tab of Object.keys(options)) {
+  for (const tab of tabs) {
     const button = $("#" + tab);
     button.setAttribute("aria-selected", tab === view);
     button.tabIndex = tab === view ? 0 : -1;
   }
-  $("#outreach-panel").setAttribute("aria-labelledby", view);
-  fillSelect($("#filter"), options[view].map((label, index) => [index ? label : "", label]));
+  const dashboard = view === "dashboard";
+  $("#dashboard-panel").hidden = !dashboard;
+  $("#outreach-panel").hidden = dashboard;
+  $(".toolbar").hidden = dashboard;
+  if (!dashboard) {
+    $("#outreach-panel").setAttribute("aria-labelledby", view);
+    fillSelect($("#filter"), options[view].map((label, index) => [index ? label : "", label]));
+  }
   render();
 }
 
-for (const tab of Object.keys(options)) {
+for (const tab of tabs) {
   $("#" + tab).onclick = () => {
     if (tab !== view) switchView(tab);
   };
@@ -357,9 +543,12 @@ for (const tab of Object.keys(options)) {
 $(".tabs").onkeydown = (event) => {
   let next;
   if (event.key === "Home") next = "meetings";
-  if (event.key === "End") next = "barangays";
-  if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
-    next = view === "meetings" ? "barangays" : "meetings";
+  if (event.key === "End") next = "dashboard";
+  const previousKey = sidebarTabs.matches ? "ArrowUp" : "ArrowLeft";
+  const nextKey = sidebarTabs.matches ? "ArrowDown" : "ArrowRight";
+  if (event.key === previousKey || event.key === nextKey) {
+    const offset = event.key === previousKey ? -1 : 1;
+    next = tabs[(tabs.indexOf(view) + offset + tabs.length) % tabs.length];
   }
   if (!next) return;
   event.preventDefault();
