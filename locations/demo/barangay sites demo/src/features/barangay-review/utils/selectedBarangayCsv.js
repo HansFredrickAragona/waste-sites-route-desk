@@ -30,7 +30,8 @@ export function scheduleText(schedule, kind) {
       /(^|[-–—]\s*)(\d{1,2})(?=\s*(?:[AP]M\b\s*)?(?:[-–—]|$))/gi,
       "$1$2:00",
     );
-    return day && time ? `${day}: ${time}` : day || time;
+    if (!day || !time) return day || time;
+    return /^(AM|PM)$/i.test(time) ? `${day} ${time.toUpperCase()}` : `${day}: ${time}`;
   }).filter(Boolean).join("; ");
 }
 

@@ -53,6 +53,7 @@ export function scheduleDayCode(value) {
 }
 
 function parseTimeRange(value) {
+  const periodOnly = String(value ?? "").trim().match(/^(AM|PM)$/i);
   const times = [...String(value ?? "").matchAll(/\b(\d{1,2})(?::(\d{2}))?\s*(AM|PM|A\.M\.?|P\.M\.?)?\b/gi)]
     .slice(0, 2)
     .map(([, rawHour, rawMinute = "00", rawPeriod = ""]) => {
@@ -77,7 +78,7 @@ function parseTimeRange(value) {
   }
   return {
     startTime: times[0]?.time ?? "",
-    startPeriod: times[0]?.period ?? "",
+    startPeriod: times[0]?.period ?? periodOnly?.[1].toUpperCase() ?? "",
     endTime: times[1]?.time ?? "",
     endPeriod: times[1]?.period ?? "",
   };
@@ -92,6 +93,11 @@ function formatScheduleTime(timing, padWholeHours = false) {
   const start = endpoint(timing?.startTime, timing?.startPeriod);
   const end = endpoint(timing?.endTime, timing?.endPeriod);
   if (start && end) return `${start} - ${end}`;
+  if (!start && !end && String(timing?.day ?? "").trim()) {
+    const { startPeriod, endPeriod } = timing;
+    const period = startPeriod || endPeriod;
+    if ((!startPeriod || !endPeriod || startPeriod === endPeriod) && /^(AM|PM)$/.test(period)) return period;
+  }
   return start || end;
 }
 
@@ -147,7 +153,10 @@ export function sourceScheduleRows(schedule) {
   return ["pick-up", "drop-off"].flatMap((kind) => {
     const timings = siteSchedule[kind];
     if (!timings?.length) return [];
-    const details = timings.map((timing) => [timing.day, formatScheduleTime(timing)].filter(Boolean).join(" · "))
+    const details = timings.map((timing) => {
+      const time = formatScheduleTime(timing);
+      return [timing.day, time].filter(Boolean).join(/^(AM|PM)$/.test(time) ? " " : " · ");
+    })
       .filter(Boolean).join("; ");
     const label = kind.replace(/-/g, " ");
     return [{ label, value: details || "Not provided" }];
