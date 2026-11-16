@@ -9,10 +9,15 @@
   <header>
     <h1>Barangay Outreach</h1>
   </header>
-  <section id="summary" class="summary" aria-label="Outreach totals"></section>
+  <div class="csv-actions" role="group" aria-label="Tracker CSV actions">
+    <button id="snapshot" type="button">Export CSV</button>
+    <button id="import" type="button">Import CSV</button>
+    <span id="snapshot-message" role="status"></span>
+  </div>
   <div class="tabs" role="tablist" aria-label="Outreach views">
     <button id="meetings" type="button" role="tab" aria-selected="true" aria-controls="outreach-panel">Meetings</button>
     <button id="barangays" type="button" role="tab" aria-selected="false" aria-controls="outreach-panel" tabindex="-1">Barangay status</button>
+    <button id="dashboard" type="button" role="tab" aria-selected="false" aria-controls="dashboard-panel" tabindex="-1">Dashboard</button>
   </div>
   <section class="glass workspace" aria-label="Outreach records">
     <div class="toolbar">
@@ -31,17 +36,45 @@
       </select>
       <label id="meeting-date-filter">Date <input id="meeting-date" type="date"></label>
       <button id="add" class="primary" type="button">+ Add meeting</button>
-      <button id="snapshot" type="button">Export CSV</button>
-      <button id="import" type="button">Import CSV</button>
-      <span id="snapshot-message" role="status"></span>
     </div>
     <div id="outreach-panel" role="tabpanel" aria-labelledby="meetings">
       <p id="message" role="status"></p>
       <div class="table-wrap" tabindex="0" aria-label="Records table"><table><thead></thead><tbody></tbody></table></div>
     </div>
+    <div id="dashboard-panel" role="tabpanel" aria-labelledby="dashboard" hidden>
+      <section id="summary" class="summary" aria-label="Outreach totals"></section>
+      <div class="dashboard-charts">
+        <section class="outreach-chart">
+          <h2>Barangay outreach status</h2>
+          <fieldset id="outreach-chart-filter" aria-label="Outreach chart filters">
+            <label><input type="checkbox" value="Email sent" checked> Emailed</label>
+            <label><input type="checkbox" value="isTextSent" checked> Texted</label>
+            <label><input type="checkbox" value="isreplied" checked> Replied by text</label>
+            <label><input type="checkbox" value="isMeeting" checked> Has meeting</label>
+          </fieldset>
+          <div class="pie-layout">
+            <div id="outreach-rings" aria-hidden="true"></div>
+            <ul id="outreach-chart-legend"></ul>
+          </div>
+        </section>
+        <section class="daily-chart">
+          <h2>Meetings per day</h2>
+          <p class="chart-note"><span style="color: #315d43">● Complete</span> · <span style="color: #7956a0">● Scheduled</span></p>
+          <ul id="daily-meetings"></ul>
+        </section>
+        <section class="meeting-status-chart">
+          <h2>Barangays by meeting status</h2>
+          <div class="pie-layout">
+            <div id="status-pie" aria-hidden="true"></div>
+            <ul id="status-legend"></ul>
+          </div>
+        </section>
+      </div>
+    </div>
   </section>
   <footer>Changes are saved to local CSV files on this laptop.</footer>
 </main>
+<div id="day-card" class="glass" popover aria-label="Meetings breakdown"></div>
 <dialog id="editor">
   <form id="form">
     <h2 id="editor-title"></h2>
