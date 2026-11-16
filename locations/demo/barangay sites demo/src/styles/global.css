@@ -520,6 +520,15 @@ input:focus-visible, textarea:focus-visible { outline: 3px solid #87bea4; outlin
 .barangays-overview-notes strong { color: #506b58; font-size: 8px; }
 .barangays-overview-card-actions { display: flex; justify-content: flex-end; margin-top: 12px; }
 .barangays-overview-card-actions .primary-small-button:disabled { opacity: .5; cursor: not-allowed; }
+.barangays-overview-map-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; align-items: start; }
+@media (min-width: 901px) {
+  .barangays-overview-map-layout--selected { grid-template-columns: minmax(0, 1fr) 14px clamp(250px, var(--overview-details-width, clamp(250px, 24%, 350px)), calc(100% - 314px)); gap: 0; }
+  .barangays-overview-map-layout--selected > .map-column-resizer { grid-column: 2; grid-row: 1; }
+  .barangays-overview-map-layout--selected > .barangays-overview-card--inline { grid-column: 3; grid-row: 1; align-self: stretch; min-height: 0; contain: size; overflow-y: auto; }
+  .barangays-overview-map-layout--selected > .barangays-overview-map-frame { grid-column: 1; grid-row: 1; }
+}
+.barangays-overview-card--inline .barangays-overview-details { grid-template-columns: minmax(0, 1fr); }
+.barangays-overview-card.barangays-overview-card--inline { position: relative; inset: auto; z-index: auto; width: 100%; max-height: none; overflow: visible; box-sizing: border-box; box-shadow: none; }
 .barangays-overview-group-list { display: grid; gap: 6px; }
 .barangays-overview-group-list button { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; padding: 9px 10px; border: 1px solid #e6ece6; border-radius: 8px; background: #fafcfa; color: #35533f; text-align: left; cursor: pointer; }
 .barangays-overview-group-list button:hover { border-color: #bdd4c2; background: #f3f8f3; }

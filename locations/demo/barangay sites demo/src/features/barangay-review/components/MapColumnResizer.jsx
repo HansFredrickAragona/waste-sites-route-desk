@@ -9,7 +9,7 @@ function clampPanelRatio(ratio, layoutWidth) {
   return Math.max(minimum, Math.min(maximum, ratio));
 }
 
-export default function MapColumnResizer({ onWidthChange }) {
+export default function MapColumnResizer({ onWidthChange, panelSelector = ".barangay-tools-panel", panelLabel = "Pins and Firing lines column" }) {
   const handleRef = useRef(null);
   const dragRef = useRef(null);
   const [dragging, setDragging] = useState(false);
@@ -17,7 +17,7 @@ export default function MapColumnResizer({ onWidthChange }) {
 
   useEffect(() => {
     const layout = handleRef.current?.parentElement;
-    const panel = layout?.querySelector(".barangay-tools-panel");
+    const panel = layout?.querySelector(panelSelector);
     if (!layout || !panel) return undefined;
 
     const updatePercent = () => {
@@ -29,7 +29,7 @@ export default function MapColumnResizer({ onWidthChange }) {
     observer.observe(panel);
     updatePercent();
     return () => observer.disconnect();
-  }, []);
+  }, [panelSelector]);
 
   useEffect(() => {
     if (!dragging) return undefined;
@@ -40,7 +40,7 @@ export default function MapColumnResizer({ onWidthChange }) {
   function startDrag(event) {
     if (!event.isPrimary || event.button !== 0) return;
     const layout = event.currentTarget.parentElement;
-    const panel = layout?.querySelector(".barangay-tools-panel");
+    const panel = layout?.querySelector(panelSelector);
     const layoutWidth = layout?.getBoundingClientRect().width;
     if (!panel || !layoutWidth) return;
 
@@ -71,7 +71,7 @@ export default function MapColumnResizer({ onWidthChange }) {
 
   function handleKeyDown(event) {
     const layout = event.currentTarget.parentElement;
-    const panel = layout?.querySelector(".barangay-tools-panel");
+    const panel = layout?.querySelector(panelSelector);
     const layoutWidth = layout?.getBoundingClientRect().width;
     if (!panel || !layoutWidth) return;
     const currentRatio = panel.getBoundingClientRect().width / layoutWidth;
@@ -91,13 +91,13 @@ export default function MapColumnResizer({ onWidthChange }) {
       className={`map-column-resizer${dragging ? " map-column-resizer--dragging" : ""}`}
       role="separator"
       tabIndex={0}
-      aria-label="Resize map and Pins and Firing lines column"
+      aria-label={`Resize map and ${panelLabel}`}
       aria-orientation="vertical"
       aria-valuemin={24}
       aria-valuemax={78}
       aria-valuenow={panelPercent}
-      aria-valuetext={`Pins and Firing lines column uses ${panelPercent}% of the map area`}
-      title="Drag to resize the map and Pins/Firing lines column. Double-click to reset."
+      aria-valuetext={`${panelLabel} uses ${panelPercent}% of the map area`}
+      title={`Drag to resize the ${panelLabel}. Double-click to reset.`}
       onPointerDown={startDrag}
       onPointerMove={moveDrag}
       onPointerUp={stopDrag}

@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useRef } from "react";
 import L from "leaflet";
 import { Circle, CircleMarker, MapContainer, Popup, TileLayer, useMap } from "react-leaflet";
 import BarangayCoverage from "./BarangayCoverage.jsx";
+import MapColumnResizer from "../../barangay-review/components/MapColumnResizer.jsx";
+import BarangaySiteOverlay, { collectionPoint } from "./BarangaySiteOverlay.jsx";
 import BarangayOverviewMarkers from "./BarangayOverviewMarkers.jsx";
 import ClusterPanel from "./ClusterPanel.jsx";
 import ClusterSummaryCard from "./ClusterSummaryCard.jsx";
@@ -35,6 +37,7 @@ function FocusOverviewMap({focus, restoredView}) {
     const skip = skipFirstFocus.current;
     skipFirstFocus.current = false;
     if (skip || !focus) return;
+    map.invalidateSize({ pan: false });
     if (focus.type === "point") map.flyTo(focus.point,focus.zoom ?? 16,{duration:0.6}); else if (focus.type === "bounds" && focus.points.length) { if(focus.points.length === 1) map.flyTo(focus.points[0],focus.maxZoom ?? 14,{duration:0.6}); else map.flyToBounds(L.latLngBounds(focus.points),{padding:[44,44],maxZoom:focus.maxZoom ?? 14,duration:0.6}); }
   },[map,focus]);
   return null;
@@ -42,6 +45,11 @@ function FocusOverviewMap({focus, restoredView}) {
 function PersistMapView({initialView, onChange}) {
   const map = useMap();
   const initialRef = useRef(initialView);
+  useEffect(() => {
+    const observer = new ResizeObserver(() => map.invalidateSize());
+    observer.observe(map.getContainer());
+    return () => observer.disconnect();
+  },[map]);
   useEffect(() => {
     if (initialRef.current) map.setView(initialRef.current.center, initialRef.current.zoom, {animate:false});
   },[map]);
@@ -62,8 +70,8 @@ function ClearSelectionOnMapClick({ onClear }) {
   return null;
 }
 
-function BarangayDetailsCard({ selected, hasPendingEdit, selectedBarangay, onOpenBarangay, onClose, anchored }) {
-  return <article className={`barangays-overview-card${anchored ? " barangays-overview-popup-card" : ""}`} aria-labelledby="overview-card-title">
+function BarangayDetailsCard({ selected, hasPendingEdit, selectedBarangay, onOpenBarangay, onClose }) {
+  return <article className="barangays-overview-card barangays-overview-card--inline" aria-labelledby="overview-card-title">
     <button className="barangays-overview-card-close" type="button" aria-label="Close barangay details" onClick={onClose}>×</button>
     <div className="barangays-overview-card-heading"><div><p className="eyebrow">Barangay details</p><h2 id="overview-card-title">{selected.barangay.name}</h2></div><span className={`barangays-overview-status${selected.barangay.confirmed ? " barangays-overview-status--confirmed" : ""}`}>{selected.barangay.confirmed ? "Confirmed" : "Needs review"}</span></div>
     <p className="barangays-overview-card-location">{selected.center ? `Approximate center from ${formatNumber(selected.mappedCount)} mapped site records.` : "No mapped site coordinates are available, so this barangay has no marker."}</p>
@@ -113,9 +121,14 @@ export default function BarangaysOverview({barangays,activeJsonName,selectedBara
   // explicit way to go back to the all-clusters view.
   const closeCluster = useCallback(() => updateOverview({selectedId:null,selectedGroupIds:null,clusterFilter:"all"}),[updateOverview]);
   const clearBarangaySelection = useCallback(() => updateOverview({selectedId:null,selectedGroupIds:null}),[updateOverview]);
-  function selectBarangay(id,center) {updateOverview({selectedGroupIds:null,selectedId:id});if(center)setMapFocus({type:"point",point:center,zoom:16});}
+  function selectBarangay(id) {
+    updateOverview({selectedGroupIds:null,selectedId:id});
+    const barangay = filtered.find(item => item.id === id);
+    if (!barangay) return;
+    const points = [...barangay.pins.filter(hasMapCoordinates).map(collectionPoint), ...barangay.firingLines.flatMap(line => line.coordinates)];
+    if (points.length) setMapFocus({type:"bounds",points,maxZoom:16});
+  }
   function selectCluster(name) {const value = clusterFilterValue(name);setOverviewState(current => ({...current,selectedId:null,selectedGroupIds:null,clusterFilter:current.clusterFilter === value ? "all" : value}));}
-  function selectClusterBarangay(id) {const barangay = barangays.find(item => item.id === id);if (!barangay) return;selectBarangay(id,siteCenter(barangay.pins));}
   function selectGroup(group) {updateOverview({selectedId:null,selectedGroupIds:group.items.map(x => x.barangay.id)});setMapFocus({type:"bounds",points:group.items.map(x => x.center),maxZoom:18});}
   function findSelectedPin() {if(selected?.center)setMapFocus({type:"point",point:selected.center,zoom:16});else setMapFocus({type:"bounds",points:selectedGroup?.length ? selectedGroup.map(x => x.center) : mapPoints,maxZoom:selectedGroup?.length ? 18 : 14});}
   return <section className="barangays-overview" aria-labelledby="barangays-overview-title">
@@ -131,21 +144,25 @@ export default function BarangaysOverview({barangays,activeJsonName,selectedBara
     </div>
     <div className="barangays-overview-stats" aria-label="Filtered map totals"><span><strong>{formatNumber(filtered.length)}</strong> of {formatNumber(barangays.length)} barangays</span><span><strong>{formatNumber(placed.length)}</strong> approximate centers</span><span><strong>{formatNumber(filtered.reduce((s,b)=>s+b.pins.length,0))}</strong> site records</span><span><strong>{formatNumber(locations.reduce((s,x)=>s+x.mappedCount,0))}</strong> site records with coordinates</span></div>
     <p className="barangays-overview-note">Shaded polygons surround each barangay’s outermost recorded site points; overlaps are possible. Areas with fewer than three non-collinear mapped points have no polygon. Pins show approximate site centers. They do not show official barangay boundaries or offices. Cluster assignments are draft proximity groups from the mapping CSV; travel times and interview locations are not verified.</p>
+    <div className={selected ? "barangays-overview-map-layout barangays-overview-map-layout--selected" : "barangays-overview-map-layout"}
+      style={overviewState.detailsRatio == null ? undefined : { "--overview-details-width": `${overviewState.detailsRatio * 100}%` }}>
+    {selected && <BarangayDetailsCard selected={selected} hasPendingEdit={hasPendingEdit} selectedBarangay={selectedBarangay} onOpenBarangay={onOpenBarangay} onClose={clearBarangaySelection}/>}
+    {selected && <MapColumnResizer panelSelector=".barangays-overview-card--inline" panelLabel="Barangay Details" onWidthChange={detailsRatio => updateOverview({detailsRatio})}/>}
     <div className="barangays-overview-map-frame">
       <MapContainer className="barangays-overview-map" center={view?.center ?? BAGUIO_CENTER} zoom={view?.zoom ?? 12} scrollWheelZoom><ClearSelectionOnMapClick onClear={clearBarangaySelection}/><TileLayer attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>' url={TILE_URL} maxZoom={19}/><FitBarangayCenters points={mapPoints} restoredView={view}/><FocusOverviewMap focus={mapFocus} restoredView={view}/><PersistMapView initialView={view} onChange={saveMapView}/>
         {deviceLocation && <>{Number.isFinite(deviceLocation.accuracy) && deviceLocation.accuracy > 0 && <Circle center={[deviceLocation.latitude,deviceLocation.longitude]} radius={deviceLocation.accuracy} pathOptions={{color:"#4389e8",weight:1,fillOpacity:0.12}} interactive={false}/>}<CircleMarker center={[deviceLocation.latitude,deviceLocation.longitude]} radius={7} pathOptions={{color:"#fff",weight:3,fillColor:"#4389e8",fillOpacity:1}} interactive={false}/></>}
         <BarangayCoverage barangays={filtered} selectedId={selectedId} activeCluster={selectedCluster?.name ?? null} onSelect={selectBarangay}/>
         <BarangayOverviewMarkers locations={placed} selectedId={selectedId} selectedGroupIds={selectedGroupIds} activeCluster={selectedCluster?.name ?? null} onSelectBarangay={selectBarangay} onSelectGroup={selectGroup}/>
+        {selected && <BarangaySiteOverlay barangay={selected.barangay}/>}
         {selectedGroup?.length > 1 && <Popup className="barangays-overview-popup" position={selectedGroupCenter} closeButton={false} maxWidth={390} autoPan autoPanPadding={[24,24]}><BarangayGroupCard selectedGroup={selectedGroup} onSelectBarangay={selectBarangay} onClose={clearBarangaySelection}/></Popup>}
-        {selected?.center && <Popup className="barangays-overview-popup" position={selected.center} closeButton={false} maxWidth={390} autoPan autoPanPadding={[24,24]}><BarangayDetailsCard selected={selected} hasPendingEdit={hasPendingEdit} selectedBarangay={selectedBarangay} onOpenBarangay={onOpenBarangay} onClose={clearBarangaySelection} anchored/></Popup>}
       </MapContainer>
       <button className={`map-recenter-button${isLocatingCurrentPosition ? " map-recenter-button--loading" : ""}`} type="button" onClick={recenterOnCurrentLocation} disabled={isLocatingCurrentPosition} aria-label="Recenter map on my current location" title="Where I am"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5.25"/><circle className="map-recenter-dot" cx="12" cy="12" r="1.5"/><path d="M12 2.75v3.1M12 18.15v3.1M2.75 12h3.1M18.15 12h3.1"/></svg></button>
       <button className="map-recenter-button map-recenter-button--pin" type="button" disabled={!mapPoints.length} onClick={findSelectedPin} aria-label="Find selected barangay pin" title="Find selected pin"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 10c0 5-7 11-7 11S5 15 5 10a7 7 0 1 1 14 0Z"/><circle cx="12" cy="10" r="2.25"/></svg></button>
       <ClusterPanel summaries={clusterSummaries} selectedName={selectedCluster?.name ?? null} onSelect={selectCluster}/>
-      {selectedCluster && <ClusterSummaryCard summary={selectedCluster} visibleIds={visibleBarangayIds} onSelectBarangay={selectClusterBarangay} onClose={closeCluster}/>}
-      {selected && !selected.center && <BarangayDetailsCard selected={selected} hasPendingEdit={hasPendingEdit} selectedBarangay={selectedBarangay} onOpenBarangay={onOpenBarangay} onClose={clearBarangaySelection} anchored={false}/>}
+      {selectedCluster && <ClusterSummaryCard summary={selectedCluster} visibleIds={visibleBarangayIds} onSelectBarangay={selectBarangay} onClose={closeCluster}/>}
       {!filtered.length && <p className="barangays-overview-empty">{typeFilter === "confirmed" && !barangays.some(barangay => barangay.confirmed) ? "This dataset has no confirmed barangays. Select a confirmed review export in the JSON Library, or confirm a barangay in its site review." : barangays.length ? "No barangays match your search and filter." : "No barangays are available in this JSON."}</p>}
       {filtered.length > 0 && !placed.length && <p className="barangays-overview-empty">The matching barangays have no mapped site coordinates.</p>}
+    </div>
     </div>
     {!!unplaced.length && <section className="barangays-overview-unplaced" aria-labelledby="unplaced-barangays-title"><h2 id="unplaced-barangays-title">Without mapped site coordinates</h2><p>These barangays have no approximate center to place on the map.</p>{unplaced.map(({barangay})=><button className="small-quiet" key={barangay.id} type="button" onClick={()=>selectBarangay(barangay.id,null)}>{barangay.name}</button>)}</section>}
   </section>;
