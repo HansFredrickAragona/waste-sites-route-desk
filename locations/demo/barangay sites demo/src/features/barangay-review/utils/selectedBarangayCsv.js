@@ -31,7 +31,7 @@ export function scheduleText(schedule, kind) {
       "$1$2:00",
     );
     if (!day || !time) return day || time;
-    return /^(AM|PM)$/i.test(time) ? `${day} ${time.toUpperCase()}` : `${day}: ${time}`;
+    return /^(AM|PM)(?:-(AM|PM))?$/i.test(time) ? `${day} ${time.toUpperCase()}` : `${day}: ${time}`;
   }).filter(Boolean).join("; ");
 }
 

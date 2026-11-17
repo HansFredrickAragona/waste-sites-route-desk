@@ -53,7 +53,7 @@ export function scheduleDayCode(value) {
 }
 
 function parseTimeRange(value) {
-  const periodOnly = String(value ?? "").trim().match(/^(AM|PM)$/i);
+  const periodOnly = String(value ?? "").trim().match(/^(AM|PM)(?:\s*-\s*(AM|PM))?$/i);
   const times = [...String(value ?? "").matchAll(/\b(\d{1,2})(?::(\d{2}))?\s*(AM|PM|A\.M\.?|P\.M\.?)?\b/gi)]
     .slice(0, 2)
     .map(([, rawHour, rawMinute = "00", rawPeriod = ""]) => {
@@ -80,7 +80,7 @@ function parseTimeRange(value) {
     startTime: times[0]?.time ?? "",
     startPeriod: times[0]?.period ?? periodOnly?.[1].toUpperCase() ?? "",
     endTime: times[1]?.time ?? "",
-    endPeriod: times[1]?.period ?? "",
+    endPeriod: times[1]?.period ?? periodOnly?.[2]?.toUpperCase() ?? "",
   };
 }
 
@@ -96,7 +96,10 @@ function formatScheduleTime(timing, padWholeHours = false) {
   if (!start && !end && String(timing?.day ?? "").trim()) {
     const { startPeriod, endPeriod } = timing;
     const period = startPeriod || endPeriod;
-    if ((!startPeriod || !endPeriod || startPeriod === endPeriod) && /^(AM|PM)$/.test(period)) return period;
+    if (/^(AM|PM)$/.test(period)) {
+      if (/^(AM|PM)$/.test(startPeriod) && /^(AM|PM)$/.test(endPeriod) && startPeriod !== endPeriod) return `${startPeriod}-${endPeriod}`;
+      return period;
+    }
   }
   return start || end;
 }
@@ -155,7 +158,7 @@ export function sourceScheduleRows(schedule) {
     if (!timings?.length) return [];
     const details = timings.map((timing) => {
       const time = formatScheduleTime(timing);
-      return [timing.day, time].filter(Boolean).join(/^(AM|PM)$/.test(time) ? " " : " · ");
+      return [timing.day, time].filter(Boolean).join(/^(AM|PM)(?:-(AM|PM))?$/.test(time) ? " " : " · ");
     })
       .filter(Boolean).join("; ");
     const label = kind.replace(/-/g, " ");
