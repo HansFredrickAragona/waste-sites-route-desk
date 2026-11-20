@@ -1,6 +1,5 @@
 import GoogleStreetViewEditor from "./GoogleStreetViewEditor.jsx";
-import CollectionScheduleFields from "./CollectionScheduleFields.jsx";
-import AssignedPuroksField from "./AssignedPuroksField.jsx";
+import FiringLineEditor from "./FiringLineEditor.jsx";
 import { formatNumber } from "../../../shared/utils/reviewFormatting.js";
 import { sourceScheduleRows } from "../utils/pinFormHelpers.js";
 
@@ -17,10 +16,13 @@ export default function FiringLinesCard({ data, ui, actions }) {
                   </div>
                 </div>
                 {lineDraft ? (
-                  <form className="line-editor" onSubmit={saveLine}>
-                    <div className="editor-topline"><div><p className="eyebrow">{lineDraft.isNew ? "New feature" : "Edit feature"}</p><h3>{lineDraft.name}</h3></div><button className="icon-close icon-close--small" type="button" aria-label="Cancel line editing" onClick={cancelMapMode}>×</button></div>
-                    <label className="field-label">Firing-line name<input autoFocus value={lineDraft.name} onChange={(event) => setLineDraft((current) => ({ ...current, name: event.target.value }))} placeholder="Name this line" /></label>
-                    <AssignedPuroksField barangayPuroks={selectedBarangay.puroks} lineDraft={lineDraft} setLineDraft={setLineDraft} />
+                  <FiringLineEditor
+                    selectedBarangay={selectedBarangay}
+                    lineDraft={lineDraft}
+                    setLineDraft={setLineDraft}
+                    saveLine={saveLine}
+                    cancelMapMode={cancelMapMode}
+                  >
                     <div className="line-node-summary"><span className="line-node-icon">⌁</span><span><strong>{lineDraft.coordinates.length} map nodes</strong><small>Select a blue node to review it. Right-click for node and line actions; Backspace deletes the selected node.</small></span></div>
                     {selectedLineNode && Number.isInteger(selectedLineNodeIndex) && (
                       <section className="firing-line-node-panel" aria-labelledby="firing-line-node-title" aria-live="polite">
@@ -92,30 +94,7 @@ export default function FiringLinesCard({ data, ui, actions }) {
                         </div>
                       </section>
                     )}
-                    {lineDraft.sample && <p className="sample-line-note">This illustrative demo line is labeled for verification.</p>}
-                    <label className={`confirmation-control line-review-confirmation${lineDraft.review?.is_brgy_confirmed ? " confirmation-control--on" : ""}`}>
-                      <span className="confirmation-copy"><strong>Barangay confirmed</strong><small>Mark this firing line as confirmed</small></span>
-                      <input
-                        type="checkbox"
-                        checked={lineDraft.review?.is_brgy_confirmed === true}
-                        onChange={(event) => setLineDraft((current) => current ? ({
-                          ...current,
-                          review: { ...(current.review ?? {}), is_brgy_confirmed: event.target.checked },
-                        }) : current)}
-                        aria-label={`Barangay confirmed for ${lineDraft.name}`}
-                      />
-                      <span className="confirmation-switch" aria-hidden="true"><i /></span>
-                    </label>
-                    <section className="line-schedule-section" aria-label="Firing line collection schedule">
-                      <div className="pin-editor-section-heading"><h4>Collection schedule</h4><span>One row per day · time optional</span></div>
-                      <CollectionScheduleFields
-                        schedule={lineDraft.schedule}
-                        onChange={(schedule) => setLineDraft((current) => current ? ({ ...current, schedule }) : current)}
-                      />
-                    </section>
-                    <label className="field-label">Review note<textarea value={lineDraft.notes} onChange={(event) => setLineDraft((current) => ({ ...current, notes: event.target.value }))} rows="2" placeholder="Add a note about this route" /></label>
-                    <div className="editor-actions"><button className="primary-small-button primary-small-button--violet" type="submit">{lineDraft.isNew ? "Save firing line" : "Save line changes"}</button><button className="quiet-small-button" type="button" onClick={cancelMapMode}>Cancel</button></div>
-                  </form>
+                  </FiringLineEditor>
                 ) : selectedLine ? (
                   <div className="line-detail-card">
                     <div className="line-detail-topline"><span className="line-swatch" /><span className="eyebrow">Firing line · {selectedLine.coordinates.length} nodes</span>{selectedLine.sample && <span className="demo-badge">Demo example</span>}</div>

@@ -32,6 +32,10 @@ export function confirmedReport(barangays, activityLog) {
     const updated = Math.max(Date.parse(barangay.updatedAt) || 0, updates.get(barangay.id) ?? 0);
     return {
       barangay, details, updated,
+      detailTargets: [
+        ...points.map((item) => ({ kind: "pin", item })),
+        ...lines.map((item) => ({ kind: "line", item })),
+      ],
       summary: [
         barangay.name, schedules(3), schedules(4), lines.length, points.length,
         new Set(barangay.puroks).size, updated ? dateFormat.format(updated) : "",

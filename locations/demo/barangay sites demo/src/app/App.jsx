@@ -376,11 +376,20 @@ function App() {
 
       {page === "confirmed-report" && activeDashboardTab && (
         <ConfirmedReportPage
+          key={activeJsonId}
           barangays={barangays}
           activityLog={activityLog}
           selectedId={reportSelection?.datasetId === activeJsonId ? reportSelection?.barangayId : null}
           onSelect={(barangayId) => setReportSelection({ datasetId: activeJsonId, barangayId })}
           onOpenMap={openBarangay}
+          canEdit={(barangay, { kind, item }) => {
+            const mapDraft = kind === "pin" ? pinDraft : lineDraft;
+            if (selectedBarangay?.id !== barangay.id || mapDraft?.id !== item.id) return true;
+            setNotice({ kind: "error", text: "Save or cancel this item's open map edit before editing it in the report." });
+            return false;
+          }}
+          commitPinDraft={controller.commitPinDraft}
+          commitLineDraft={controller.commitLineDraft}
         />
       )}
 

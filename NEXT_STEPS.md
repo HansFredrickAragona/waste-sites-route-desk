@@ -1,5 +1,10 @@
 # DEVELOPMENT CONTINUATION
 
+## Confirmed Report row editing — 2026-11-19
+
+- Local implementation opens a floating editor from a Details row click or right-click **Edit**. Save and Cancel close the card over the same breakdown. Pick-up points use the site form, and firing lines use the shared form with node editing available from the map.
+- The two report-editing regressions and ten schedule regressions pass. The build passes with Vite's existing large-chunk advisory. The broader suite has a CSV expectation mismatch for whole-hour formatting and a separately added GeoJSON test awaiting its implementation at the time of verification. Browser verification remains pending after the local preview connection timed out. The implementation is local.
+
 ## 1. Current Project Status
 
 As of 2026-11-03 (Asia/Manila), this repository is on **main** at **df82058** (“Add draggable map column resizing”), aligned with **origin/main**. Firing-line purok assignment (section 22), the phone input auto-zoom fix (section 23), and selected-barangay CSV export (section 24) are local changes. None has been pushed or deployed.

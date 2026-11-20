@@ -69,6 +69,29 @@ function pinFieldChanges(previousPin, nextPin) {
   return changes;
 }
 
+export function createPinDraft(pin) {
+  return {
+    ...pin,
+    statusType: pin.statusType ?? pin.sourceStatusLabel ?? "",
+    statusLastUpdated: pin.statusLastUpdated ?? "",
+    schedule: Array.isArray(pin.schedule) ? pin.schedule : pin.sourceSchedule ?? [],
+    remarks: pin.remarks ?? pin.sourceRemarks ?? "",
+    isNew: false,
+  };
+}
+
+export function createLineDraft(line) {
+  return {
+    ...line,
+    coordinates: line.coordinates.map((point) => [...point]),
+    puroks: normalizeAssignedPuroks(line.puroks ?? line.purok),
+    purokInput: "",
+    schedule: Array.isArray(line.schedule) ? line.schedule : [],
+    review: { ...(line.review ?? {}), is_brgy_confirmed: line.review?.is_brgy_confirmed === true },
+    isNew: false,
+  };
+}
+
 export function createMapEditingActions(context) {
   const {
     clearDraftUndoHistory,
@@ -294,14 +317,7 @@ export function createMapEditingActions(context) {
     clearDraftUndoHistory();
     setSelectedPinId(pin.id);
     setSelectedLineId(null);
-    setPinDraft({
-      ...pin,
-      statusType: pin.statusType ?? pin.sourceStatusLabel ?? "",
-      statusLastUpdated: pin.statusLastUpdated ?? "",
-      schedule: Array.isArray(pin.schedule) ? pin.schedule : pin.sourceSchedule ?? [],
-      remarks: pin.remarks ?? pin.sourceRemarks ?? "",
-      isNew: false,
-    });
+    setPinDraft(createPinDraft(pin));
     setPinEditorOpen(true);
     setLineDraft(null);
     setSelectedLineNodeIndex(null);
@@ -417,8 +433,7 @@ export function createMapEditingActions(context) {
     }
   }
 
-  function savePin(event) {
-    event.preventDefault();
+  function commitPinDraft(selectedBarangay, pinDraft, setNotice) {
     if (!selectedBarangay || !pinDraft) return;
     const name = pinDraft.name.trim();
     const latitudeText = String(pinDraft.latitude ?? "").trim();
@@ -504,12 +519,8 @@ export function createMapEditingActions(context) {
       };
     const confirmationChanged = !savingNew && review.is_brgy_confirmed !== (previousPin?.review?.is_brgy_confirmed === true);
     if (!savingNew && !hasPinChanges && !confirmationChanged) {
-      setPinDraft(null);
-      setPinEditorOpen(false);
-      setMode("browse");
-      return;
+      return previousPin;
     }
-    clearDraftUndoHistory();
     commitBarangay(selectedBarangay.id, (current) => ({
       ...current,
       pins: savingNew ? [nextPin, ...current.pins] : current.pins.map((pin) => pin.id === nextPin.id ? nextPin : pin),
@@ -521,14 +532,21 @@ export function createMapEditingActions(context) {
         ? `${nextPin.purok || "No purok assigned"} · ${coordinateText(latitude, longitude)}`
         : `${review.is_brgy_confirmed ? "Confirmed" : "Confirmation removed"} for ${name}`,
     });
-    setSelectedPinId(nextPin.id);
+    return nextPin;
+  }
+
+  function savePin(event) {
+    event.preventDefault();
+    const savedPin = commitPinDraft(selectedBarangay, pinDraft, setNotice);
+    if (!savedPin) return;
+    clearDraftUndoHistory();
+    setSelectedPinId(savedPin.id);
     setPinDraft(null);
     setPinEditorOpen(false);
     setMode("browse");
   }
 
-  function saveLine(event) {
-    event.preventDefault();
+  function commitLineDraft(selectedBarangay, lineDraft, setNotice) {
     if (!selectedBarangay || !lineDraft) return;
     if (lineDraft.coordinates.length < 2) {
       setNotice({ kind: "error", text: "A firing line needs at least two map nodes." });
@@ -558,7 +576,6 @@ export function createMapEditingActions(context) {
       JSON.stringify(scheduleWithoutDates(originalLine.schedule ?? [])) !== JSON.stringify(nextLine.schedule) ||
       (originalLine.review?.is_brgy_confirmed === true) !== nextLine.review.is_brgy_confirmed
     );
-    clearDraftUndoHistory();
     commitBarangay(selectedBarangay.id, (current) => ({
       ...current,
       firingLines: savingNew ? [nextLine, ...current.firingLines] : current.firingLines.map((line) => line.id === nextLine.id ? nextLine : line),
@@ -568,7 +585,15 @@ export function createMapEditingActions(context) {
       itemName: name,
       details: `${nextLine.coordinates.length} map nodes${placementsChanged ? " · node placements updated" : ""}${detailsChanged ? " · line details updated" : ""}${nextLine.sample ? " · demo example" : ""}`,
     });
-    setSelectedLineId(nextLine.id);
+    return nextLine;
+  }
+
+  function saveLine(event) {
+    event.preventDefault();
+    const savedLine = commitLineDraft(selectedBarangay, lineDraft, setNotice);
+    if (!savedLine) return;
+    clearDraftUndoHistory();
+    setSelectedLineId(savedLine.id);
     setLineDraft(null);
     setSelectedLineNodeIndex(null);
     setShowLineNodeStreetView(false);
@@ -585,15 +610,7 @@ export function createMapEditingActions(context) {
     setSelectedLineId(line.id);
     setSelectedPinId(null);
     setPinDraft(null);
-    setLineDraft({
-      ...line,
-      coordinates: line.coordinates.map((point) => [...point]),
-      puroks: normalizeAssignedPuroks(line.puroks ?? line.purok),
-      purokInput: "",
-      schedule: Array.isArray(line.schedule) ? line.schedule : [],
-      review: { ...(line.review ?? {}), is_brgy_confirmed: line.review?.is_brgy_confirmed === true },
-      isNew: false,
-    });
+    setLineDraft(createLineDraft(line));
     setSelectedLineNodeIndex(0);
     setShowLineNodeStreetView(false);
     setLineNodeLocationInput("");
@@ -782,7 +799,9 @@ export function createMapEditingActions(context) {
     selectPin,
     selectLine,
     savePin,
+    commitPinDraft,
     saveLine,
+    commitLineDraft,
     beginEditLine,
     selectLineNode,
     updateLineNodePosition,

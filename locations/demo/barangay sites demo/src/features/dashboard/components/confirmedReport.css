@@ -108,6 +108,33 @@
   cursor: pointer;
 }
 
+.confirmed-report-edit-menu {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  padding: 4px;
+  border: 1px solid #cbdccf;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 4px 18px #101b1438;
+}
+
+.review-dialog.confirmed-report-editor {
+  width: min(760px, calc(100% - 24px));
+  max-height: 90dvh;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.confirmed-report-editor form {
+  margin: 0;
+  border: 0;
+}
+
+.confirmed-report-editor .form-error {
+  margin: 8px 16px;
+}
+
 .dashboard-detail-tab > .barangay-subtab {
   white-space: nowrap;
 }

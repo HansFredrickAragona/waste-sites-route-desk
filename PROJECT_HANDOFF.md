@@ -670,3 +670,7 @@ The confirmed dashboard summary and Excel workbook share a report derived from t
 The Confirmed Report uses a closable navigation tab shared by the desktop and phone layouts. Its selected breakdown is session state scoped to the active dataset.
 
 Dashboard keeps open KPI views in session state and renders their shared subtab row on desktop and mobile. Confirmed Report retains its dataset-scoped breakdown selection.
+
+### Confirmed Report floating editors — 2026-11-19
+
+The Details table opens the existing site or firing-line fields in a temporary dialog on row click or through the right-click **Edit** action. Report drafts live in the dialog and save through the same review update and activity log as map edits. Save and Cancel close the dialog over the current Details table. Firing-line node editing stays in the map. An open map draft for the same record must be saved or canceled before opening its report editor. Local implementation, with browser verification pending.
