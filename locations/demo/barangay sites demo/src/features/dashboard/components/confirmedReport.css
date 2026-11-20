@@ -34,8 +34,8 @@
   margin-bottom: 12px;
 }
 
-.confirmed-report-actions > button:only-child {
-  margin-left: auto;
+.confirmed-report-exports {
+  justify-content: flex-end;
 }
 
 .confirmed-report button {

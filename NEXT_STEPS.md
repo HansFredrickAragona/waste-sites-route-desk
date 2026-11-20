@@ -13,6 +13,8 @@ The active product remains the Barangay Sites personal field-review app at **loc
 
 ## 2. Most Recent Development Activity
 
+- **2026-11-19:** Added **Export GeoJSON** beside the Excel export in **Dashboard → Confirmed barangays**. It downloads mapped, non-removed collection points in confirmed barangays from the active workspace. Each point has `purok` and `barangay` properties and longitude/latitude geometry. Report and schedule tests passed, and the build passed with the existing chunk-size warning. The separate site CSV test still expects the older whole-hour format. Browser download and layout checks are pending. The change is local.
+
 - Commit **2aa4b6a** fixed the Barangay details editor by passing the missing **setBarangayDetailsDraft** setter to **ReviewDialogs.jsx**.
 - The previous change set removed PWA installation/offline features and added the Cloudflare Pages Function for short Maps links.
 - The owner confirmed that four older review JSON files deleted from **locations/data/jsons/barangays/output/** were intentionally deleted. The newer **oct-27-2026-bk_Cent-Irs-Dom_Mir.json** review export is tracked and must be preserved.

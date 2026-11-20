@@ -13,6 +13,10 @@ const dateFormat = new Intl.DateTimeFormat("en-PH", {
   dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Manila",
 });
 
+function activePoints(barangay) {
+  return barangay.pins.filter(({ sourceStatus }) => sourceStatus !== "removed");
+}
+
 export function confirmedReport(barangays, activityLog) {
   const updates = new Map();
   for (const { barangayId, timestamp } of activityLog) {
@@ -21,7 +25,7 @@ export function confirmedReport(barangays, activityLog) {
   }
 
   return barangays.filter(({ confirmed }) => confirmed).map((barangay) => {
-    const points = barangay.pins.filter(({ sourceStatus }) => sourceStatus !== "removed");
+    const points = activePoints(barangay);
     const lines = barangay.firingLines;
     const details = [
       ...points.map((point) => detailRow(point, "Pick-up point", point.purok, point.googleMapsUrl ||
@@ -42,6 +46,23 @@ export function confirmedReport(barangays, activityLog) {
       ],
     };
   }).sort((a, b) => b.updated - a.updated || a.barangay.name.localeCompare(b.barangay.name));
+}
+
+export function confirmedGeoJson(report) {
+  const features = [];
+  for (const { barangay } of report) {
+    for (const item of activePoints(barangay)) {
+      const { latitude, longitude, purok } = item;
+      if (!Number.isFinite(latitude) || Math.abs(latitude) > 90 ||
+          !Number.isFinite(longitude) || Math.abs(longitude) > 180) continue;
+      features.push({
+        type: "Feature",
+        properties: { purok: purok ?? "", barangay: barangay.name },
+        geometry: { type: "Point", coordinates: [longitude, latitude] },
+      });
+    }
+  }
+  return { type: "FeatureCollection", features };
 }
 
 function detailRow(item, type, purok, location) {

@@ -93,6 +93,7 @@ Confirmed objectives for the separate driver-schedule prototype:
 - Edit barangay name, purok list, notes, confirmation details, and review state.
 - Keep an activity log, import/select/export JSON workspaces, save review copies in browser storage, and restore an active field session.
 - Provide a dashboard for the selected review dataset.
+- The dashboard's **Confirmed barangays** summary offers Excel and GeoJSON exports. GeoJSON includes mapped collection points in confirmed barangays with purok and barangay properties and longitude/latitude coordinates.
 
 ### Driver Schedule demo
 

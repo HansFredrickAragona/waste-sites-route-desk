@@ -1,7 +1,25 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { confirmedReport } from "../src/features/dashboard/confirmedReport.js";
+import { confirmedGeoJson, confirmedReport } from "../src/features/dashboard/confirmedReport.js";
 import { createLineDraft, createMapEditingActions, createPinDraft } from "../src/features/barangay-review/actions/createMapEditingActions.js";
+
+test("GeoJSON includes only mapped collection points from confirmed barangays", () => {
+  const point = { name: "Collection point", purok: "Purok 2", latitude: 16.4, longitude: 120.6 };
+  const barangay = {
+    id: "confirmed", name: "Irisan", confirmed: true, puroks: [],
+    pins: [point, { ...point, sourceStatus: "removed" }, { ...point, latitude: null }],
+    firingLines: [{ name: "Route", coordinates: [[16.4, 120.6], [16.41, 120.6]] }],
+  };
+  const report = confirmedReport([barangay, { ...barangay, id: "open", confirmed: false }], []);
+  assert.deepEqual(confirmedGeoJson(report), {
+    type: "FeatureCollection",
+    features: [{
+      type: "Feature",
+      properties: { purok: "Purok 2", barangay: "Irisan" },
+      geometry: { type: "Point", coordinates: [120.6, 16.4] },
+    }],
+  });
+});
 
 test("confirmed report sorts by latest update and reconciles counts with details", () => {
   const schedule = [{ "drop-off": [{ day: "Monday" }] }];

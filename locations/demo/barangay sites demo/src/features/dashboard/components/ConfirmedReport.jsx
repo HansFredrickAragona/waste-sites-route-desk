@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef, useState } from "react";
-import { confirmedReport, detailColumns, summaryColumns } from "../confirmedReport.js";
-import { downloadConfirmedWorkbook } from "../confirmedWorkbook.js";
+import { confirmedGeoJson, confirmedReport, detailColumns, summaryColumns } from "../confirmedReport.js";
+import { downloadConfirmedFile, downloadConfirmedWorkbook } from "../confirmedWorkbook.js";
 import { DashboardDetailPage } from "./DashboardDetailPage.jsx";
 import { ConfirmedReportEditor } from "./ConfirmedReportEditor.jsx";
 
@@ -74,19 +74,33 @@ function ConfirmedReport({ report, selected, onSelect, onOpenMap, canEdit, commi
     }
   }
 
+  function exportGeoJson() {
+    setError("");
+    try {
+      const geoJson = confirmedGeoJson(report);
+      const blob = new Blob([JSON.stringify(geoJson)], { type: "application/geo+json" });
+      downloadConfirmedFile(blob, "confirmed-barangays.geojson");
+    } catch {
+      setError("The GeoJSON file could not be downloaded. Please try again.");
+    }
+  }
+
   const columns = selected ? detailColumns : summaryColumns;
   const rows = selected ? selected.details : report.map(({ summary }) => summary);
 
   return (
     <>
       <div className="confirmed-report">
-        <div className="confirmed-report-actions">
+        <div className={selected ? "confirmed-report-actions" : "confirmed-report-actions confirmed-report-exports"}>
           {selected ? <>
             <button type="button" onClick={() => onSelect(null)}>‹ Back to Summary</button>
             <button type="button" onClick={() => onOpenMap(selected.barangay)}>Open Map</button>
           </> : <>
             <button type="button" onClick={exportAll} disabled={exporting || !report.length}>
               {exporting ? "Preparing workbook…" : "Export All (.xlsx)"}
+            </button>
+            <button type="button" onClick={exportGeoJson} disabled={!report.length}>
+              Export GeoJSON
             </button>
           </>}
         </div>
