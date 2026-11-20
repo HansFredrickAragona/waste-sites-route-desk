@@ -243,6 +243,45 @@ label { display: grid; gap: 4px; margin: 10px 0; }
 #meeting-date-filter { display: flex; align-items: center; gap: 8px; margin: 0; }
 #meeting-date-filter[hidden] { display: none; }
 .actions { justify-content: flex-end; }
+#email-actions[hidden] { display: none; }
+#email-actions {
+  position: fixed;
+  z-index: 3;
+  inset: auto max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) 12px;
+  width: fit-content;
+  margin-left: auto;
+  padding: 8px 12px;
+  border: 1px solid #c8c6ad;
+  border-radius: 14px;
+  background: #faf5e9;
+  box-shadow: 0 8px 25px #26352133;
+}
+body:has(#email-actions:not([hidden])) main { padding-bottom: 100px; }
+#email-confirm:disabled { opacity: .55; cursor: default; }
+.meeting-email-mode td:last-child, .meeting-email-mode th:last-child { display: none; }
+.meeting-email-mode .meeting-row { cursor: default; transform: none; }
+.meeting-email-choice {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  margin: 0;
+}
+.meeting-email-choice input { accent-color: #244c33; }
+.meeting-email-choice:has(input) { cursor: pointer; }
+.meeting-email-choice small { flex-basis: 100%; color: #586350; }
+#email-draft { width: min(680px, calc(100% - 24px)); max-height: calc(100dvh - 24px); }
+#email-draft textarea {
+  width: 100%;
+  resize: vertical;
+  padding: 8px;
+  border: 1px solid #a5ad94;
+  border-radius: 8px;
+  background: #fffaf0;
+  color: inherit;
+  font: inherit;
+}
+#draft-status:empty { display: none; }
 #error, #message { color: #8f3024; }
 #message { margin: 0 14px 8px; }
 #message:empty, #error:empty { display: none; }

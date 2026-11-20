@@ -4,6 +4,7 @@ Double-click **Start Tracker.bat**, then open <http://127.0.0.1:8765>.
 Keep the server window open while using the tracker. Python 3.12 is installed on the project laptop.
 
 - **Meetings** lets you add a meeting, change its date or time, or mark it complete. Add follow-ups as separate meetings.
+- In **Meetings**, click **Email draft**, select scheduled barangays on one date, then click **Confirm** at the lower right. Copy the BCC addresses and the editable message into your email client. The message uses the selected date, weekday and meeting times. Rows without an email address are marked in the list. Drafting does not update outreach flags or send email.
 - Click a meeting row (or focus it and press Enter/Space) to open its barangay in **Barangay status**, with the name searched and matching row highlighted. Edit and status buttons keep their existing actions. Clear the search to see the full roster again.
 - **Barangay status** lets you record whether an email was sent or a text reply was received. Search by barangay, email, or Punong Barangay.
 - Click **Has meeting**, **Emailed**, or **Replied by text** to flip the flag. Blank outreach values display as **Not recorded** until set. **Has meeting** follows the meeting log until you set a manual override.
@@ -17,3 +18,4 @@ Click **Import CSV** to load one or both files from a current tracker export, in
 On a fresh copy, run `python server.py --checklist "C:/path/to/Barangay Outreach Checklist.csv"` on first launch to seed past meetings and emails. Later launches keep the saved CSVs. The contact roster comes from the repository source CSV.
 
 Run `python check_tracker.py` to verify persistence and separate follow-up rows.
+Run `node --test email-draft.test.mjs` to verify draft content and recipient deduplication.

@@ -27,6 +27,8 @@ sidebarTabs.addEventListener("change", updateTabOrientation);
 updateTabOrientation();
 let state = { barangays: [], meetings: [] };
 let view = "meetings";
+let selectingEmail = false;
+const emailSelection = new Map();
 const meetingMenu = document.createElement("div");
 const compactMeetings = matchMedia("(max-width: 800px)");
 meetingMenu.id = "meeting-menu";
@@ -92,6 +94,7 @@ async function post(path, body) {
 
 async function save(path, body) {
   state = await post(path, body);
+  emailSelection.clear();
 }
 
 async function saveResponse(response) {
@@ -186,10 +189,12 @@ function addRow(cells, edit) {
     else cell.textContent = value;
     row.append(cell);
   }
-  const button = element("button", "Edit");
-  button.onclick = edit;
   row.append(document.createElement("td"));
-  row.lastChild.append(button);
+  if (edit) {
+    const button = element("button", "Edit");
+    button.onclick = edit;
+    row.lastChild.append(button);
+  }
   const headers = $("thead").rows[0].cells;
   Array.from(row.cells).forEach((cell, index) => {
     cell.dataset.label = headers[index].textContent;
@@ -236,6 +241,88 @@ function meetingMinutes(row) {
   if (!time) return 1440;
   const hours = Number(time[1]) % 12 + (time[3].toUpperCase() === "PM" ? 12 : 0);
   return hours * 60 + Number(time[2]);
+}
+
+const dateLabel = new Intl.DateTimeFormat("en-US", { dateStyle: "long", timeZone: "UTC" });
+const dayLabel = new Intl.DateTimeFormat("en-US", { weekday: "long", timeZone: "UTC" });
+
+function recipientAddresses(value) {
+  const addresses = value?.match(/[\w.!#$%&'*+/=?^`{|}~-]+@[\w-]+(?:\.[\w-]+)+/g) ?? [];
+  return [...new Set(addresses.map((address) => address.toLowerCase()))];
+}
+
+function meetingDraft(rows, today, meetingMinutes) {
+  const ordered = [...rows].sort((a, b) => meetingMinutes(a.meeting) - meetingMinutes(b.meeting));
+  const date = ordered[0].meeting["Meeting date"];
+  const timestamp = Date.parse(date);
+  const formattedDate = dateLabel.format(timestamp);
+  const day = dayLabel.format(timestamp);
+  const when = date === today ? "today" : "on " + formattedDate;
+  const bcc = [...new Set(ordered.flatMap(({ addresses }) =>
+    addresses.map((address) => address.toLowerCase())))].join(", ");
+  const schedule = ordered.map(({ meeting }) =>
+    [meeting.Barangay, date, day, meeting.Time || "Time pending"].join(" | ")).join("\n");
+  const message = `Good morning po!
+
+I would like to confirm whether you are available for your scheduled online meeting ${when}. If you are unavailable, please let me know when you are available.
+
+Via Google Meet po ang ating meeting tungkol sa site collection sa ${formattedDate}.
+
+Join the meeting on Google Meet: https://meet.google.com/air-rukd-nkw
+
+For your reference, here’s the meeting advisory: https://drive.google.com/file/d/1NRSkWMvUub-ugthszr2gXZI9903xFIa1/view?usp=sharing
+
+Here is the schedule for the selected barangays:
+
+Barangay | Meeting date | Day | Time
+${schedule}
+
+Maraming salamat po!
+
+Hans Aragona
+City Mayor’s Office`;
+  return { bcc, message };
+}
+
+function setEmailSelection(active) {
+  selectingEmail = active;
+  emailSelection.clear();
+  $("#email-selection").setAttribute("aria-pressed", String(active));
+  $("#email-actions").hidden = !active;
+}
+
+function updateEmailSelection() {
+  const date = emailSelection.keys().next().value?.["Meeting date"];
+  for (const checkbox of document.querySelectorAll(".meeting-email-choice input")) {
+    checkbox.disabled = Boolean(date && checkbox.dataset.date !== date);
+  }
+  $("#email-selection-status").textContent = date
+    ? `${emailSelection.size} selected · ${date}`
+    : "Select scheduled meetings on the same date.";
+  $("#email-confirm").disabled = !emailSelection.size;
+}
+
+function addEmailMeetingRow(meeting, day, addresses) {
+  const date = meeting["Meeting date"];
+  const name = element("span", meeting.Barangay);
+  const choice = element("label", "");
+  choice.className = "meeting-email-choice";
+  if (addresses?.length) {
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.dataset.date = date;
+    checkbox.checked = emailSelection.has(meeting);
+    checkbox.onchange = () => {
+      if (checkbox.checked) emailSelection.set(meeting, addresses);
+      else emailSelection.delete(meeting);
+      updateEmailSelection();
+    };
+    choice.append(checkbox, name);
+  } else {
+    choice.append(name, element("small", "No email on file"));
+  }
+  const row = addRow([choice, date, day, meeting.Time || "Pending", meeting.Status, meeting.Remark ?? ""]);
+  row.classList.add("meeting-row");
 }
 
 function renderOutreachChart() {
@@ -392,32 +479,58 @@ function render(flippedIndex) {
   const query = $("#search").value.trim().toLowerCase();
   const matches = (...values) => values.some((value) => value.toLowerCase().includes(query));
   const meetingView = view === "meetings";
+  $("#email-selection").hidden = !meetingView;
   $("table").classList.toggle("roster-table", !meetingView);
+  $("table").classList.toggle("meeting-email-mode", selectingEmail);
   const headers = meetingView ? ["Barangay", "Meeting date", "Day", "Time", "Status", "Remark"]
     : ["No.", "Barangay", "Email address", "Barangay phone", "Punong Barangay", "Punong Barangay phone",
       "Has meeting", "Emailed", "Texted", "Replied by text"];
   const header = document.createElement("tr");
-  header.append(...[...headers, "Action"].map((title) => element("th", title)));
+  header.append(...[...headers, selectingEmail ? "" : "Action"].map((title) => element("th", title)));
   $("thead").replaceChildren(header);
   $("tbody").replaceChildren();
-  $("#add").hidden = !meetingView;
+  $("#add").hidden = !meetingView || selectingEmail;
 
   if (meetingView) {
+    const addressesByBarangay = new Map();
+    if (selectingEmail) {
+      for (const contact of barangays) {
+        const name = contact["Barangay Name"];
+        const addresses = recipientAddresses(contact["Barangay Email Address"]);
+        addressesByBarangay.set(name, [...(addressesByBarangay.get(name) ?? []), ...addresses]);
+      }
+    }
     const selectedDay = $("#meeting-day").value;
     const selectedDate = $("#meeting-date").value;
-    const today = selectedDay === "today" ? manilaDate.format(new Date()) : "";
+    const currentDate = manilaDate.format(new Date());
+    const today = selectedDay === "today" ? currentDate : "";
     const ordered = meetings.map((row, index) => ({ row, index }));
-    const sortKey = (row) => {
-      return (row["Meeting date"] || "9999") + String(meetingMinutes(row)).padStart(4, "0");
+    const rank = (row) => {
+      if (row.Status === "Scheduled") return row["Meeting date"] >= currentDate ? 0 : 1;
+      if (row.Status === "Complete") return 4;
+      return row["Meeting date"] ? 2 : 3;
     };
-    ordered.sort((a, b) => sortKey(a.row).localeCompare(sortKey(b.row)));
+    ordered.sort(({ row: a }, { row: b }) => {
+      const group = rank(a);
+      const groupOrder = group - rank(b);
+      if (groupOrder) return groupOrder;
+      const dateOrder = (a["Meeting date"] || "").localeCompare(b["Meeting date"] || "");
+      const timeOrder = meetingMinutes(a) - meetingMinutes(b);
+      return group === 0 ? dateOrder || timeOrder : -(dateOrder || timeOrder);
+    });
     for (const { row, index } of ordered) {
-      if (!matches(row.Barangay) || (filter && row.Status !== filter)) continue;
+      if (!matches(row.Barangay) || (!selectingEmail && filter && row.Status !== filter)) continue;
       const date = row["Meeting date"];
       const timestamp = Date.parse(date);
       const day = Number.isFinite(timestamp) ? weekday.format(timestamp) : "—";
       const matchesDay = today ? date === today : !selectedDay || day === selectedDay;
       if (!matchesDay || (selectedDate && date !== selectedDate)) continue;
+      if (selectingEmail) {
+        if (row.Status === "Scheduled" && Number.isFinite(timestamp)) {
+          addEmailMeetingRow(row, day, addressesByBarangay.get(row.Barangay));
+        }
+        continue;
+      }
       const canFlip = row.Status === "Scheduled" || row.Status === "Complete";
       const badge = element(canFlip ? "button" : "span", row.Status);
       badge.className = "badge " + row.Status.toLowerCase();
@@ -511,10 +624,14 @@ function render(flippedIndex) {
       flags.find((badge) => badge.classList.contains("flipped"))?.focus({ preventScroll: true });
     }
   }
-  $("#message").textContent = $("tbody").rows.length ? "" : "No matching records.";
+  $("#filter").hidden = selectingEmail;
+  if (selectingEmail) updateEmailSelection();
+  $("#message").textContent = $("tbody").rows.length ? "" :
+    (selectingEmail ? "No dated, scheduled meetings match these filters." : "No matching records.");
 }
 
 function switchView(next) {
+  setEmailSelection(false);
   $("#day-card").hidePopover();
   $("#meeting-day").hidden = next !== "meetings";
   $("#meeting-date-filter").hidden = next !== "meetings";
@@ -560,6 +677,38 @@ $("#filter").onchange = render;
 $("#meeting-day").onchange = render;
 $("#meeting-date").oninput = render;
 $("#add").onclick = () => editMeeting();
+$("#email-selection").onclick = () => {
+  setEmailSelection(!selectingEmail);
+  render();
+};
+$("#email-cancel").onclick = () => {
+  setEmailSelection(false);
+  render();
+  $("#email-selection").focus();
+};
+$("#email-confirm").onclick = () => {
+  const rows = [...emailSelection].map(([meeting, addresses]) => ({ meeting, addresses }));
+  if (!rows.length) return;
+  const draft = meetingDraft(rows, manilaDate.format(new Date()), meetingMinutes);
+  $("#draft-bcc").value = draft.bcc;
+  $("#draft-message").value = draft.message;
+  $("#draft-status").textContent = "";
+  $("#email-draft").showModal();
+};
+for (const [button, field, label] of [
+  ["#copy-bcc", "#draft-bcc", "BCC addresses"],
+  ["#copy-message", "#draft-message", "Message"]
+]) {
+  $(button).onclick = async () => {
+    try {
+      await navigator.clipboard.writeText($(field).value);
+      $("#draft-status").textContent = label + " copied.";
+    } catch {
+      $(field).select();
+      $("#draft-status").textContent = "Clipboard unavailable. Copy the selected text manually.";
+    }
+  };
+}
 $("#cancel").onclick = () => editor.close();
 $("#import").onclick = () => {
   openEditor("Import tracker CSV", async (values) => {

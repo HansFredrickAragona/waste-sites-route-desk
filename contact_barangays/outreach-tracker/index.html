@@ -35,6 +35,7 @@
         <option>Sunday</option>
       </select>
       <label id="meeting-date-filter">Date <input id="meeting-date" type="date"></label>
+      <button id="email-selection" type="button" aria-pressed="false" hidden>Email draft</button>
       <button id="add" class="primary" type="button">+ Add meeting</button>
     </div>
     <div id="outreach-panel" role="tabpanel" aria-labelledby="meetings">
@@ -74,6 +75,22 @@
   </section>
   <footer>Changes are saved to local CSV files on this laptop.</footer>
 </main>
+<div id="email-actions" class="actions" hidden>
+  <span id="email-selection-status" role="status"></span>
+  <button id="email-cancel" type="button">Cancel</button>
+  <button id="email-confirm" class="primary" type="button" disabled>Confirm</button>
+</div>
+<dialog id="email-draft" aria-labelledby="email-draft-title">
+  <h2 id="email-draft-title">Meeting email draft</h2>
+  <label>BCC <textarea id="draft-bcc" rows="2" readonly></textarea></label>
+  <label>Message <textarea id="draft-message" rows="14"></textarea></label>
+  <p id="draft-status" role="status"></p>
+  <form method="dialog" class="actions">
+    <button>Close</button>
+    <button id="copy-bcc" type="button">Copy BCC</button>
+    <button id="copy-message" class="primary" type="button">Copy message</button>
+  </form>
+</dialog>
 <div id="day-card" class="glass" popover aria-label="Meetings breakdown"></div>
 <dialog id="editor">
   <form id="form">

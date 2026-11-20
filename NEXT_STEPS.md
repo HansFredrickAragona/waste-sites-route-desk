@@ -314,6 +314,10 @@ Dashboard KPI details now share the same sliding, closable subtab navigation. Th
 ## Outreach meeting row navigation - 2026-11-11
 Meeting rows now open Barangay status with the associated name searched and matching row highlighted/focused. Edit/status buttons retain their actions; Enter/Space also opens a focused row. Added a subtle 3px hover/focus slide and highlight, respecting reduced motion. Updated tracker app.js, style.css and README.md. JavaScript syntax and diff whitespace checks passed; browser interaction/appearance still needs verification. Local only; no commit, push or deployment.
 
+## Outreach meeting email drafts (2026-11-20)
+
+Meetings has an Email draft mode for same-date scheduled rows. Confirm opens the selected barangays’ BCC addresses and an editable schedule reminder. The template uses the saved date and times and retains the supplied Google Meet and advisory links. The initial release added a module route, which an already-running server could not serve. After a report of blank tabs, the page returned to a single deferred script using the existing asset route. JavaScript checks verified startup requests tracker state and the draft regression passed. Browser verification was blocked by loopback access. The existing Python persistence check could not seed without the source roster CSV. Local only.
+
 ## Barangay cluster confirmation groups (2026-11-16)
 ClusterSummaryCard.jsx and global.css group the selected cluster by barangay confirmation, with counts for the visible rows. The existing Barangay type dropdown filters the map and cluster list together. Schedule regression tests passed 9/9. Browser layout and interactions remain to be checked. Local only.
 
