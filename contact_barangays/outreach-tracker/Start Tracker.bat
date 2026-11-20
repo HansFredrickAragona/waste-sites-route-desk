@@ -18,11 +18,10 @@ if errorlevel 1 (
 echo.
 echo [2/2] Launching the local dashboard...
 echo Project folder: "%CD%"
-cd "C:\Users\Hans\Downloads\Personal\CODE\BAGUIO\contact_barangays\outreach-tracker"
 
 echo Keep this window open while using the tracker.
 echo -------------------------------------------------------
-python server.py --port 8766 %*
+python server.py --port 8765 %*
 
 if errorlevel 1 goto startup_error
 exit /b 0
