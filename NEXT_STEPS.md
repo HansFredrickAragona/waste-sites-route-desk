@@ -1,9 +1,9 @@
 # DEVELOPMENT CONTINUATION
 
-## Map editor focus — 2026-11-23
+## Map editor scroll and spacing — 2026-11-23
 
-- The inline pin and firing-line forms no longer autofocus their name fields on opening. Confirmed Report dialogs retain autofocus.
-- Local only. All 10 schedule regression tests pass, and the Vite build passes with the existing large-chunk advisory. The in-app browser timed out connecting to the local dev server in the previous check. Browser verification of pin and firing-line editing remains pending.
+- The inline pin and firing-line forms no longer autofocus their name fields on opening. Confirmed Report dialogs retain autofocus. On desktop, the map grows and shrinks with the details column as its content reflows, with the previous map height as the minimum. The details column can grow with its contents during editing. Narrow layouts still stack the cards.
+- Local only. All 10 schedule regression tests pass, and the Vite build passes with the existing large-chunk advisory. The in-app browser timed out connecting to the local dev server in the previous check. Browser verification of the desktop divider drag and pin and firing-line editing remains pending.
 
 ## Confirmed Report row editing — 2026-11-19
 

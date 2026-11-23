@@ -1449,7 +1449,9 @@ button.kpi-detail-row:focus-visible { outline: 3px solid #79a987; outline-offset
 @media (min-width: 901px) {
   .barangay-map-layout { display: flex; gap: 0; --tools-panel-width: 390px; }
   .barangay-map-layout--editing:not(.barangay-map-layout--resized) { --tools-panel-width: 64%; }
-  .barangay-map-layout > .map-card { flex: 1 1 0; min-width: 300px; }
+  .barangay-map-layout > .map-card { display: flex; flex: 1 1 0; flex-direction: column; min-width: 300px; }
+  .barangay-map-layout .map-frame.barangay-map-frame { flex: 1 0 auto; height: auto; min-height: max(440px, min(66vh, 690px)); }
+  .barangay-map-layout .barangay-map-frame > .review-map { position: absolute; inset: 0; }
   .map-column-resizer { position: relative; flex: 0 0 14px; align-self: stretch; cursor: col-resize; touch-action: none; }
   .map-column-resizer::before { position: absolute; top: 9px; bottom: 9px; left: 50%; width: 2px; border-radius: 2px; background: #d2ded4; content: ""; transform: translateX(-50%); }
   .map-column-resizer::after { position: absolute; top: 50%; left: 50%; width: 7px; height: 38px; border: 1px solid #c4d3c7; border-radius: 7px; background: #f9fcf9; box-shadow: 0 1px 3px #294b311a; content: ""; transform: translate(-50%, -50%); }
@@ -1457,6 +1459,7 @@ button.kpi-detail-row:focus-visible { outline: 3px solid #79a987; outline-offset
   .map-column-resizer:hover::after, .map-column-resizer--dragging::after, .map-column-resizer:focus-visible::after { border-color: #4b9a68; background: #e8f3eb; }
   .map-column-resizer:focus-visible { outline: 2px solid #4b9a68; outline-offset: -2px; }
   .barangay-map-layout > .map-side-panel.barangay-tools-panel {
+    align-self: flex-start;
     flex: 0 0 var(--tools-panel-width);
     min-width: 300px;
     max-width: calc(100% - 314px);
@@ -1468,7 +1471,7 @@ button.kpi-detail-row:focus-visible { outline: 3px solid #79a987; outline-offset
   .barangay-map-layout { --tools-panel-width: 350px; }
 }
 .map-columns-resizing, .map-columns-resizing * { cursor: col-resize !important; user-select: none !important; }
-.barangay-map-layout--editing .map-side-panel.barangay-tools-panel { height: min(calc(max(min(66vh, 690px), 440px) + 88px), calc(100vh - 100px)); max-height: min(calc(max(min(66vh, 690px), 440px) + 88px), calc(100vh - 100px)); overflow-y: auto; overscroll-behavior: contain; }
+.barangay-map-layout--editing .line-manager-panel { flex-grow: 0; }
 .barangay-map-layout--editing .pin-content-size-transition:not(.card-size-transition--collapsed) { height: auto !important; overflow: visible; transition: opacity .2s ease; }
 .pin-editor-form { gap: 0; margin: 0 0 10px; padding: 0; overflow: visible; border: 1px solid #e3eae3; border-radius: 9px; background: #fff; }
 .pin-editor-header { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 17px 22px; border-bottom: 1px solid #e7ece6; background: #fbfcfa; }
@@ -1544,7 +1547,6 @@ button.kpi-detail-row:focus-visible { outline: 3px solid #79a987; outline-offset
 
 @media (max-width: 900px) {
   .map-column-resizer { display: none; }
-  .barangay-map-layout--editing .map-side-panel.barangay-tools-panel { height: auto; max-height: none; overflow: visible; }
 }
 
 @media (max-width: 520px) {
