@@ -21,7 +21,7 @@ export default function PinEditor({ selectedBarangay, pinDraft, setPinDraft, pin
         <div className="pin-editor-column pin-editor-column--site">
           <section className="pin-editor-section pin-editor-site-section" aria-labelledby="pin-site-details-title">
             <div className="pin-editor-section-heading"><h3 id="pin-site-details-title">Site details</h3><span>Required fields</span></div>
-            <label className="field-label">Site name<input autoFocus value={pinDraft.name} onChange={(event) => setPinDraft((current) => ({ ...current, name: event.target.value }))} placeholder="e.g. Site 3, Riverside drop-off" /></label>
+            <label className="field-label">Site name<input autoFocus={!onMap} value={pinDraft.name} onChange={(event) => setPinDraft((current) => ({ ...current, name: event.target.value }))} placeholder="e.g. Site 3, Riverside drop-off" /></label>
             <label className="field-label">Assigned purok<input list="barangay-purok-options" value={pinDraft.purok} onChange={(event) => setPinDraft((current) => ({ ...current, purok: event.target.value }))} placeholder="e.g. Purok 1" /><datalist id="barangay-purok-options">{selectedBarangay.puroks.map((purok) => <option key={purok} value={purok} />)}</datalist></label>
             <label className="field-label">Status type<select value={pinDraft.statusType ?? pinDraft.sourceStatusLabel ?? ""} onChange={(event) => setPinDraft((current) => ({ ...current, statusType: event.target.value }))}>
               <option value="">Select a status type</option>

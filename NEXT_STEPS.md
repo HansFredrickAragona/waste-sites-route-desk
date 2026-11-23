@@ -1,5 +1,10 @@
 # DEVELOPMENT CONTINUATION
 
+## Map editor focus — 2026-11-23
+
+- The inline pin and firing-line forms no longer autofocus their name fields on opening. Confirmed Report dialogs retain autofocus.
+- Local only. All 10 schedule regression tests pass, and the Vite build passes with the existing large-chunk advisory. The in-app browser timed out connecting to the local dev server in the previous check. Browser verification of pin and firing-line editing remains pending.
+
 ## Confirmed Report row editing — 2026-11-19
 
 - Local implementation opens a floating editor from a Details row click or right-click **Edit**. Save and Cancel close the card over the same breakdown. Pick-up points use the site form, and firing lines use the shared form with node editing available from the map.

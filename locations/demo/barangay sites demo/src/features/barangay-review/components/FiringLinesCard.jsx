@@ -22,6 +22,7 @@ export default function FiringLinesCard({ data, ui, actions }) {
                     setLineDraft={setLineDraft}
                     saveLine={saveLine}
                     cancelMapMode={cancelMapMode}
+                    onMap
                   >
                     <div className="line-node-summary"><span className="line-node-icon">⌁</span><span><strong>{lineDraft.coordinates.length} map nodes</strong><small>Select a blue node to review it. Right-click for node and line actions; Backspace deletes the selected node.</small></span></div>
                     {selectedLineNode && Number.isInteger(selectedLineNodeIndex) && (

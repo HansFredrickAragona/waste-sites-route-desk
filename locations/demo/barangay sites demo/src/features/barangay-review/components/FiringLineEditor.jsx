@@ -1,11 +1,11 @@
 import CollectionScheduleFields from "./CollectionScheduleFields.jsx";
 import AssignedPuroksField from "./AssignedPuroksField.jsx";
 
-export default function FiringLineEditor({ selectedBarangay, lineDraft, setLineDraft, saveLine, cancelMapMode, children, error }) {
+export default function FiringLineEditor({ selectedBarangay, lineDraft, setLineDraft, saveLine, cancelMapMode, onMap, children, error }) {
   return (
     <form className="line-editor" onSubmit={saveLine}>
       <div className="editor-topline"><div><p className="eyebrow">{lineDraft.isNew ? "New feature" : "Edit feature"}</p><h3 id="line-editor-title">{lineDraft.name}</h3></div><button className="icon-close icon-close--small" type="button" aria-label="Cancel line editing" onClick={cancelMapMode}>×</button></div>
-      <label className="field-label">Firing-line name<input autoFocus value={lineDraft.name} onChange={(event) => setLineDraft((current) => ({ ...current, name: event.target.value }))} placeholder="Name this line" /></label>
+      <label className="field-label">Firing-line name<input autoFocus={!onMap} value={lineDraft.name} onChange={(event) => setLineDraft((current) => ({ ...current, name: event.target.value }))} placeholder="Name this line" /></label>
       <AssignedPuroksField barangayPuroks={selectedBarangay.puroks} lineDraft={lineDraft} setLineDraft={setLineDraft} />
       {children}
       {lineDraft.sample && <p className="sample-line-note">This illustrative demo line is labeled for verification.</p>}
