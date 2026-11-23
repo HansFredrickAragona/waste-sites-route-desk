@@ -664,6 +664,8 @@ The outreach tracker in contact_barangays/outreach-tracker is a plain HTML page 
 
 The Meetings email draft (2026-11-20) matches dated scheduled rows to the current contact roster, restricts a selection to one date, and builds a copyable BCC list and editable plain-text reminder in the browser. The selection and draft are temporary. Drafting does not send mail or write to either CSV. The tracker uses a single deferred client script through the existing asset route so an already-running Python server can serve the updated client.
 
+The 2026-11-23 update supersedes the scheduled-only and single-date selection rules. Email draft uses the existing meeting filters for all statuses and supports selecting all visible rows with an email address, including undated Not set rows. The reminder template still applies when all selected rows are Scheduled on the same date. Other selections open with a greeting and signature.
+
 ### Confirmed dashboard report — 2026-11-10
 
 The confirmed dashboard summary and Excel workbook share a report derived from the active review dataset. Barangay updates now record an optional per-barangay timestamp that survives review JSON normalization. Existing activity entries supply dates for older records. The report leaves unknown dates blank. Existing selected-barangay CSVs retain their own scope and format.

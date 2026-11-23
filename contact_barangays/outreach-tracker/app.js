@@ -255,11 +255,15 @@ function meetingDraft(rows, today, meetingMinutes) {
   const ordered = [...rows].sort((a, b) => meetingMinutes(a.meeting) - meetingMinutes(b.meeting));
   const date = ordered[0].meeting["Meeting date"];
   const timestamp = Date.parse(date);
+  const bcc = [...new Set(ordered.flatMap(({ addresses }) =>
+    addresses.map((address) => address.toLowerCase())))].join(", ");
+  if (!Number.isFinite(timestamp) || !ordered.every(({ meeting }) =>
+    meeting.Status === "Scheduled" && meeting["Meeting date"] === date)) {
+    return { bcc, message: "Good morning po!\n\n\n\nMaraming salamat po!\n\nHans Aragona\nCity Mayor’s Office" };
+  }
   const formattedDate = dateLabel.format(timestamp);
   const day = dayLabel.format(timestamp);
   const when = date === today ? "today" : "on " + formattedDate;
-  const bcc = [...new Set(ordered.flatMap(({ addresses }) =>
-    addresses.map((address) => address.toLowerCase())))].join(", ");
   const schedule = ordered.map(({ meeting }) =>
     [meeting.Barangay, date, day, meeting.Time || "Time pending"].join(" | ")).join("\n");
   const message = `Good morning po!
@@ -292,13 +296,7 @@ function setEmailSelection(active) {
 }
 
 function updateEmailSelection() {
-  const date = emailSelection.keys().next().value?.["Meeting date"];
-  for (const checkbox of document.querySelectorAll(".meeting-email-choice input")) {
-    checkbox.disabled = Boolean(date && checkbox.dataset.date !== date);
-  }
-  $("#email-selection-status").textContent = date
-    ? `${emailSelection.size} selected · ${date}`
-    : "Select scheduled meetings on the same date.";
+  $("#email-selection-status").textContent = `${emailSelection.size} selected`;
   $("#email-confirm").disabled = !emailSelection.size;
 }
 
@@ -310,7 +308,6 @@ function addEmailMeetingRow(meeting, day, addresses) {
   if (addresses?.length) {
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
-    checkbox.dataset.date = date;
     checkbox.checked = emailSelection.has(meeting);
     checkbox.onchange = () => {
       if (checkbox.checked) emailSelection.set(meeting, addresses);
@@ -519,16 +516,14 @@ function render(flippedIndex) {
       return group === 0 ? dateOrder || timeOrder : -(dateOrder || timeOrder);
     });
     for (const { row, index } of ordered) {
-      if (!matches(row.Barangay) || (!selectingEmail && filter && row.Status !== filter)) continue;
+      if (!matches(row.Barangay) || (filter && row.Status !== filter)) continue;
       const date = row["Meeting date"];
       const timestamp = Date.parse(date);
       const day = Number.isFinite(timestamp) ? weekday.format(timestamp) : "—";
       const matchesDay = today ? date === today : !selectedDay || day === selectedDay;
       if (!matchesDay || (selectedDate && date !== selectedDate)) continue;
       if (selectingEmail) {
-        if (row.Status === "Scheduled" && Number.isFinite(timestamp)) {
-          addEmailMeetingRow(row, day, addressesByBarangay.get(row.Barangay));
-        }
+        addEmailMeetingRow(row, day, addressesByBarangay.get(row.Barangay));
         continue;
       }
       const canFlip = row.Status === "Scheduled" || row.Status === "Complete";
@@ -624,10 +619,11 @@ function render(flippedIndex) {
       flags.find((badge) => badge.classList.contains("flipped"))?.focus({ preventScroll: true });
     }
   }
-  $("#filter").hidden = selectingEmail;
-  if (selectingEmail) updateEmailSelection();
-  $("#message").textContent = $("tbody").rows.length ? "" :
-    (selectingEmail ? "No dated, scheduled meetings match these filters." : "No matching records.");
+  if (selectingEmail) {
+    $("#email-select-all").disabled = !document.querySelector(".meeting-email-choice input");
+    updateEmailSelection();
+  }
+  $("#message").textContent = $("tbody").rows.length ? "" : "No matching records.";
 }
 
 function switchView(next) {
@@ -672,14 +668,23 @@ $(".tabs").onkeydown = (event) => {
   if (next !== view) switchView(next);
   $("#" + next).focus();
 };
-$("#search").oninput = render;
-$("#filter").onchange = render;
-$("#meeting-day").onchange = render;
-$("#meeting-date").oninput = render;
+function applyFilters() {
+  emailSelection.clear();
+  render();
+}
+$("#search").oninput = applyFilters;
+$("#filter").onchange = applyFilters;
+$("#meeting-day").onchange = applyFilters;
+$("#meeting-date").oninput = applyFilters;
 $("#add").onclick = () => editMeeting();
 $("#email-selection").onclick = () => {
   setEmailSelection(!selectingEmail);
   render();
+};
+$("#email-select-all").onclick = () => {
+  for (const checkbox of document.querySelectorAll(".meeting-email-choice input:not(:checked)")) {
+    checkbox.click();
+  }
 };
 $("#email-cancel").onclick = () => {
   setEmailSelection(false);

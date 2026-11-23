@@ -28,8 +28,8 @@ assert.deepEqual([...addresses], ["one@example.com", "two@example.com"]);
 assert.deepEqual([...recipientAddresses("N/A")], []);
 
 const date = "2026-11-20";
-const early = { Barangay: "Rock Quarry, Upper", Time: "9:00 AM", "Meeting date": date };
-const late = { Barangay: "San Vicente", Time: "", "Meeting date": date };
+const early = { Barangay: "Rock Quarry, Upper", Time: "9:00 AM", "Meeting date": date, Status: "Scheduled" };
+const late = { Barangay: "San Vicente", Time: "", "Meeting date": date, Status: "Scheduled" };
 const rows = [
   { meeting: late, addresses: ["ONE@example.com"] },
   { meeting: early, addresses }
@@ -40,3 +40,17 @@ assert.match(draft.message, /online meeting today/);
 assert.match(draft.message, /November 20, 2026/);
 assert.match(draft.message, /Rock Quarry, Upper \| 2026-11-20 \| Friday \| 9:00 AM\nSan Vicente \| 2026-11-20 \| Friday \| Time pending/);
 assert.match(meetingDraft(rows, "2026-11-19", () => 0).message, /on November 20, 2026/);
+
+const complete = { ...early, Status: "Complete" };
+const notSet = { Barangay: "Atok Trail", Status: "Not set", "Meeting date": "" };
+const later = { ...early, "Meeting date": "2026-11-21" };
+for (const meeting of [complete, notSet, later]) {
+  const draft = meetingDraft([
+    ...rows,
+    { meeting, addresses: ["THREE@example.com"] }
+  ], date, () => 0);
+  assert.match(draft.bcc, /three@example\.com/);
+  assert.doesNotMatch(draft.message, /scheduled online meeting|Google Meet/);
+}
+assert.equal(meetingDraft([{ meeting: notSet, addresses }], date, () => 0).bcc,
+  "one@example.com, two@example.com");

@@ -330,6 +330,8 @@ Meeting rows now open Barangay status with the associated name searched and matc
 
 Meetings has an Email draft mode for same-date scheduled rows. Confirm opens the selected barangays’ BCC addresses and an editable schedule reminder. The template uses the saved date and times and retains the supplied Google Meet and advisory links. The initial release added a module route, which an already-running server could not serve. After a report of blank tabs, the page returned to a single deferred script using the existing asset route. JavaScript checks verified startup requests tracker state and the draft regression passed. Browser verification was blocked by loopback access. The existing Python persistence check could not seed without the source roster CSV. Local only.
 
+On 2026-11-23, Email draft gained status and date filtering across Scheduled, Complete and Not set rows, plus Select all shown. Same-date Scheduled selections retain the reminder. Other groups get an editable greeting and signature. The draft regression and a headless Edge test with synthetic tracker data passed. Live CSV integration was outside that check. Local only.
+
 ## Barangay cluster confirmation groups (2026-11-16)
 ClusterSummaryCard.jsx and global.css group the selected cluster by barangay confirmation, with counts for the visible rows. The existing Barangay type dropdown filters the map and cluster list together. Schedule regression tests passed 9/9. Browser layout and interactions remain to be checked. Local only.
 
