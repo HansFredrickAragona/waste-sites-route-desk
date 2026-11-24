@@ -3,7 +3,9 @@
 ## Barangay Sites cleanup — 2026-11-24
 
 - Baseline at `7b5ef9b` plus the local GPS simplification: production build passes with the existing large-chunk advisory. The full test suite passes 15 of 16, with a CSV assertion that expects `5 PM` where the exporter emits `5:00 PM`.
-- Planned local commits cover this handoff, removal of unused Barangay assets/styles/helpers, and consolidation of common navigation cleanup, download handling, and Leaflet focus behavior. Keep each map's zoom and restoration defaults and each export's filename and format.
+- Removed the unused 411,250-byte public map index from the Barangay build, 56 schedule-only CSS rule lines, and two unused helpers. Shared map editing cleanup across the three navigation actions and preserved each map's zoom and restoration defaults in the shared Leaflet focus implementation.
+- JSON, CSV, XLSX, and GeoJSON downloads now use the existing CSV approach of attaching a temporary link and delaying URL cleanup by 30 seconds. Filenames and serialization remain format-specific.
+- Updated the CSV assertion for existing whole-hour output. All 16 tests and the production build passed with the existing large-chunk advisory. Verified the obsolete index is absent from the new build. Changes are local.
 - Storage failure handling is a separate follow-up. A partial multi-file import can leave an unloadable library entry, and legacy migration must verify the replacement before overwriting the original. Phone checks for downloads, map navigation, and GPS remain pending.
 
 ## GPS action simplification — 2026-11-24
