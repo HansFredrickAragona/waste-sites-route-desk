@@ -48,10 +48,6 @@ export function scheduleDayCodes(value) {
   return SCHEDULE_DAYS.filter(({ code }) => selected.has(code)).map(({ code }) => code);
 }
 
-export function scheduleDayCode(value) {
-  return scheduleDayCodes(value)[0] ?? "";
-}
-
 function parseTimeRange(value) {
   const periodOnly = String(value ?? "").trim().match(/^(AM|PM)(?:\s*-\s*(AM|PM))?$/i);
   const times = [...String(value ?? "").matchAll(/\b(\d{1,2})(?::(\d{2}))?\s*(AM|PM|A\.M\.?|P\.M\.?)?\b/gi)]
@@ -214,23 +210,4 @@ export function formatStatusUpdatedAt(date) {
   const dateText = date.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric" });
   const timeText = date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
   return `${dateText} ${timeText}`;
-}
-
-export function dateTimeFieldValue(value) {
-  const text = String(value ?? "").trim();
-  if (!text) return "";
-
-  const localValue = text.match(/^(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2})/);
-  if (localValue && !/(?:Z|[+-]\d{2}:?\d{2})$/i.test(text)) return `${localValue[1]}T${localValue[2]}`;
-
-  const displayValue = text.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
-  if (displayValue) {
-    const [, day, month, year, hourText, minute, meridiem] = displayValue;
-    const hour = Number(hourText) % 12 + (meridiem.toUpperCase() === "PM" ? 12 : 0);
-    return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}T${String(hour).padStart(2, "0")}:${minute}`;
-  }
-
-  const date = new Date(text);
-  if (Number.isNaN(date.getTime())) return "";
-  return new Date(date.getTime() - date.getTimezoneOffset() * 60_000).toISOString().slice(0, 16);
 }
