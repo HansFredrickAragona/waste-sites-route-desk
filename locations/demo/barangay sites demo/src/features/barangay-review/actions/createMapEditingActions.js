@@ -202,6 +202,26 @@ export function createMapEditingActions(context) {
     setMapFocus({ type: "point", point: [latitude, longitude], zoom: 19 });
   }
 
+  function requestDeviceLocation(message, onPosition, onError) {
+    const requestId = ++locationRequestRef.current;
+    setIsLocatingCurrentPosition(true);
+    setNotice({ kind: "info", text: message });
+    getCurrentPositionWithFallback()
+      .then(({ coords }) => {
+        if (locationRequestRef.current !== requestId) return;
+        setIsLocatingCurrentPosition(false);
+        const { latitude, longitude, accuracy } = coords;
+        setDeviceLocation({ latitude, longitude, accuracy });
+        const accuracyText = Number.isFinite(accuracy) ? ` GPS accuracy is about ${Math.round(accuracy)} m.` : "";
+        onPosition([latitude, longitude], accuracy, accuracyText);
+      })
+      .catch((error) => {
+        if (locationRequestRef.current !== requestId) return;
+        setIsLocatingCurrentPosition(false);
+        onError(error);
+      });
+  }
+
   function beginPinFromCurrentLocation() {
     if (!selectedBarangay) return;
     if (pinDraft || lineDraft) {
@@ -214,35 +234,15 @@ export function createMapEditingActions(context) {
     }
 
     clearDraftUndoHistory();
-    const requestId = locationRequestRef.current + 1;
-    locationRequestRef.current = requestId;
-    setIsLocatingCurrentPosition(true);
     setMode("browse");
-    setNotice({ kind: "info", text: "Getting your location… If GPS is slow, a lower-accuracy location method will be tried too." });
-    getCurrentPositionWithFallback()
-      .then((position) => {
-        if (locationRequestRef.current !== requestId) return;
-        setIsLocatingCurrentPosition(false);
-        const capturedAt = new Date().toISOString();
-        setDeviceLocation({
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          accuracy: position.coords.accuracy,
-        });
-        createPinDraftAt([position.coords.latitude, position.coords.longitude], {
-          accuracy: position.coords.accuracy,
-          capturedAt,
-        });
-        const accuracyText = Number.isFinite(position.coords.accuracy)
-          ? ` GPS accuracy is about ${Math.round(position.coords.accuracy)} m.`
-          : "";
+    requestDeviceLocation(
+      "Getting your location… If GPS is slow, a lower-accuracy location method will be tried too.",
+      (point, accuracy, accuracyText) => {
+        createPinDraftAt(point, { accuracy, capturedAt: new Date().toISOString() });
         setNotice({ kind: "success", text: `Location captured. Confirm the pin on the map, then enter its details.${accuracyText}` });
-      })
-      .catch((error) => {
-        if (locationRequestRef.current !== requestId) return;
-        setIsLocatingCurrentPosition(false);
-        setNotice({ kind: "error", text: currentLocationErrorMessage(error) });
-      });
+      },
+      (error) => setNotice({ kind: "error", text: currentLocationErrorMessage(error) }),
+    );
   }
 
   function recenterOnCurrentLocation() {
@@ -257,36 +257,21 @@ export function createMapEditingActions(context) {
       return;
     }
 
-    const requestId = locationRequestRef.current + 1;
-    locationRequestRef.current = requestId;
-    setIsLocatingCurrentPosition(true);
-    setNotice({ kind: "info", text: "Finding your location… If GPS is slow, a lower-accuracy location method will be tried too." });
-    getCurrentPositionWithFallback()
-      .then((position) => {
-        if (locationRequestRef.current !== requestId) return;
-        setIsLocatingCurrentPosition(false);
-        const point = [position.coords.latitude, position.coords.longitude];
-        setDeviceLocation({
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          accuracy: position.coords.accuracy,
-        });
+    requestDeviceLocation(
+      "Finding your location… If GPS is slow, a lower-accuracy location method will be tried too.",
+      (point, _accuracy, accuracyText) => {
         setMapFocus({ type: "point", point });
-        const accuracyText = Number.isFinite(position.coords.accuracy)
-          ? ` GPS accuracy is about ${Math.round(position.coords.accuracy)} m.`
-          : "";
         setNotice({ kind: "success", text: `Map centered on your current location.${accuracyText}` });
-      })
-      .catch((error) => {
-        if (locationRequestRef.current !== requestId) return;
-        setIsLocatingCurrentPosition(false);
+      },
+      (error) => {
         if (deviceLocation) {
           setMapFocus({ type: "point", point: [deviceLocation.latitude, deviceLocation.longitude] });
           setNotice({ kind: "info", text: "Could not get a fresh GPS fix. Recentered on your last captured location." });
           return;
         }
         setNotice({ kind: "error", text: currentLocationErrorMessage(error) });
-      });
+      },
+    );
   }
 
   function beginLineDrawing() {

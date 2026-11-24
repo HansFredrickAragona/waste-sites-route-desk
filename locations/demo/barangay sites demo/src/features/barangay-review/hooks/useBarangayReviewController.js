@@ -481,16 +481,11 @@ export function useBarangayReviewController(sourceUrl) {
     setUndoCount(0);
   }
 
-  function openBarangay(barangay) {
+  function clearMapEditingState() {
     locationRequestRef.current += 1;
     setIsLocatingCurrentPosition(false);
     setMapFocus(null);
-    setMapView(null);
     clearDraftUndoHistory();
-    setSelectedBarangayId(barangay.id);
-    setPage("map");
-    setSelectedPinId(null);
-    setSelectedLineId(null);
     setPinDraft(null);
     setLineDraft(null);
     setSelectedLineNodeIndex(null);
@@ -498,43 +493,32 @@ export function useBarangayReviewController(sourceUrl) {
     setLinePoints([]);
     setMode("browse");
     setPinManagerCollapsed(false);
+  }
+
+  function openBarangay(barangay) {
+    clearMapEditingState();
+    setMapView(null);
+    setSelectedBarangayId(barangay.id);
+    setPage("map");
+    setSelectedPinId(null);
+    setSelectedLineId(null);
     setPinSearch("");
     setMapPurokFilter("all");
     setMapSiteStatusFilter("all");
   }
 
   function returnToBarangayList() {
-    locationRequestRef.current += 1;
-    setIsLocatingCurrentPosition(false);
-    setMapFocus(null);
-    clearDraftUndoHistory();
+    clearMapEditingState();
     setPage("barangays");
-    setMode("browse");
-    setPinDraft(null);
-    setLineDraft(null);
-    setLinePoints([]);
-    setSelectedLineNodeIndex(null);
-    setShowLineNodeStreetView(false);
-    setPinManagerCollapsed(false);
   }
 
   function resetReviewView() {
-    locationRequestRef.current += 1;
-    setIsLocatingCurrentPosition(false);
-    setMapFocus(null);
+    clearMapEditingState();
     setMapView(null);
-    clearDraftUndoHistory();
     setPage("barangays");
     setSelectedBarangayId(null);
     setSelectedPinId(null);
     setSelectedLineId(null);
-    setPinDraft(null);
-    setLineDraft(null);
-    setSelectedLineNodeIndex(null);
-    setShowLineNodeStreetView(false);
-    setLinePoints([]);
-    setMode("browse");
-    setPinManagerCollapsed(false);
     setToolsPanelWidthRatio(null);
     setPinSearch("");
     setMapPurokFilter("all");

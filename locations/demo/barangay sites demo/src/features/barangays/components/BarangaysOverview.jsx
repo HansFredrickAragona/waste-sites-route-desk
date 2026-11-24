@@ -1,3 +1,4 @@
+import { focusLeafletMap } from "../../../shared/utils/focusLeafletMap.js";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import L from "leaflet";
 import { Circle, CircleMarker, MapContainer, Popup, TileLayer, useMap } from "react-leaflet";
@@ -38,7 +39,7 @@ function FocusOverviewMap({focus, restoredView}) {
     skipFirstFocus.current = false;
     if (skip || !focus) return;
     map.invalidateSize({ pan: false });
-    if (focus.type === "point") map.flyTo(focus.point,focus.zoom ?? 16,{duration:0.6}); else if (focus.type === "bounds" && focus.points.length) { if(focus.points.length === 1) map.flyTo(focus.points[0],focus.maxZoom ?? 14,{duration:0.6}); else map.flyToBounds(L.latLngBounds(focus.points),{padding:[44,44],maxZoom:focus.maxZoom ?? 14,duration:0.6}); }
+    focusLeafletMap(map, focus, { pointZoom: 16, singleZoom: 14, boundsZoom: 14, padding: [44, 44] });
   },[map,focus]);
   return null;
 }

@@ -1,3 +1,4 @@
+import { focusLeafletMap } from "../../../shared/utils/focusLeafletMap.js";
 import { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import { Circle, CircleMarker, MapContainer, Marker, Polyline, TileLayer, Tooltip, useMap, useMapEvents } from "react-leaflet";
@@ -78,13 +79,7 @@ function FocusMap({ focus }) {
 
   useEffect(() => {
     if (!focus) return;
-    if (focus.type === "point") {
-      map.flyTo(focus.point, focus.zoom ?? 17, { duration: 0.6 });
-    } else if (focus.type === "bounds" && focus.points.length === 1) {
-      map.flyTo(focus.points[0], focus.maxZoom ?? 15, { duration: 0.6 });
-    } else if (focus.type === "bounds" && focus.points.length > 1) {
-      map.flyToBounds(L.latLngBounds(focus.points), { padding: [32, 32], maxZoom: focus.maxZoom ?? 16, duration: 0.6 });
-    }
+    focusLeafletMap(map, focus, { pointZoom: 17, singleZoom: 15, boundsZoom: 16, padding: [32, 32] });
   }, [focus, map]);
 
   return null;
