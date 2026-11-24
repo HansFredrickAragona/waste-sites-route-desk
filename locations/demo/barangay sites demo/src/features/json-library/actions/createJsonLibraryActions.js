@@ -1,3 +1,4 @@
+import { downloadBlob } from "../../../shared/utils/downloadBlob.js";
 import {
   BUNDLED_JSON_ID,
   NO_JSON_REVIEW_ID,
@@ -205,12 +206,7 @@ export function createJsonLibraryActions(context) {
     const downloadName = `${safeBaseName}.json`;
     const exported = { ...latestReview, exportedAt: new Date().toISOString() };
     const blob = new Blob([JSON.stringify(exported, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = downloadName;
-    link.click();
-    URL.revokeObjectURL(url);
+    downloadBlob(blob, downloadName);
     setShowExportConfirmation(false);
     setNotice({ kind: "success", text: `${downloadName} exported as JSON.` });
   }
@@ -221,14 +217,7 @@ export function createJsonLibraryActions(context) {
     const csv = kind === "firingLines" ? firingLinesCsv(selectedBarangay) : siteSummaryCsv(selectedBarangay);
     if (!csv) return;
     const name = kind === "firingLines" ? filenames.firingLines : filenames.sites;
-    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = name;
-    document.body.append(link);
-    link.click();
-    link.remove();
-    window.setTimeout(() => URL.revokeObjectURL(url), 30_000);
+    downloadBlob(new Blob([csv], { type: "text/csv;charset=utf-8" }), name);
     setNotice({
       kind: "success",
       text: `Started ${selectedBarangay.name} ${kind === "firingLines" ? "firing-line" : "site"} CSV download.`,

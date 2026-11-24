@@ -1,3 +1,4 @@
+import { downloadBlob } from "../../shared/utils/downloadBlob.js";
 import { detailColumns, summaryColumns } from "./confirmedReport.js";
 
 export async function buildConfirmedWorkbook(report) {
@@ -31,17 +32,5 @@ export async function buildConfirmedWorkbook(report) {
 export async function downloadConfirmedWorkbook(report) {
   const buffer = await buildConfirmedWorkbook(report);
   const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-  downloadConfirmedFile(blob, "confirmed-barangays.xlsx");
-}
-
-export function downloadConfirmedFile(blob, filename) {
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = filename;
-  try {
-    link.click();
-  } finally {
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-  }
+  downloadBlob(blob, "confirmed-barangays.xlsx");
 }

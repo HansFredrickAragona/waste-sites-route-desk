@@ -1,6 +1,7 @@
+import { downloadBlob } from "../../../shared/utils/downloadBlob.js";
 import { useLayoutEffect, useRef, useState } from "react";
 import { confirmedGeoJson, confirmedReport, detailColumns, summaryColumns } from "../confirmedReport.js";
-import { downloadConfirmedFile, downloadConfirmedWorkbook } from "../confirmedWorkbook.js";
+import { downloadConfirmedWorkbook } from "../confirmedWorkbook.js";
 import { DashboardDetailPage } from "./DashboardDetailPage.jsx";
 import { ConfirmedReportEditor } from "./ConfirmedReportEditor.jsx";
 
@@ -79,7 +80,7 @@ function ConfirmedReport({ report, selected, onSelect, onOpenMap, canEdit, commi
     try {
       const geoJson = confirmedGeoJson(report);
       const blob = new Blob([JSON.stringify(geoJson)], { type: "application/geo+json" });
-      downloadConfirmedFile(blob, "confirmed-barangays.geojson");
+      downloadBlob(blob, "confirmed-barangays.geojson");
     } catch {
       setError("The GeoJSON file could not be downloaded. Please try again.");
     }
