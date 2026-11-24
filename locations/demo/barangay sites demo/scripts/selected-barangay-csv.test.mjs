@@ -20,7 +20,7 @@ test("site CSV includes every saved pin and preserves schedule text and CSV quot
   };
   const csv = siteSummaryCsv(barangay);
   assert.equal(csv, "\uFEFFSite name,Purok,Longitiude,Latitude,Googlemaps view,Pick-Up,Drop-off\r\n" +
-    '"Collection ""A"", north",Purok 1,120.5,16.4,"https://www.google.com/maps?q=16.4,120.5",Thursday and Friday,Monday: 5 PM; Wednesday: 6 PM\r\n' +
+    '"Collection ""A"", north",Purok 1,120.5,16.4,"https://www.google.com/maps?q=16.4,120.5",Thursday and Friday,Monday: 5:00 PM; Wednesday: 6:00 PM\r\n' +
     "Removed site,,,,,,\r\n");
 });
 
