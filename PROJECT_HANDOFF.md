@@ -2,6 +2,12 @@
 
 **Evidence labels:** VERIFIED means supported by current repository files, Git history, accessible Codex history, or checks run for this handoff. INFERRED means a reasonable reading, not a direct owner statement. UNKNOWN means the available evidence cannot settle it.
 
+## Barangay Sites maintenance checkpoint — 2026-11-24
+
+- The cleanup starts from `main` at `7b5ef9b` with a local GPS action simplification. This checkpoint supersedes older branch, status, and test counts below. See `NEXT_STEPS.md` for execution and verification status.
+- Keep the separate driver schedule app and its SWMD site index. The byte-identical Barangay public copy has no runtime references. Keep the workbook export and its lazy ExcelJS dependency, the old service-worker cleanup, and the Maps resolver entry points for the documented hosting roots.
+- Preserve imported and saved reviews, source data, schedule fields, and all current export formats. The untracked November review export is working data and stays outside commits.
+
 ## 1. Executive Summary
 
 BAGUIO, whose Git repository is named **waste-sites-route-desk**, contains data-preparation work and small web prototypes for Baguio City waste-collection sites, schedules, and operational records. The current product focus is the Barangay Sites field-review app in **locations/demo/barangay sites demo/**. It lets the owner inspect and update collection sites on a map while gathering information in the field. It is a React/Vite/Leaflet prototype with browser-local persistence and JSON import/export; it has no account system, shared database, or automatic sync.

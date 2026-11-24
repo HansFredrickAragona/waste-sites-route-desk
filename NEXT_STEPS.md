@@ -1,5 +1,15 @@
 # DEVELOPMENT CONTINUATION
 
+## Barangay Sites cleanup — 2026-11-24
+
+- Baseline at `7b5ef9b` plus the local GPS simplification: production build passes with the existing large-chunk advisory. The full test suite passes 15 of 16, with a CSV assertion that expects `5 PM` where the exporter emits `5:00 PM`.
+- Planned local commits cover this handoff, removal of unused Barangay assets/styles/helpers, and consolidation of common navigation cleanup, download handling, and Leaflet focus behavior. Keep each map's zoom and restoration defaults and each export's filename and format.
+- Storage failure handling is a separate follow-up. A partial multi-file import can leave an unloadable library entry, and legacy migration must verify the replacement before overwriting the original. Phone checks for downloads, map navigation, and GPS remain pending.
+
+## GPS action simplification — 2026-11-24
+
+- Pin capture and map recentering share GPS request tracking, location updates, and accuracy formatting. A mocked check covered capture, retry, recentering, cached fallback, and stale responses. All 10 schedule tests and the production build passed with the existing chunk-size advisory. The full suite remains at 15 of 16 due to the whole-hour CSV expectation. Phone GPS verification is pending. Local only.
+
 ## Map editor scroll and spacing — 2026-11-23
 
 - The inline pin and firing-line forms no longer autofocus their name fields on opening. Confirmed Report dialogs retain autofocus. On desktop, the map grows and shrinks with the details column as its content reflows, with the previous map height as the minimum. The details column can grow with its contents during editing. Narrow layouts still stack the cards.
