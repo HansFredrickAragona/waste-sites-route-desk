@@ -674,6 +674,10 @@ The Meetings email draft (2026-11-20) matches dated scheduled rows to the curren
 
 The 2026-11-23 update supersedes the scheduled-only and single-date selection rules. Email draft uses the existing meeting filters for all statuses and supports selecting all visible rows with an email address, including undated Not set rows. The reminder template still applies when all selected rows are Scheduled on the same date. Other selections open with a greeting and signature.
 
+The 2026-11-25 meeting text export uses the official Punong Barangay mobile field, matching the existing texting preparation workflow. It groups selected meeting details by normalized mobile number, lets the user edit each message, and downloads `{"messages":[{"mobile":"…","message":"…"}]}` in the browser. Sending remains in the iPhone Shortcut and the export leaves outreach flags and meeting records untouched.
+
+The export review dialog supports personalized drafts and a common message for all selected mobile numbers. Both modes use the same Shortcut JSON structure.
+
 ### Confirmed dashboard report — 2026-11-10
 
 The confirmed dashboard summary and Excel workbook share a report derived from the active review dataset. Barangay updates now record an optional per-barangay timestamp that survives review JSON normalization. Existing activity entries supply dates for older records. The report leaves unknown dates blank. Existing selected-barangay CSVs retain their own scope and format.

@@ -240,6 +240,7 @@ footer { padding: 14px 4px; font-size: .85rem; }
 dialog { width: min(470px, calc(100% - 24px)); color: inherit; background: #faf5e9; }
 dialog::backdrop { background: #202c22a0; }
 label { display: grid; gap: 4px; margin: 10px 0; }
+#fields label[hidden] { display: none; }
 #meeting-date-filter { display: flex; align-items: center; gap: 8px; margin: 0; }
 #meeting-date-filter[hidden] { display: none; }
 .actions { justify-content: flex-end; }
@@ -271,7 +272,7 @@ body:has(#email-actions:not([hidden])) main { padding-bottom: 100px; }
 .meeting-email-choice:has(input) { cursor: pointer; }
 .meeting-email-choice small { flex-basis: 100%; color: #586350; }
 #email-draft { width: min(680px, calc(100% - 24px)); max-height: calc(100dvh - 24px); }
-#email-draft textarea {
+#email-draft textarea, #editor textarea {
   width: 100%;
   resize: vertical;
   padding: 8px;

@@ -346,6 +346,10 @@ Meetings has an Email draft mode for same-date scheduled rows. Confirm opens the
 
 On 2026-11-23, Email draft gained status and date filtering across Scheduled, Complete and Not set rows, plus Select all shown. Same-date Scheduled selections retain the reminder. Other groups get an editable greeting and signature. The draft regression and a headless Edge test with synthetic tracker data passed. Live CSV integration was outside that check. Local only.
 
+On 2026-11-25, Meetings gained Export text JSON using the same row filters and selection controls. The review dialog lets the user edit one message per normalized official Punong Barangay mobile before downloading the existing iPhone Shortcuts JSON format. The Node regression covers phone normalization, grouping and email drafts. The headless browser attempt produced no verifiable result. Browser download and iPhone import still need verification. Local only.
+
+The review dialog now defaults to personalized messages and also accepts one common message for everyone selected. Switching modes keeps edits in both modes until the dialog closes. The Node regression verifies the exported payload for both modes and rejects a blank common message. Browser interaction and iPhone import remain unverified. Local only.
+
 ## Barangay cluster confirmation groups (2026-11-16)
 ClusterSummaryCard.jsx and global.css group the selected cluster by barangay confirmation, with counts for the visible rows. The existing Barangay type dropdown filters the map and cluster list together. Schedule regression tests passed 9/9. Browser layout and interactions remain to be checked. Local only.
 

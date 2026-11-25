@@ -27,8 +27,8 @@ sidebarTabs.addEventListener("change", updateTabOrientation);
 updateTabOrientation();
 let state = { barangays: [], meetings: [] };
 let view = "meetings";
-let selectingEmail = false;
-const emailSelection = new Map();
+let selectionMode = "";
+const meetingSelection = new Map();
 const meetingMenu = document.createElement("div");
 const compactMeetings = matchMedia("(max-width: 800px)");
 meetingMenu.id = "meeting-menu";
@@ -94,7 +94,7 @@ async function post(path, body) {
 
 async function save(path, body) {
   state = await post(path, body);
-  emailSelection.clear();
+  meetingSelection.clear();
 }
 
 async function saveResponse(response) {
@@ -294,35 +294,108 @@ City Mayor’s Office`;
   return { bcc, message };
 }
 
-function setEmailSelection(active) {
-  selectingEmail = active;
-  emailSelection.clear();
-  $("#email-selection").setAttribute("aria-pressed", String(active));
-  $("#email-actions").hidden = !active;
+function recipientMobiles(value) {
+  const numbers = (value || "").split(/[,/;\r\n]+/).flatMap((raw) => {
+    const match = raw.replace(/[\s()-]/g, "").match(/^(?:\+?63|0)?(9[0-9]{9})$/);
+    return match ? ["+63" + match[1]] : [];
+  });
+  return [...new Set(numbers)];
 }
 
-function updateEmailSelection() {
-  $("#email-selection-status").textContent = `${emailSelection.size} selected`;
-  $("#email-confirm").disabled = !emailSelection.size;
+function meetingTexts(selection) {
+  const byMobile = new Map();
+  for (const [meeting, mobiles] of selection) {
+    const date = Date.parse(meeting["Meeting date"]);
+    const detail = [meeting.Barangay, Number.isFinite(date) && dateLabel.format(date),
+      meeting.Status === "Scheduled" ? meeting.Time || "Time pending" : meeting.Status].filter(Boolean);
+    for (const mobile of mobiles) {
+      if (!byMobile.has(mobile)) byMobile.set(mobile, new Set());
+      byMobile.get(mobile).add(detail.join(" – "));
+    }
+  }
+  return new Map([...byMobile].map(([mobile, details]) => [mobile,
+    ["Good day po! This is Hans from the Baguio City Mayor’s Office regarding our WasteConnect meeting.",
+      ...details, "Please let us know if you have any questions or need to coordinate a schedule. Maraming salamat po!"].join("\n\n")]));
 }
 
-function addEmailMeetingRow(meeting, day, addresses) {
+function openTextExport() {
+  const messages = meetingTexts(meetingSelection);
+  openEditor("Review meeting texts", (values) => {
+    const common = values.messageMode === "common";
+    const batch = [...messages.keys()].map((mobile) => ({
+      mobile,
+      message: common ? values.commonMessage : values[mobile]
+    }));
+    if (batch.some(({ message }) => !message.trim())) {
+      throw new Error(common ? "Enter a common message." : "Enter a message for every mobile number.");
+    }
+    const file = new Blob([JSON.stringify({ messages: batch }, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(file);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `meeting-texts-${manilaDate.format(new Date())}.json`;
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }, "Download JSON");
+  const mode = field("messageMode", "Message type", "personalized", [
+    ["personalized", "Personalized messages"],
+    ["common", "One common message for all"]
+  ]);
+  function addMessage(name, title, message) {
+    const label = element("label", title);
+    const input = document.createElement("textarea");
+    input.name = name;
+    input.rows = 5;
+    input.required = true;
+    input.value = message;
+    label.append(input);
+    $("#fields").append(label);
+    return { label, input };
+  }
+  const common = addMessage("commonMessage", "Message for all selected mobile numbers", "");
+  const personalized = [...messages].map(([mobile, message]) => addMessage(mobile, mobile, message));
+  function updateMessageMode() {
+    const useCommon = mode.value === "common";
+    common.input.disabled = common.label.hidden = !useCommon;
+    for (const { label, input } of personalized) {
+      input.disabled = label.hidden = useCommon;
+    }
+    $("#error").textContent = "";
+  }
+  mode.onchange = updateMessageMode;
+  updateMessageMode();
+}
+
+function setMeetingSelection(mode) {
+  selectionMode = mode;
+  meetingSelection.clear();
+  $("#email-selection").setAttribute("aria-pressed", String(mode === "email"));
+  $("#text-selection").setAttribute("aria-pressed", String(mode === "text"));
+  $("#email-actions").hidden = !mode;
+}
+
+function updateMeetingSelection() {
+  $("#email-selection-status").textContent = `${meetingSelection.size} selected`;
+  $("#email-confirm").disabled = !meetingSelection.size;
+}
+
+function addSelectionMeetingRow(meeting, day, recipients) {
   const date = meeting["Meeting date"];
   const name = element("span", meeting.Barangay);
   const choice = element("label", "");
   choice.className = "meeting-email-choice";
-  if (addresses?.length) {
+  if (recipients?.length) {
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
-    checkbox.checked = emailSelection.has(meeting);
+    checkbox.checked = meetingSelection.has(meeting);
     checkbox.onchange = () => {
-      if (checkbox.checked) emailSelection.set(meeting, addresses);
-      else emailSelection.delete(meeting);
-      updateEmailSelection();
+      if (checkbox.checked) meetingSelection.set(meeting, recipients);
+      else meetingSelection.delete(meeting);
+      updateMeetingSelection();
     };
     choice.append(checkbox, name);
   } else {
-    choice.append(name, element("small", "No email on file"));
+    choice.append(name, element("small", selectionMode === "text" ? "No valid mobile on file" : "No email on file"));
   }
   const row = addRow([choice, date, day, meeting.Time || "Pending", meeting.Status, meeting.Remark ?? ""]);
   row.classList.add("meeting-row");
@@ -483,24 +556,27 @@ function render(flippedIndex) {
   const matches = (...values) => values.some((value) => value.toLowerCase().includes(query));
   const meetingView = view === "meetings";
   $("#email-selection").hidden = !meetingView;
+  $("#text-selection").hidden = !meetingView;
   $("table").classList.toggle("roster-table", !meetingView);
-  $("table").classList.toggle("meeting-email-mode", selectingEmail);
+  $("table").classList.toggle("meeting-email-mode", Boolean(selectionMode));
   const headers = meetingView ? ["Barangay", "Meeting date", "Day", "Time", "Status", "Remark"]
     : ["No.", "Barangay", "Email address", "Barangay phone", "Punong Barangay", "Punong Barangay phone",
       "Has meeting", "Emailed", "Texted", "Replied by text"];
   const header = document.createElement("tr");
-  header.append(...[...headers, selectingEmail ? "" : "Action"].map((title) => element("th", title)));
+  header.append(...[...headers, selectionMode ? "" : "Action"].map((title) => element("th", title)));
   $("thead").replaceChildren(header);
   $("tbody").replaceChildren();
-  $("#add").hidden = !meetingView || selectingEmail;
+  $("#add").hidden = !meetingView || Boolean(selectionMode);
 
   if (meetingView) {
-    const addressesByBarangay = new Map();
-    if (selectingEmail) {
+    const recipientsByBarangay = new Map();
+    if (selectionMode) {
       for (const contact of barangays) {
         const name = contact["Barangay Name"];
-        const addresses = recipientAddresses(contact["Barangay Email Address"]);
-        addressesByBarangay.set(name, [...(addressesByBarangay.get(name) ?? []), ...addresses]);
+        const recipients = selectionMode === "text"
+          ? recipientMobiles(contact["Official Contact Number of Punong Barangay"])
+          : recipientAddresses(contact["Barangay Email Address"]);
+        recipientsByBarangay.set(name, [...(recipientsByBarangay.get(name) ?? []), ...recipients]);
       }
     }
     const selectedDay = $("#meeting-day").value;
@@ -528,8 +604,8 @@ function render(flippedIndex) {
       const day = Number.isFinite(timestamp) ? weekday.format(timestamp) : "—";
       const matchesDay = today ? date === today : !selectedDay || day === selectedDay;
       if (!matchesDay || (selectedDate && date !== selectedDate)) continue;
-      if (selectingEmail) {
-        addEmailMeetingRow(row, day, addressesByBarangay.get(row.Barangay));
+      if (selectionMode) {
+        addSelectionMeetingRow(row, day, recipientsByBarangay.get(row.Barangay));
         continue;
       }
       const canFlip = row.Status === "Scheduled" || row.Status === "Complete";
@@ -623,15 +699,15 @@ function render(flippedIndex) {
       flags.find((badge) => badge.classList.contains("flipped"))?.focus({ preventScroll: true });
     }
   }
-  if (selectingEmail) {
+  if (selectionMode) {
     $("#email-select-all").disabled = !document.querySelector(".meeting-email-choice input");
-    updateEmailSelection();
+    updateMeetingSelection();
   }
   $("#message").textContent = $("tbody").rows.length ? "" : "No matching records.";
 }
 
 function switchView(next) {
-  setEmailSelection(false);
+  setMeetingSelection("");
   $("#day-card").hidePopover();
   $("#meeting-day").hidden = next !== "meetings";
   $("#meeting-date-filter").hidden = next !== "meetings";
@@ -673,7 +749,7 @@ $(".tabs").onkeydown = (event) => {
   $("#" + next).focus();
 };
 function applyFilters() {
-  emailSelection.clear();
+  meetingSelection.clear();
   render();
 }
 $("#search").oninput = applyFilters;
@@ -681,23 +757,30 @@ $("#filter").onchange = applyFilters;
 $("#meeting-day").onchange = applyFilters;
 $("#meeting-date").oninput = applyFilters;
 $("#add").onclick = () => editMeeting();
-$("#email-selection").onclick = () => {
-  setEmailSelection(!selectingEmail);
-  render();
-};
+for (const mode of ["email", "text"]) {
+  $(`#${mode}-selection`).onclick = () => {
+    setMeetingSelection(selectionMode === mode ? "" : mode);
+    render();
+  };
+}
 $("#email-select-all").onclick = () => {
   for (const checkbox of document.querySelectorAll(".meeting-email-choice input:not(:checked)")) {
     checkbox.click();
   }
 };
 $("#email-cancel").onclick = () => {
-  setEmailSelection(false);
+  const button = $(`#${selectionMode}-selection`);
+  setMeetingSelection("");
   render();
-  $("#email-selection").focus();
+  button.focus();
 };
 $("#email-confirm").onclick = () => {
-  const rows = [...emailSelection].map(([meeting, addresses]) => ({ meeting, addresses }));
-  if (!rows.length) return;
+  if (!meetingSelection.size) return;
+  if (selectionMode === "text") {
+    openTextExport();
+    return;
+  }
+  const rows = [...meetingSelection].map(([meeting, addresses]) => ({ meeting, addresses }));
   const draft = meetingDraft(rows, manilaDate.format(new Date()), meetingMinutes);
   $("#draft-bcc").value = draft.bcc;
   $("#draft-message").value = draft.message;

@@ -9,8 +9,8 @@ const node = () => ({
   append() {}, setAttribute() {}, addEventListener() {}
 });
 let requestedState = false;
-const { meetingDraft, recipientAddresses } = runInNewContext(
-  app + "\n({ meetingDraft, recipientAddresses });",
+const { meetingDraft, recipientAddresses, recipientMobiles, meetingTexts } = runInNewContext(
+  app + "\n({ meetingDraft, recipientAddresses, recipientMobiles, meetingTexts });",
   {
     document: { querySelector: node, createElement: node, documentElement: node(), body: node() },
     matchMedia: node,
@@ -54,3 +54,45 @@ for (const meeting of [complete, notSet, later]) {
 }
 assert.equal(meetingDraft([{ meeting: notSet, addresses }], date, () => 0).bcc,
   "one@example.com, two@example.com");
+
+const mobiles = [...recipientMobiles("0917 123 4567 / +63 (917) 123-4567; 02 123 4567, 639181234567")];
+assert.deepEqual(mobiles, ["+639171234567", "+639181234567"]);
+const messages = meetingTexts(new Map([[early, mobiles], [late, [mobiles[0]]], [notSet, [mobiles[1]]]]));
+assert.deepEqual([...messages.keys()], mobiles);
+assert.match(messages.get(mobiles[0]), /Rock Quarry, Upper.*9:00 AM/);
+assert.match(messages.get(mobiles[0]), /San Vicente.*Time pending/);
+assert.match(messages.get(mobiles[1]), /Atok Trail/);
+assert.doesNotMatch(messages.get(mobiles[1]), /San Vicente/);
+
+const mode = { value: "personalized" };
+let submit;
+let downloaded;
+runInNewContext(app + `
+  openEditor = (title, callback) => captureSubmit(callback);
+  field = () => mode;
+  meetingSelection.set(meeting, mobiles);
+  openTextExport();
+`, {
+  document: {
+    querySelector: node, documentElement: node(), body: node(),
+    createElement: (tag) => tag === "a" ? { click() {} } : node()
+  },
+  matchMedia: node,
+  fetch: () => new Promise(() => {}),
+  mode, meeting: early, mobiles,
+  captureSubmit: (callback) => { submit = callback; },
+  Blob: class {
+    constructor([contents]) { downloaded = JSON.parse(contents); }
+  },
+  URL: { createObjectURL: () => "blob:test" },
+  setTimeout() {}
+});
+mode.value = "common";
+mode.onchange();
+submit({ messageMode: "common", commonMessage: "Shared reminder" });
+assert.deepEqual(downloaded, { messages: mobiles.map((mobile) => ({ mobile, message: "Shared reminder" })) });
+assert.throws(() => submit({ messageMode: "common", commonMessage: " " }), /Enter a common message/);
+mode.value = "personalized";
+mode.onchange();
+submit({ messageMode: "personalized", [mobiles[0]]: "First", [mobiles[1]]: "Second" });
+assert.deepEqual(downloaded.messages.map(({ message }) => message), ["First", "Second"]);
