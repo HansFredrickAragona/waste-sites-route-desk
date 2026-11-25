@@ -340,6 +340,8 @@ Meeting rows now open Barangay status with the associated name searched and matc
 
 ## Outreach meeting email drafts (2026-11-20)
 
+On 2026-11-25, restored **Merge meeting** for same-barangay rows with matching statuses and retained the Not set to Scheduled flow. The tracker keeps the selected row's date, time, and status and joins both remarks. Node regressions and synthetic CSV persistence checks passed. The browser flow still needs verification because loopback was blocked. Local only. Restart the tracker server and refresh to pick up both changes.
+
 Meetings has an Email draft mode for same-date scheduled rows. Confirm opens the selected barangays’ BCC addresses and an editable schedule reminder. The template uses the saved date and times and retains the supplied Google Meet and advisory links. The initial release added a module route, which an already-running server could not serve. After a report of blank tabs, the page returned to a single deferred script using the existing asset route. JavaScript checks verified startup requests tracker state and the draft regression passed. Browser verification was blocked by loopback access. The existing Python persistence check could not seed without the source roster CSV. Local only.
 
 On 2026-11-23, Email draft gained status and date filtering across Scheduled, Complete and Not set rows, plus Select all shown. Same-date Scheduled selections retain the reminder. Other groups get an editable greeting and signature. The draft regression and a headless Edge test with synthetic tracker data passed. Live CSV integration was outside that check. Local only.

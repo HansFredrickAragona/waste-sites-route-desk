@@ -129,6 +129,12 @@ function deleteMeeting(row, index) {
   $("#fields").append(element("p", meetingDetails(row)));
 }
 
+function meetingMergeTargets(row, index, meetings) {
+  return meetings.filter((target) => target.index !== index
+    && target.row.Barangay === row.Barangay
+    && (target.row.Status === row.Status || (row.Status === "Not set" && target.row.Status === "Scheduled")));
+}
+
 function mergeMeeting(row, index, targets) {
   openEditor("Merge meetings?", ({ target }) => {
     const kept = targets.find((candidate) => String(candidate.index) === target);
@@ -137,7 +143,7 @@ function mergeMeeting(row, index, targets) {
     });
   }, "Confirm merge");
   $("#fields").append(element("p", "Remove " + meetingDetails(row)));
-  const picker = field("target", "Scheduled meeting to keep", String(targets[0].index),
+  const picker = field("target", "Meeting to keep", String(targets[0].index),
     targets.map((target) => [String(target.index), meetingDetails(target.row)]));
   const preview = element("p", "");
   preview.style.whiteSpace = "pre-wrap";
@@ -548,9 +554,7 @@ function render(flippedIndex) {
       }
       const meetingRow = addRow([row.Barangay, date || "Pending", day, row.Time || "Pending", badge, row.Remark ?? ""],
         () => editMeeting(row, index));
-      const targets = row.Status === "Not set"
-        ? ordered.filter((target) => target.row.Barangay === row.Barangay && target.row.Status === "Scheduled")
-        : [];
+      const targets = meetingMergeTargets(row, index, ordered);
       meetingRow.oncontextmenu = (event) => {
         event.preventDefault();
         showMeetingMenu(row, index, targets, event.clientX, event.clientY, canFlip ? badge : null);

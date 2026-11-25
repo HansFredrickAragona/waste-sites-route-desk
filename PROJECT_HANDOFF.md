@@ -666,6 +666,8 @@ Added browser-tab-style close button beside selected barangay shortcut, shown on
 
 ## Separate barangay outreach tracker (2026-11-06)
 
+- **Merge meeting** supports another row for the same barangay with a matching status, or a Scheduled row when starting from Not set. The confirmation identifies the row to remove and previews the joined remarks. The selected row supplies the retained date, time, and status.
+
 The outreach tracker in contact_barangays/outreach-tracker is a plain HTML page with a loopback-only Python server. The two ignored CSVs in its data folder hold outreach flags and meeting history. Follow-ups are separate rows and has-meeting is derived from scheduled or completed records. The updated contact source and the original outreach checklist are read for seeding. This tracker is independent of the Barangay Sites map app.
 
 The Meetings email draft (2026-11-20) matches dated scheduled rows to the current contact roster, restricts a selection to one date, and builds a copyable BCC list and editable plain-text reminder in the browser. The selection and draft are temporary. Drafting does not send mail or write to either CSV. The tracker uses a single deferred client script through the existing asset route so an already-running Python server can serve the updated client.

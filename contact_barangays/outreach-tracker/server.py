@@ -209,8 +209,10 @@ class Tracker:
         removed = confirmed_row(index, expected)
         if keep_index is not None or keep_expected is not None:
             kept = confirmed_row(keep_index, keep_expected)
-            if (removed["Status"], kept["Status"]) != ("Not set", "Scheduled") or removed["Barangay"] != kept["Barangay"]:
-                raise ValueError("Choose a scheduled meeting for the same barangay.")
+            matching_status = removed["Status"] == kept["Status"]
+            pending_to_scheduled = (removed["Status"], kept["Status"]) == ("Not set", "Scheduled")
+            if index == keep_index or removed["Barangay"] != kept["Barangay"] or not (matching_status or pending_to_scheduled):
+                raise ValueError("Choose another eligible meeting for the same barangay.")
             kept["Remark"] = "\n".join(filter(None, (kept["Remark"], removed["Remark"])))
         del rows[index]
         write_csv(self.meetings, MEETINGS, rows)
@@ -270,7 +272,7 @@ def handler(tracker, address):
                     tracker.remove_meeting(data["index"], data["expected"])
                 elif self.path == "/api/meeting/merge":
                     if type(data["keep_index"]) is not int:
-                        raise ValueError("Choose a scheduled meeting to keep.")
+                        raise ValueError("Choose a meeting to keep.")
                     tracker.remove_meeting(data["index"], data["expected"],
                                            data["keep_index"], data["keep_expected"])
                 else:
