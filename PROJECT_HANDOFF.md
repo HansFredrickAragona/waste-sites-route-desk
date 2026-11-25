@@ -678,6 +678,10 @@ The 2026-11-25 meeting text export uses the official Punong Barangay mobile fiel
 
 The export review dialog supports personalized drafts and a common message for all selected mobile numbers. Both modes use the same Shortcut JSON structure.
 
+Barangay status offers **No action recorded** for rows with no stored meeting entry or recorded outreach activity. A **Not set** meeting entry counts as a recorded action. An explicit **No** on an outreach flag or a manual meeting override also counts as recorded.
+
+The read-only **Has movement** column and its Yes/No filters supersede **No action recorded**. The browser derives movement from the Meetings log. Any saved meeting row sets movement to Yes, including Not set.
+
 ### Confirmed dashboard report — 2026-11-10
 
 The confirmed dashboard summary and Excel workbook share a report derived from the active review dataset. Barangay updates now record an optional per-barangay timestamp that survives review JSON normalization. Existing activity entries supply dates for older records. The report leaves unknown dates blank. Existing selected-barangay CSVs retain their own scope and format.

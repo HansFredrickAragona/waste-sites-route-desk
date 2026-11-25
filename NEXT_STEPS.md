@@ -350,6 +350,12 @@ On 2026-11-25, Meetings gained Export text JSON using the same row filters and s
 
 The review dialog now defaults to personalized messages and also accepts one common message for everyone selected. Switching modes keeps edits in both modes until the dialog closes. The Node regression verifies the exported payload for both modes and rejects a blank common message. Browser interaction and iPhone import remain unverified. Local only.
 
+Barangay status now offers **No action recorded**. It excludes barangays with any meeting row, including Not set, or a recorded outreach flag or manual meeting override. JavaScript syntax and existing regression checks passed. Browser interaction remains unverified. Local only.
+
+The read-only **Has movement** column and its Yes/No filters supersede **No action recorded**. Movement is based solely on saved Meetings rows, including Not set. Browser interaction remains unverified. Local only.
+
+Removed the Barangay status Edit button and Action column. Outreach flags are still edited through the row toggles. The Meetings tab retains its Edit button. JavaScript syntax and tracker regression checks passed. Browser interaction remains unverified. Local only.
+
 ## Barangay cluster confirmation groups (2026-11-16)
 ClusterSummaryCard.jsx and global.css group the selected cluster by barangay confirmation, with counts for the visible rows. The existing Barangay type dropdown filters the map and cluster list together. Schedule regression tests passed 9/9. Browser layout and interactions remain to be checked. Local only.
 

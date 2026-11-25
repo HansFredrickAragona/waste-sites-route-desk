@@ -16,7 +16,8 @@ const weekday = new Intl.DateTimeFormat("en", { weekday: "long", timeZone: "UTC"
 const manilaDate = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Manila", dateStyle: "short" });
 const options = {
   meetings: ["All meetings", "Scheduled", "Complete", "Not set"],
-  barangays: ["All barangays", "Scheduled", "Complete", "Has meeting", "Emailed", "Texted", "Replied by text"]
+  barangays: ["All barangays", "Scheduled", "Complete", "Has meeting", "Has movement: Yes", "Has movement: No",
+    "Emailed", "Texted", "Replied by text"]
 };
 const tabs = ["meetings", "barangays", "dashboard"];
 const sidebarTabs = matchMedia("(min-width: 801px)");
@@ -179,13 +180,6 @@ function showMeetingMenu(row, index, targets, x, y, statusButton) {
   meetingMenu.firstElementChild.focus({ preventScroll: true });
 }
 
-function editOutreach(row) {
-  const choices = [["Yes", "Yes"], ["No", "No"]];
-  openEditor(row["Barangay Name"] || "Roster row " + row["No."],
-    (values) => save("/api/outreach", { number: row["No."], ...values }));
-  field("email", "Email sent", row["Email sent"] || "No", choices);
-  field("reply", "Replied by text", row.isreplied || "No", choices);
-}
 
 function addRow(cells, edit) {
   const row = document.createElement("tr");
@@ -195,13 +189,13 @@ function addRow(cells, edit) {
     else cell.textContent = value;
     row.append(cell);
   }
-  row.append(document.createElement("td"));
+  const headers = $("thead").rows[0].cells;
+  if (cells.length < headers.length) row.append(document.createElement("td"));
   if (edit) {
     const button = element("button", "Edit");
     button.onclick = edit;
     row.lastChild.append(button);
   }
-  const headers = $("thead").rows[0].cells;
   Array.from(row.cells).forEach((cell, index) => {
     cell.dataset.label = headers[index].textContent;
   });
@@ -561,9 +555,10 @@ function render(flippedIndex) {
   $("table").classList.toggle("meeting-email-mode", Boolean(selectionMode));
   const headers = meetingView ? ["Barangay", "Meeting date", "Day", "Time", "Status", "Remark"]
     : ["No.", "Barangay", "Email address", "Barangay phone", "Punong Barangay", "Punong Barangay phone",
-      "Has meeting", "Emailed", "Texted", "Replied by text"];
+      "Has meeting", "Has movement", "Emailed", "Texted", "Replied by text"];
   const header = document.createElement("tr");
-  header.append(...[...headers, selectionMode ? "" : "Action"].map((title) => element("th", title)));
+  if (meetingView) headers.push(selectionMode ? "" : "Action");
+  header.append(...headers.map((title) => element("th", title)));
   $("thead").replaceChildren(header);
   $("tbody").replaceChildren();
   $("#add").hidden = !meetingView || Boolean(selectionMode);
@@ -663,14 +658,18 @@ function render(flippedIndex) {
       if (index === flippedIndex) badge.focus({ preventScroll: true });
     }
   } else {
+    const movementNames = new Set(meetings.map((row) => row.Barangay));
     const meetingNames = new Set(meetings.filter((row) => row.Status === filter).map((row) => row.Barangay));
     for (const row of barangays) {
       const name = row["Barangay Name"];
+      const hasMovement = movementNames.has(name);
       if (!matches(name, row["Barangay Email Address"], row["Name of Punong Barangay"])) continue;
       if (filter === "Emailed" && row["Email sent"] !== "Yes") continue;
       if (filter === "Texted" && row.isTextSent !== "Yes") continue;
       if (filter === "Replied by text" && row.isreplied !== "Yes") continue;
       if (filter === "Has meeting" && row.isMeeting !== "Yes") continue;
+      if (filter === "Has movement: Yes" && !hasMovement) continue;
+      if (filter === "Has movement: No" && hasMovement) continue;
       if (["Scheduled", "Complete"].includes(filter) && !meetingNames.has(name)) continue;
       const label = name && !/^\d+$/.test(name) ? name : (name || "Missing name") + " (review source)";
       const flags = [
@@ -679,10 +678,10 @@ function render(flippedIndex) {
         outreachBadge(row, "isTextSent", "Texted", flippedIndex),
         outreachBadge(row, "isreplied", "Replied by text", flippedIndex)
       ];
-      const rosterRow = addRow([row["No."], label, row["Barangay Email Address"],
+      addRow([row["No."], label, row["Barangay Email Address"],
         row["Official Barangay Landline or Barangay CP Number"] || "—",
         row["Name of Punong Barangay"], row["Official Contact Number of Punong Barangay"] || "—",
-        ...flags], () => editOutreach(row));
+        flags[0], hasMovement ? "Yes" : "No", ...flags.slice(1)]);
       const disclosure = element("button", label);
       disclosure.type = "button";
       disclosure.className = "roster-disclosure";

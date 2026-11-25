@@ -209,7 +209,6 @@ th, td { padding: 9px 8px; border-top: 1px solid #ddd6c3; overflow-wrap: anywher
 th { color: #465a47; font-size: .8rem; background: #e8eadb; }
 .roster-table th:first-child { width: 4%; }
 .roster-table th:nth-child(2), .roster-table th:nth-child(3) { width: 16%; }
-.roster-table th:last-child { width: 6%; }
 table:not(.roster-table) th:first-child { width: 24%; }
 table:not(.roster-table) th:last-child { width: 72px; text-align: right; }
 .meeting-row td:last-child button { display: block; margin: 0 0 4px auto; }
