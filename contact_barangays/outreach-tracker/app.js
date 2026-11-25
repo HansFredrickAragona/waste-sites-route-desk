@@ -158,7 +158,6 @@ function mergeMeeting(row, index, targets) {
 }
 
 function showMeetingMenu(row, index, targets, x, y, statusButton) {
-  meetingMenu.hidePopover();
   const actions = [["Delete meeting", () => deleteMeeting(row, index)]];
   if (targets.length) actions.push(["Merge meeting", () => mergeMeeting(row, index, targets)]);
   if (compactMeetings.matches) {
@@ -166,8 +165,15 @@ function showMeetingMenu(row, index, targets, x, y, statusButton) {
       ["Open Barangay status", () => openBarangay(row.Barangay)]);
     if (statusButton) actions.splice(1, 0, [statusButton.title, () => statusButton.click()]);
   }
-  meetingMenu.replaceChildren(...actions.map(([label, action]) => {
-    const button = element("button", label);
+  showContextMenu("Meeting actions", actions, x, y);
+}
+
+function showContextMenu(label, actions, x, y) {
+  meetingMenu.hidePopover();
+  meetingMenu.setAttribute("aria-label", label);
+  meetingMenu.replaceChildren(...actions.map(([title, action]) => {
+    const button = element("button", title);
+    button.type = "button";
     button.onclick = () => {
       meetingMenu.hidePopover();
       action();
@@ -180,6 +186,29 @@ function showMeetingMenu(row, index, targets, x, y, statusButton) {
   meetingMenu.firstElementChild.focus({ preventScroll: true });
 }
 
+function enableContactEdit(cell, row, key, label) {
+  cell.classList.add("editable-contact");
+  const openMenu = (x, y) => showContextMenu(label + " actions", [["Edit", () => {
+    const expected = row[key];
+    openEditor(`Edit ${label} · ${row["Barangay Name"]}`, ({ value }) =>
+      save("/api/contact", { number: row["No."], field: key, expected, value }));
+    const input = field("value", label, expected);
+    input.focus();
+    input.select();
+  }]], x, y);
+  cell.tabIndex = 0;
+  cell.title = "Right-click to edit " + label;
+  cell.oncontextmenu = (event) => {
+    event.preventDefault();
+    openMenu(event.clientX, event.clientY);
+  };
+  cell.onkeydown = (event) => {
+    if (event.key !== "ContextMenu" && !(event.shiftKey && event.key === "F10")) return;
+    event.preventDefault();
+    const bounds = cell.getBoundingClientRect();
+    openMenu(bounds.left, bounds.bottom);
+  };
+}
 
 function addRow(cells, edit) {
   const row = document.createElement("tr");
@@ -678,10 +707,16 @@ function render(flippedIndex) {
         outreachBadge(row, "isTextSent", "Texted", flippedIndex),
         outreachBadge(row, "isreplied", "Replied by text", flippedIndex)
       ];
-      addRow([row["No."], label, row["Barangay Email Address"],
+      const rosterRow = addRow([row["No."], label, row["Barangay Email Address"],
         row["Official Barangay Landline or Barangay CP Number"] || "—",
         row["Name of Punong Barangay"], row["Official Contact Number of Punong Barangay"] || "—",
         flags[0], hasMovement ? "Yes" : "No", ...flags.slice(1)]);
+      const contactKeys = ["Barangay Email Address", "Official Barangay Landline or Barangay CP Number",
+        "Name of Punong Barangay", "Official Contact Number of Punong Barangay"];
+      contactKeys.forEach((key, index) => {
+        const cell = rosterRow.cells[index + 2];
+        enableContactEdit(cell, row, key, cell.dataset.label);
+      });
       const disclosure = element("button", label);
       disclosure.type = "button";
       disclosure.className = "roster-disclosure";

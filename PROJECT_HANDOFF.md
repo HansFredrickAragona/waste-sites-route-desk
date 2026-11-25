@@ -682,6 +682,8 @@ Barangay status offers **No action recorded** for rows with no stored meeting en
 
 The read-only **Has movement** column and its Yes/No filters supersede **No action recorded**. The browser derives movement from the Meetings log. Any saved meeting row sets movement to Yes, including Not set.
 
+The Barangay status contact menu edits one of four roster fields at a time through the local server. It checks the previous field value before writing the working roster CSV. Meeting rows continue to link by barangay name.
+
 ### Confirmed dashboard report — 2026-11-10
 
 The confirmed dashboard summary and Excel workbook share a report derived from the active review dataset. Barangay updates now record an optional per-barangay timestamp that survives review JSON normalization. Existing activity entries supply dates for older records. The report leaves unknown dates blank. Existing selected-barangay CSVs retain their own scope and format.

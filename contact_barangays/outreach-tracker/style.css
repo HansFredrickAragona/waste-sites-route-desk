@@ -216,6 +216,17 @@ table:not(.roster-table) th:last-child { width: 72px; text-align: right; }
 #meeting-menu button { display: block; width: 100%; text-align: left; }
 td:last-child { text-align: right; }
 tbody tr:hover { background: #ebeddf; }
+.editable-contact { cursor: context-menu; }
+.editable-contact:focus-visible {
+  background: #dce8d4;
+  outline-offset: -2px;
+}
+@media (hover: hover) {
+  .editable-contact:hover {
+    background: #dce8d4;
+    box-shadow: inset 0 0 0 2px #648269;
+  }
+}
 .meeting-row { cursor: pointer; }
 .meeting-row:hover, .meeting-row:focus-visible { background: #dce8d4; }
 tbody tr.selected-barangay { background: #dce8d4; }

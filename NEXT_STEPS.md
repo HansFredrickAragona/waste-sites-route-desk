@@ -356,6 +356,10 @@ The read-only **Has movement** column and its Yes/No filters supersede **No acti
 
 Removed the Barangay status Edit button and Action column. Outreach flags are still edited through the row toggles. The Meetings tab retains its Edit button. JavaScript syntax and tracker regression checks passed. Browser interaction remains unverified. Local only.
 
+Added per-cell contact editing in Barangay status through a right-click menu or Shift+F10. The server writes the selected field to the working roster CSV. Synthetic CSV checks verified all four fields and rejection of stale or unsupported edits. JavaScript regressions passed. Restart the local server to enable saves. Browser interaction remains unverified. Local only.
+
+Editable contact cells now have an individual hover highlight, a context-menu cursor, and a keyboard focus highlight. JavaScript checks passed. The visual effect remains unverified in a browser. Local only.
+
 ## Barangay cluster confirmation groups (2026-11-16)
 ClusterSummaryCard.jsx and global.css group the selected cluster by barangay confirmation, with counts for the visible rows. The existing Barangay type dropdown filters the map and cluster list together. Schedule regression tests passed 9/9. Browser layout and interactions remain to be checked. Local only.
 

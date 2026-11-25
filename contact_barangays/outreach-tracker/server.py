@@ -14,6 +14,7 @@ CONTACTS = ("No.", "Barangay Name", "Barangay Email Address", "Name of Punong Ba
             "isMeeting", "isreplied", "Email sent", "Meeting override", "isTextSent",
             "Official Barangay Landline or Barangay CP Number", "Official Contact Number of Punong Barangay")
 MEETINGS = ("Barangay", "Meeting date", "Time", "Status", "Remark")
+CONTACT_FIELDS = (CONTACTS[2], CONTACTS[3], *CONTACTS[-2:])
 
 
 def read_csv(path):
@@ -96,6 +97,16 @@ class Tracker:
         if row is None:
             raise ValueError("Barangay number not found.")
         row.update({"Email sent": email, "isreplied": reply})
+        write_csv(self.contacts, CONTACTS, rows)
+
+    def edit_contact(self, number, field, expected, value):
+        if field not in CONTACT_FIELDS or not isinstance(value, str) or any(char in value for char in "\r\n\0"):
+            raise ValueError("Enter a valid contact value.")
+        rows = read_csv(self.contacts)
+        row = next((row for row in rows if row["No."] == number), None)
+        if row is None or row[field] != expected:
+            raise ValueError("The contact changed. Reload the tracker and try again.")
+        row[field] = value.strip()
         write_csv(self.contacts, CONTACTS, rows)
 
     def toggle_outreach(self, number, field):
@@ -259,6 +270,8 @@ def handler(tracker, address):
                     tracker.outreach(data["number"], data["email"], data["reply"])
                 elif self.path == "/api/outreach-toggle":
                     tracker.toggle_outreach(data["number"], data["field"])
+                elif self.path == "/api/contact":
+                    tracker.edit_contact(data["number"], data["field"], data["expected"], data["value"])
                 elif self.path == "/api/snapshot":
                     version = tracker.snapshot(HERE / "output", **data)
                     self.respond_json({"folder": "output/" + version})
