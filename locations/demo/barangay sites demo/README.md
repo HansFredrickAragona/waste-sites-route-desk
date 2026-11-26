@@ -62,3 +62,5 @@ The app reads the raw barangay site records directly from `../../data/jsons/bara
 Review edits are saved to the browser's local storage. Export a JSON copy before switching browsers or clearing site data.
 
 GeoJSON exports include the saved collection-site name in site_name, alongside barangay and purok. Points are arranged alphabetically by barangay in one FeatureCollection, retaining individual sites and longitude/latitude coordinates.
+
+GeoJSON also includes named firing lines as LineString features with ordered connected nodes, type firing_line and assigned puroks. Both Points and LineStrings expose name; Points retain site_name. Preview counts cover both geometry types. Lines with fewer than two valid nodes or any invalid coordinate are excluded as a whole.

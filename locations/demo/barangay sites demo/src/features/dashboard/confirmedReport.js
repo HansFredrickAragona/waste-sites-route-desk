@@ -61,6 +61,18 @@ export function confirmedGeoJson(report) {
         geometry: { type: "Point", coordinates: [longitude, latitude] },
       });
     }
+    for (const line of barangay.firingLines ?? []) {
+      const coordinates = line.coordinates;
+      if (!Array.isArray(coordinates) || coordinates.length < 2 ||
+          !coordinates.every((point) => Array.isArray(point) && point.length === 2 &&
+            Number.isFinite(point[0]) && Math.abs(point[0]) <= 90 &&
+            Number.isFinite(point[1]) && Math.abs(point[1]) <= 180)) continue;
+      features.push({
+        type: "Feature",
+        properties: { barangay: barangay.name, name: line.name ?? "", type: "firing_line", puroks: line.puroks ?? [] },
+        geometry: { type: "LineString", coordinates: coordinates.map(([latitude, longitude]) => [longitude, latitude]) },
+      });
+    }
   }
   return { type: "FeatureCollection", features };
 }

@@ -735,3 +735,9 @@ The Details table opens the existing site or firing-line fields in a temporary d
 Owner approved one GeoJSON file with collection-site names and sites together alphabetically by barangay. Export now includes `site_name` from the saved point name, alongside `barangay` and `purok`. Each site remains a separate Point in one FeatureCollection; site order within a barangay, report order, coordinates, eligibility, preview/download flow and stored data are preserved.
 
 Report tests passed 4/4, schedule tests passed 10/10 and production build passed with the existing >500 kB chunk advisory. Browser preview/download interaction remains unverified; check that flow next. Local only; no commit, push or deployment.
+
+## Named firing lines in GeoJSON — 2026-11-26
+
+GeoJSON now includes saved firing lines as LineString features alongside collection Points in each alphabetically ordered barangay. Both geometries expose the saved `name`; Points retain `site_name` and `purok`, while lines include `type: firing_line` and `puroks`. Ordered line nodes are converted from internal latitude/longitude to GeoJSON longitude/latitude, preserving connections. Lines require at least two valid nodes; invalid lines are skipped as a whole to avoid inventing connections. No site-to-line membership is inferred. Preview counts now describe mapped features rather than only points. This supersedes the point-only export description above.
+
+Report tests passed 4/4 and schedule tests passed 10/10; build passed with the existing chunk-size advisory before the final Point name alias, and report tests passed again after that alias. Browser/download interactions remain unverified. Local only; no commit, push or deployment.

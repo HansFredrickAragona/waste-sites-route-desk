@@ -3,7 +3,7 @@ import test from "node:test";
 import { confirmedGeoJson, confirmedReport } from "../src/features/dashboard/confirmedReport.js";
 import { createLineDraft, createMapEditingActions, createPinDraft } from "../src/features/barangay-review/actions/createMapEditingActions.js";
 
-test("GeoJSON includes only mapped collection points from confirmed barangays", () => {
+test("GeoJSON includes mapped collection points and named connected lines from confirmed barangays", () => {
   const point = { name: "Collection point", purok: "Purok 2", latitude: 16.4, longitude: 120.6 };
   const barangay = {
     id: "confirmed", name: "Irisan", confirmed: true, puroks: [],
@@ -17,6 +17,10 @@ test("GeoJSON includes only mapped collection points from confirmed barangays", 
       type: "Feature",
       properties: { barangay: "Irisan", name: "Collection point", site_name: "Collection point", purok: "Purok 2" },
       geometry: { type: "Point", coordinates: [120.6, 16.4] },
+    }, {
+      type: "Feature",
+      properties: { barangay: "Irisan", name: "Route", type: "firing_line", puroks: [] },
+      geometry: { type: "LineString", coordinates: [[120.6, 16.4], [120.6, 16.41]] },
     }],
   });
 });

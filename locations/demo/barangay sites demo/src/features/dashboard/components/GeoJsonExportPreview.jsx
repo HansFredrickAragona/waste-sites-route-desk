@@ -8,10 +8,10 @@ export function GeoJsonExportPreview({ preview, error, onClose, onDownload }) {
         <button className="icon-close" type="button" aria-label="Close GeoJSON preview" onClick={onClose}>×</button>
       </header>
       <div className="geojson-preview-content">
-        <p><strong>confirmed-barangays.geojson</strong> · {preview.count} mapped collection points</p>
+        <p><strong>confirmed-barangays.geojson</strong> · {preview.count} mapped features (collection points and firing lines)</p>
         <p>This is the exact JSON that will download. Coordinates are longitude, latitude.</p>
         <pre tabIndex={0} aria-label="GeoJSON file preview"><code>{preview.text}</code></pre>
-        {!preview.count && <p>No mapped collection points are available. This file contains an empty FeatureCollection.</p>}
+        {!preview.count && <p>No mapped collection points or firing lines are available. This file contains an empty FeatureCollection.</p>}
         {error && <p role="alert">{error}</p>}
       </div>
       <footer className="dialog-actions">
