@@ -1,5 +1,10 @@
 # DEVELOPMENT CONTINUATION
 
+## Confirmed Report GeoJSON preview — 2026-11-26
+
+- Interpreted owner's “GH JSON” as GeoJSON in Barangay Sites Confirmed Report, stated this assumption after an ambiguous yes response. Export as → Export GeoJSON now prepares a snapshot and opens a compact scrollable preview instead of downloading immediately. Shows the exact formatted JSON, filename, mapped-point count and coordinate order. Cancel/close/Escape dismiss; Confirm and download downloads that exact snapshot. Empty FeatureCollections are explained. Workbook export is unchanged.
+- Updated ConfirmedReport.jsx, added focused GeoJsonExportPreview.jsx using existing DialogShell, and added scoped styles. All 13 targeted report/schedule tests and production build passed with existing >500 kB chunk warning; diff whitespace checked. Browser/mobile preview/download interactions remain unverified. Local only, no commit/push/deployment.
+
 ## No movement dashboard correction — 2026-11-26
 
 - Owner clarified that no action means the existing Has movement: No definition. Supersedes the broader outreach-flag rule below: renamed the card Barangays with no movement and count exactly the roster rows with no saved meeting row, including Not set. Email/text flags and manual meeting overrides are irrelevant. Current saved CSVs have 128 roster rows, 55 with meeting movement, and 73 without; the owner's estimate of around 66 is not supported by these saved rows. No data changed.
@@ -11,6 +16,11 @@
 - Per the owner's correction, top cards now show Scheduled meetings, Completed meetings, Completed barangays and Barangays with no action, replacing Emailed/Texted/Replied by text cards. No action excludes every meeting row (including Not set) and any Yes outreach/meeting flag or Yes meeting override. Existing outreach chart stays. Four-column desktop/two-column phone grid; explanatory labels distinguish rows and barangays.
 - Shared dashboard calculation drives meeting cards, barangay pie and daily groups. Visible Dashboard refreshes CSV state on entry/every 10 seconds/visibility return, shows Last checked or refresh failure, skips open editors and protects newer state from stale responses.
 - Node regressions and JS syntax passed, covering repeat completed meetings, priority rules, no-action cases, refresh success/failure, navigation, hidden pages and stale-response protection. Desktop browser verified cards at 4/44/43/43 against saved CSV counts and advancing refresh timestamp; no CSV edits made for verification. Mobile appearance and external-edit refresh were not tested. Local only; no commit/push/deployment.
+
+## Confirmed Report export menu — 2026-11-26
+
+- Grouped the Barangay Sites Confirmed Report's Export all (.xlsx) and Export GeoJSON under one Export as dropdown. Existing report scope, workbook/GeoJSON handlers, empty-report disabled actions and workbook loading state remain. Selecting an export closes the menu. Breakdown navigation is unchanged.
+- All 13 targeted report/schedule tests passed; production build passed with the existing >500 kB chunk advisory. Browser/mobile dropdown interaction remains unverified. Local only, no commit, push or deployment.
 
 ## Unified outreach exports — 2026-11-26
 

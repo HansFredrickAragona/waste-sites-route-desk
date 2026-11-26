@@ -4,10 +4,13 @@ import { confirmedGeoJson, confirmedReport, detailColumns, summaryColumns } from
 import { downloadConfirmedWorkbook } from "../confirmedWorkbook.js";
 import { DashboardDetailPage } from "./DashboardDetailPage.jsx";
 import { ConfirmedReportEditor } from "./ConfirmedReportEditor.jsx";
+import { GeoJsonExportPreview } from "./GeoJsonExportPreview.jsx";
 
 function ConfirmedReport({ report, selected, onSelect, onOpenMap, canEdit, commitPinDraft, commitLineDraft }) {
   const [exporting, setExporting] = useState(false);
   const [error, setError] = useState("");
+  const [geoJsonPreview, setGeoJsonPreview] = useState(null);
+  const exportMenu = useRef(null);
   const tableRegion = useRef(null);
   const summaryPosition = useRef(null);
   const menu = useRef(null);
@@ -64,6 +67,7 @@ function ConfirmedReport({ report, selected, onSelect, onOpenMap, canEdit, commi
   }, [selected]);
 
   async function exportAll() {
+    exportMenu.current.open = false;
     setExporting(true);
     setError("");
     try {
@@ -76,11 +80,22 @@ function ConfirmedReport({ report, selected, onSelect, onOpenMap, canEdit, commi
   }
 
   function exportGeoJson() {
+    exportMenu.current.open = false;
     setError("");
     try {
       const geoJson = confirmedGeoJson(report);
-      const blob = new Blob([JSON.stringify(geoJson)], { type: "application/geo+json" });
+      setGeoJsonPreview({ text: JSON.stringify(geoJson, null, 2), count: geoJson.features.length });
+    } catch {
+      setError("The GeoJSON preview could not be prepared. Please try again.");
+    }
+  }
+
+  function downloadGeoJson() {
+    setError("");
+    try {
+      const blob = new Blob([geoJsonPreview.text], { type: "application/geo+json" });
       downloadBlob(blob, "confirmed-barangays.geojson");
+      setGeoJsonPreview(null);
     } catch {
       setError("The GeoJSON file could not be downloaded. Please try again.");
     }
@@ -96,14 +111,17 @@ function ConfirmedReport({ report, selected, onSelect, onOpenMap, canEdit, commi
           {selected ? <>
             <button type="button" onClick={() => onSelect(null)}>‹ Back to Summary</button>
             <button type="button" onClick={() => onOpenMap(selected.barangay)}>Open Map</button>
-          </> : <>
+          </> : <details className="confirmed-report-export-menu" ref={exportMenu}>
+            <summary>Export as</summary>
+            <div className="confirmed-report-export-options" role="group" aria-label="Confirmed report export options">
             <button type="button" onClick={exportAll} disabled={exporting || !report.length}>
-              {exporting ? "Preparing workbook…" : "Export All (.xlsx)"}
+              {exporting ? "Preparing workbook…" : "Export all (.xlsx)"}
             </button>
             <button type="button" onClick={exportGeoJson} disabled={!report.length}>
               Export GeoJSON
             </button>
-          </>}
+            </div>
+          </details>}
         </div>
         {error && <p role="alert">{error}</p>}
         {rows.length ? (
@@ -149,6 +167,8 @@ function ConfirmedReport({ report, selected, onSelect, onOpenMap, canEdit, commi
         commitPinDraft={commitPinDraft}
         commitLineDraft={commitLineDraft}
       />}
+      {geoJsonPreview && <GeoJsonExportPreview preview={geoJsonPreview} error={error}
+        onClose={() => { setGeoJsonPreview(null); setError(""); }} onDownload={downloadGeoJson} />}
     </>
   );
 }

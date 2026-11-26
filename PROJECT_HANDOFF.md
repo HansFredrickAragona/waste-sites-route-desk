@@ -1,5 +1,9 @@
 # PROJECT HANDOFF
 
+## Confirmed Report GeoJSON preview — 2026-11-26
+
+Following the owner's request to see JSON before confirming download, Export GeoJSON now opens a DialogShell-based preview showing the exact formatted snapshot, filename, mapped-point count and longitude/latitude order. Confirm and download uses the same stored JSON text; Cancel/close/Escape dismisses it. No export schema, feature eligibility, stored data or workbook changes. “GH JSON” was interpreted as Confirmed Report GeoJSON and that assumption was stated; the owner's yes did not explicitly distinguish GeoJSON from outreach Text JSON. Report/schedule tests passed 13/13 and build passed with the existing large-chunk advisory. Browser/mobile preview verification is pending. Local only.
+
 ## No action means no movement — 2026-11-26 (supersedes prior card definition)
 
 Owner corrected the dashboard definition: no action means Has movement: No. The card is now Barangays with no movement and exactly follows the roster filter: no saved meeting row at any status, including Not set. Outreach flags/manual overrides do not count as movement. This supersedes the previous broader exclusion of contacted barangays. Read-only inspection of current CSVs confirms 73 without meeting movement (128 roster rows minus 55 with movement), rather than the owner's approximate 66. No records changed. Node regression and syntax passed; browser verification pending. Local only.
@@ -9,6 +13,10 @@ Owner corrected the dashboard definition: no action means Has movement: No. The 
 The owner confirmed the 44-versus-43 difference was valid (completed meeting rows versus completed barangays) and requested clearer cards. Top metrics now show Scheduled meetings, Completed meetings, Completed barangays and Barangays with no action. This supersedes the Emailed/Texted/Replied by text top cards; their outreach chart remains. No action requires no saved meeting row at any status and no Yes meeting/outreach flag or manual meeting override. A completed barangay has at least one completed meeting. The pie retains Complete > Scheduled > Not set precedence, counting each roster name once.
 
 Dashboard state refreshes from local CSVs on opening and every 10 seconds while visible, plus visibility return. A Last checked/error status distinguishes freshness; polling skips open editors and discards responses after navigation/newer saves. No shared database/sync added. Regression/syntax checks passed and desktop browser verified 4 scheduled meetings, 44 completed meetings, 43 completed barangays and 43 with no action, matching saved CSVs; refresh timestamp advanced. No live data was edited. Mobile and external-edit integration remain unverified. Local only.
+
+## Confirmed Report export menu — 2026-11-26
+
+The Barangay Sites Confirmed Report now groups Export all (.xlsx) and Export GeoJSON under Export as, following the owner's request to consolidate its export controls. This is independent of the outreach tracker. Export scope and serialization remain unchanged; the summary retains both choices and the breakdown retains Back to Summary/Open Map. Targeted report/schedule tests passed 13/13 and build passed with existing chunk warnings. Browser/mobile menu checks remain pending. Local only.
 
 ## Unified outreach exports — 2026-11-26
 
