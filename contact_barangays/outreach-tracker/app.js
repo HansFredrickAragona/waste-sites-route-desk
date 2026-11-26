@@ -325,7 +325,7 @@ function recipientMobiles(value) {
   return [...new Set(numbers)];
 }
 
-function meetingTexts(selection) {
+function meetingTexts(selection, barangayView = false) {
   const byMobile = new Map();
   for (const [meeting, mobiles] of selection) {
     const date = Date.parse(meeting["Meeting date"]);
@@ -333,17 +333,42 @@ function meetingTexts(selection) {
       meeting.Status === "Scheduled" ? meeting.Time || "Time pending" : meeting.Status].filter(Boolean);
     for (const mobile of mobiles) {
       if (!byMobile.has(mobile)) byMobile.set(mobile, new Set());
-      byMobile.get(mobile).add(detail.join(" – "));
+      byMobile.get(mobile).add(barangayView ? meeting.Barangay : detail.join(" – "));
     }
   }
   return new Map([...byMobile].map(([mobile, details]) => [mobile,
-    ["Good day po! This is Hans from the Baguio City Mayor’s Office regarding our WasteConnect meeting.",
+    [barangayView
+      ? "Good day po! This is Hans from the Baguio City Mayor’s Office regarding WasteConnect."
+      : "Good day po! This is Hans from the Baguio City Mayor’s Office regarding our WasteConnect meeting.",
       ...details, "Please let us know if you have any questions or need to coordinate a schedule. Maraming salamat po!"].join("\n\n")]));
 }
 
+const barangayMessageTemplate = `Hello po! I am Hans from the Baguio City Mayor’s Office. May I know when you are available for an online meeting to confirm the collection sites/staging areas for Barangay <Barangay>?
+
+Please let me know your availability.
+
+Maraming salamat po!`;
+
+function barangayTemplateTexts(selection, template) {
+  if (!template.trim()) throw new Error("Enter a message template.");
+  const namesByMobile = new Map();
+  for (const [row, mobiles] of selection) {
+    for (const mobile of mobiles) {
+      if (!namesByMobile.has(mobile)) namesByMobile.set(mobile, new Set());
+      namesByMobile.get(mobile).add(row.Barangay);
+    }
+  }
+  return new Map([...namesByMobile].map(([mobile, names]) =>
+    [mobile, template.replaceAll("<Barangay>", () => [...names].join(", "))]));
+}
+
 function openTextExport() {
-  const messages = meetingTexts(meetingSelection);
-  openEditor("Review meeting texts", (values) => {
+  const barangayView = view === "barangays";
+  const selection = selectedMessageRows();
+  const messages = barangayView
+    ? barangayTemplateTexts(selection, barangayMessageTemplate)
+    : meetingTexts(selection);
+  openEditor(barangayView ? "Review barangay texts" : "Review meeting texts", (values) => {
     const common = values.messageMode === "common";
     const batch = [...messages.keys()].map((mobile) => ({
       mobile,
@@ -356,7 +381,7 @@ function openTextExport() {
     const url = URL.createObjectURL(file);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `meeting-texts-${manilaDate.format(new Date())}.json`;
+    link.download = `${barangayView ? "barangay" : "meeting"}-texts-${manilaDate.format(new Date())}.json`;
     link.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }, "Download JSON");
@@ -376,10 +401,34 @@ function openTextExport() {
     return { label, input };
   }
   const common = addMessage("commonMessage", "Message for all selected mobile numbers", "");
+  let template;
+  let applyTemplate;
+  let templateHelp;
+  if (barangayView) {
+    template = addMessage("messageTemplate", "Personalized message template", barangayMessageTemplate);
+    template.input.required = false;
+    templateHelp = element("p", "Use <Barangay> for each recipient’s barangay name. Shared numbers include all selected barangay names. Applying replaces all individual message edits below.");
+    applyTemplate = element("button", "Apply template to all");
+    applyTemplate.type = "button";
+    $("#fields").append(templateHelp, applyTemplate);
+  }
   const personalized = [...messages].map(([mobile, message]) => addMessage(mobile, mobile, message));
+  if (applyTemplate) applyTemplate.onclick = () => {
+    try {
+      const updated = barangayTemplateTexts(selection, template.input.value);
+      for (const { input } of personalized) input.value = updated.get(input.name);
+      $("#error").textContent = "";
+    } catch (error) {
+      $("#error").textContent = error.message;
+    }
+  };
   function updateMessageMode() {
     const useCommon = mode.value === "common";
     common.input.disabled = common.label.hidden = !useCommon;
+    if (template) {
+      template.input.disabled = template.label.hidden = useCommon;
+      templateHelp.hidden = applyTemplate.hidden = useCommon;
+    }
     for (const { label, input } of personalized) {
       input.disabled = label.hidden = useCommon;
     }
@@ -402,24 +451,40 @@ function updateMeetingSelection() {
   $("#email-confirm").disabled = !meetingSelection.size;
 }
 
-function addSelectionMeetingRow(meeting, day, recipients) {
-  const date = meeting["Meeting date"];
-  const name = element("span", meeting.Barangay);
+function selectedMessageRows() {
+  return new Map([...meetingSelection].map(([row, recipients]) =>
+    [view === "barangays" ? { Barangay: row["Barangay Name"] } : row, recipients]));
+}
+
+function contactRecipients(contact) {
+  return selectionMode === "text"
+    ? recipientMobiles(contact["Official Contact Number of Punong Barangay"])
+    : recipientAddresses(contact["Barangay Email Address"]);
+}
+
+function recipientChoice(row, name, recipients) {
+  const nameLabel = element("span", name);
   const choice = element("label", "");
   choice.className = "meeting-email-choice";
   if (recipients?.length) {
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
-    checkbox.checked = meetingSelection.has(meeting);
+    checkbox.checked = meetingSelection.has(row);
     checkbox.onchange = () => {
-      if (checkbox.checked) meetingSelection.set(meeting, recipients);
-      else meetingSelection.delete(meeting);
+      if (checkbox.checked) meetingSelection.set(row, recipients);
+      else meetingSelection.delete(row);
       updateMeetingSelection();
     };
-    choice.append(checkbox, name);
+    choice.append(checkbox, nameLabel);
   } else {
-    choice.append(name, element("small", selectionMode === "text" ? "No valid mobile on file" : "No email on file"));
+    choice.append(nameLabel, element("small", selectionMode === "text" ? "No valid mobile on file" : "No email on file"));
   }
+  return choice;
+}
+
+function addSelectionMeetingRow(meeting, day, recipients) {
+  const date = meeting["Meeting date"];
+  const choice = recipientChoice(meeting, meeting.Barangay, recipients);
   const row = addRow([choice, date, day, meeting.Time || "Pending", meeting.Status, meeting.Remark ?? ""]);
   row.classList.add("meeting-row");
 }
@@ -578,10 +643,10 @@ function render(flippedIndex) {
   const query = $("#search").value.trim().toLowerCase();
   const matches = (...values) => values.some((value) => value.toLowerCase().includes(query));
   const meetingView = view === "meetings";
-  $("#email-selection").hidden = !meetingView;
-  $("#text-selection").hidden = !meetingView;
+  $("#email-selection").hidden = false;
+  $("#text-selection").hidden = false;
   $("table").classList.toggle("roster-table", !meetingView);
-  $("table").classList.toggle("meeting-email-mode", Boolean(selectionMode));
+  $("table").classList.toggle("meeting-email-mode", meetingView && Boolean(selectionMode));
   const headers = meetingView ? ["Barangay", "Meeting date", "Day", "Time", "Status", "Remark"]
     : ["No.", "Barangay", "Email address", "Barangay phone", "Punong Barangay", "Punong Barangay phone",
       "Has meeting", "Has movement", "Emailed", "Texted", "Replied by text"];
@@ -597,9 +662,7 @@ function render(flippedIndex) {
     if (selectionMode) {
       for (const contact of barangays) {
         const name = contact["Barangay Name"];
-        const recipients = selectionMode === "text"
-          ? recipientMobiles(contact["Official Contact Number of Punong Barangay"])
-          : recipientAddresses(contact["Barangay Email Address"]);
+        const recipients = contactRecipients(contact);
         recipientsByBarangay.set(name, [...(recipientsByBarangay.get(name) ?? []), ...recipients]);
       }
     }
@@ -711,6 +774,10 @@ function render(flippedIndex) {
         row["Official Barangay Landline or Barangay CP Number"] || "—",
         row["Name of Punong Barangay"], row["Official Contact Number of Punong Barangay"] || "—",
         flags[0], hasMovement ? "Yes" : "No", ...flags.slice(1)]);
+      if (selectionMode) {
+        rosterRow.cells[1].replaceChildren(recipientChoice(row, label, contactRecipients(row)));
+        continue;
+      }
       const contactKeys = ["Barangay Email Address", "Official Barangay Landline or Barangay CP Number",
         "Name of Punong Barangay", "Official Contact Number of Punong Barangay"];
       contactKeys.forEach((key, index) => {
@@ -814,8 +881,9 @@ $("#email-confirm").onclick = () => {
     openTextExport();
     return;
   }
-  const rows = [...meetingSelection].map(([meeting, addresses]) => ({ meeting, addresses }));
+  const rows = [...selectedMessageRows()].map(([meeting, addresses]) => ({ meeting, addresses }));
   const draft = meetingDraft(rows, manilaDate.format(new Date()), meetingMinutes);
+  $("#email-draft-title").textContent = view === "barangays" ? "Barangay email draft" : "Meeting email draft";
   $("#draft-bcc").value = draft.bcc;
   $("#draft-message").value = draft.message;
   $("#draft-status").textContent = "";

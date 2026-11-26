@@ -1,5 +1,16 @@
 # DEVELOPMENT CONTINUATION
 
+## Personalized barangay text templates — 2026-11-26
+
+- Review barangay texts now includes a shared template with `<Barangay>` substitution and an explicit Apply template to all button in Personalized messages mode. Default wording asks for online meeting availability to confirm collection sites/staging areas. Individual edits remain possible and are replaced only on Apply. Shared mobiles combine selected barangay names into one message. Blank templates leave existing messages intact. Template edits are dialog-local; common-message mode and Meetings exports are preserved.
+- Node regression and syntax checks passed, covering repeated placeholders, shared mobiles, deduplicated names, Apply behavior, individual edit retention, blank-template rejection and exported personalized text. Browser/mobile layout and download/iPhone checks remain pending. Local only; refresh the tracker page. No commit, push or deployment.
+
+## Outreach roster messaging — 2026-11-26
+
+- Added Email draft and Export text JSON to Barangay status in the separate outreach tracker. Both tabs reuse recipient selection, Select all shown and the existing editors. Roster exports use general outreach wording; Meetings retains schedule reminders. Existing roster filters apply, and filter/tab changes clear selection. CSVs and outreach flags are unchanged by drafting/exporting.
+- Node email-draft regression and JavaScript syntax checks passed, including synthetic roster email confirmation, BCC deduplication, text payload and general wording. Diff whitespace check passed; Git reports the test file's LF-to-CRLF normalization advisory. Real browser/mobile selection, clipboard/download and iPhone import remain unverified. Refresh the tracker page to load changes. Local only; no commit, push or deployment.
+- Design choice approved: shared selection/dialogs. Future alternatives: a shared messaging panel with a recipient preview, or a separate Messaging tab if a centralized workflow becomes useful. No new panel/tab added.
+
 ## Barangay Sites cleanup — 2026-11-24
 
 - Baseline at `7b5ef9b` plus the local GPS simplification: production build passes with the existing large-chunk advisory. The full test suite passes 15 of 16, with a CSV assertion that expects `5 PM` where the exporter emits `5:00 PM`.

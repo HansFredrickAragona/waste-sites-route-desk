@@ -1,5 +1,15 @@
 # PROJECT HANDOFF
 
+## Personalized roster text templates — 2026-11-26
+
+The owner requested editing one script for all personalized barangay texts using `<Barangay>`. Review barangay texts now supplies that template and Apply template to all in personalized mode. The initial script asks for availability for an online meeting to confirm collection sites/staging areas; it does not assert a scheduled meeting. Applying replaces each individual message; subsequent individual edits are exported as shown. A shared mobile receives one message with all selected barangay names. Template edits are not persisted beyond the dialog. Common-message mode remains literal, and Meetings templates are unchanged. Node regressions and syntax checks passed; real browser/mobile/download and iPhone verification remain pending. Local only.
+
+## Outreach roster messaging — 2026-11-26
+
+The owner approved sharing the existing messaging workflow between Meetings and Barangay status in `contact_barangays/outreach-tracker`. Both tabs now offer Email draft and Export text JSON. Shared checkbox/recipient helpers and editors preserve normalization, BCC/mobile deduplication, personalized/common text modes and the iPhone payload. Barangay status uses its search/status filters and general editable outreach wording without inferred meeting details. Normal contact editing and outreach toggles remain available outside selection mode; all roster columns remain visible during selection. Drafting/exporting does not write CSVs or set flags. Meetings retains its date filters and reminders.
+
+Node draft/export regression, syntax and whitespace checks passed. Browser/mobile interactions, clipboard/download and iPhone import are pending. Refresh the tracker page after updating. Changes are local, without commit, push or deployment.
+
 **Evidence labels:** VERIFIED means supported by current repository files, Git history, accessible Codex history, or checks run for this handoff. INFERRED means a reasonable reading, not a direct owner statement. UNKNOWN means the available evidence cannot settle it.
 
 ## Barangay Sites maintenance checkpoint — 2026-11-24

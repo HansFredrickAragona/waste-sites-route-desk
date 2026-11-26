@@ -9,10 +9,11 @@ const node = () => ({
   append() {}, setAttribute() {}, addEventListener() {}
 });
 let requestedState = false;
-const { meetingDraft, recipientAddresses, recipientMobiles, meetingTexts } = runInNewContext(
-  app + "\n({ meetingDraft, recipientAddresses, recipientMobiles, meetingTexts });",
+const { meetingDraft, recipientAddresses, recipientMobiles, meetingTexts, barangayTemplateTexts } = runInNewContext(
+  app + "\n({ meetingDraft, recipientAddresses, recipientMobiles, meetingTexts, barangayTemplateTexts });",
   {
-    document: { querySelector: node, createElement: node, documentElement: node(), body: node() },
+    document: { querySelector: node, createElement: node, documentElement: node(), body: node(), addEventListener() {} },
+    setInterval() {},
     matchMedia: node,
     fetch: (resource) => {
       assert.equal(resource, "/api/state");
@@ -74,10 +75,11 @@ runInNewContext(app + `
   openTextExport();
 `, {
   document: {
-    querySelector: node, documentElement: node(), body: node(),
+    querySelector: node, documentElement: node(), body: node(), addEventListener() {},
     createElement: (tag) => tag === "a" ? { click() {} } : node()
   },
   matchMedia: node,
+  setInterval() {},
   fetch: () => new Promise(() => {}),
   mode, meeting: early, mobiles,
   captureSubmit: (callback) => { submit = callback; },
@@ -96,3 +98,76 @@ mode.value = "personalized";
 mode.onchange();
 submit({ messageMode: "personalized", [mobiles[0]]: "First", [mobiles[1]]: "Second" });
 assert.deepEqual(downloaded.messages.map(({ message }) => message), ["First", "Second"]);
+
+// Roster selections must use general outreach wording, even with meeting-like fields.
+const rosterMeeting = { Barangay: "Sample Barangay", Status: "Scheduled", "Meeting date": date, Time: "9:00 AM" };
+const general = meetingTexts(new Map([[rosterMeeting, mobiles]]), true);
+assert.match(general.get(mobiles[0]), /Sample Barangay/);
+assert.doesNotMatch(general.get(mobiles[0]), /meeting|November|9:00 AM/i);
+
+let rosterSubmit;
+let rosterDownload;
+const rosterCreated = [];
+const draftFields = new Map();
+const rosterNode = (selector) => {
+  if (!draftFields.has(selector)) draftFields.set(selector, { ...node(), showModal() {} });
+  return draftFields.get(selector);
+};
+runInNewContext(app + `
+  view = "barangays";
+  const roster = { "Barangay Name": "Sample Barangay", "Email sent": "No" };
+  meetingSelection.set(roster, ["+639171234567"]);
+  openEditor = (title, callback) => captureSubmit(callback);
+  field = () => mode;
+  openTextExport();
+  if (roster["Email sent"] !== "No") throw new Error("Drafting changed outreach flags");
+  meetingSelection.set(roster, ["ONE@example.com", "one@example.com"]);
+  document.querySelector("#email-confirm").onclick();
+`, {
+  document: {
+    querySelector: rosterNode, documentElement: node(), body: node(), addEventListener() {},
+    createElement: (tag) => {
+      const created = tag === "a" ? { click() {} } : node();
+      rosterCreated.push(created);
+      return created;
+    }
+  },
+  matchMedia: node,
+  setInterval() {},
+  fetch: () => new Promise(() => {}),
+  mode: { value: "personalized" },
+  captureSubmit: (callback) => { rosterSubmit = callback; },
+  Blob: class { constructor([contents]) { rosterDownload = JSON.parse(contents); } },
+  URL: { createObjectURL: () => "blob:test" }, setTimeout() {}
+});
+rosterSubmit({ messageMode: "common", commonMessage: "Barangay outreach" });
+assert.deepEqual(rosterDownload, { messages: [{ mobile: "+639171234567", message: "Barangay outreach" }] });
+assert.equal(draftFields.get("#draft-bcc").value, "one@example.com");
+assert.equal(draftFields.get("#email-draft-title").textContent, "Barangay email draft");
+assert.doesNotMatch(draftFields.get("#draft-message").value, /scheduled|Google Meet/);
+
+const templateInput = rosterCreated.find((item) => item.name === "messageTemplate");
+const applyTemplate = rosterCreated.find((item) => item.textContent === "Apply template to all");
+const personalInput = rosterCreated.find((item) => item.name === "+639171234567");
+assert.match(personalInput.value, /online meeting.*Sample Barangay/);
+personalInput.value = "Individual edit";
+templateInput.value = "Hello <Barangay>, when are you available?";
+assert.equal(personalInput.value, "Individual edit", "Typing a template does not discard individual edits.");
+applyTemplate.onclick();
+assert.equal(personalInput.value, "Hello Sample Barangay, when are you available?");
+templateInput.value = " ";
+applyTemplate.onclick();
+assert.equal(draftFields.get("#error").textContent, "Enter a message template.");
+assert.equal(personalInput.value, "Hello Sample Barangay, when are you available?");
+rosterSubmit({ messageMode: "personalized", [personalInput.name]: personalInput.value });
+assert.equal(rosterDownload.messages[0].message, personalInput.value);
+
+const templated = barangayTemplateTexts(new Map([
+  [{ Barangay: "Alpha" }, [mobiles[0]]],
+  [{ Barangay: "Beta" }, mobiles],
+  [{ Barangay: "Alpha" }, [mobiles[0]]]
+]), "Hello <Barangay>!\nAvailability for <Barangay>?");
+assert.equal(templated.size, 2);
+assert.equal(templated.get(mobiles[0]), "Hello Alpha, Beta!\nAvailability for Alpha, Beta?");
+assert.equal(templated.get(mobiles[1]), "Hello Beta!\nAvailability for Beta?");
+assert.throws(() => barangayTemplateTexts(new Map(), "  "), /Enter a message template/);
