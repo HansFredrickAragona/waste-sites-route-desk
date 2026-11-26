@@ -50,14 +50,14 @@ export function confirmedReport(barangays, activityLog) {
 
 export function confirmedGeoJson(report) {
   const features = [];
-  for (const { barangay } of report) {
+  for (const { barangay } of [...report].sort((a, b) => a.barangay.name.localeCompare(b.barangay.name))) {
     for (const item of activePoints(barangay)) {
       const { latitude, longitude, purok } = item;
       if (!Number.isFinite(latitude) || Math.abs(latitude) > 90 ||
           !Number.isFinite(longitude) || Math.abs(longitude) > 180) continue;
       features.push({
         type: "Feature",
-        properties: { purok: purok ?? "", barangay: barangay.name },
+        properties: { barangay: barangay.name, name: item.name ?? "", site_name: item.name ?? "", purok: purok ?? "" },
         geometry: { type: "Point", coordinates: [longitude, latitude] },
       });
     }

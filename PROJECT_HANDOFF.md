@@ -729,3 +729,9 @@ Dashboard keeps open KPI views in session state and renders their shared subtab 
 ### Confirmed Report floating editors — 2026-11-19
 
 The Details table opens the existing site or firing-line fields in a temporary dialog on row click or through the right-click **Edit** action. Report drafts live in the dialog and save through the same review update and activity log as map edits. Save and Cancel close the dialog over the current Details table. Firing-line node editing stays in the map. An open map draft for the same record must be saved or canceled before opening its report editor. Local implementation, with browser verification pending.
+
+## GeoJSON site names and barangay ordering — 2026-11-26
+
+Owner approved one GeoJSON file with collection-site names and sites together alphabetically by barangay. Export now includes `site_name` from the saved point name, alongside `barangay` and `purok`. Each site remains a separate Point in one FeatureCollection; site order within a barangay, report order, coordinates, eligibility, preview/download flow and stored data are preserved.
+
+Report tests passed 4/4, schedule tests passed 10/10 and production build passed with the existing >500 kB chunk advisory. Browser preview/download interaction remains unverified; check that flow next. Local only; no commit, push or deployment.

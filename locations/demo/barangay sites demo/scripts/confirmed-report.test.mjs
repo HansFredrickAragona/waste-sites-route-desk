@@ -15,10 +15,25 @@ test("GeoJSON includes only mapped collection points from confirmed barangays", 
     type: "FeatureCollection",
     features: [{
       type: "Feature",
-      properties: { purok: "Purok 2", barangay: "Irisan" },
+      properties: { barangay: "Irisan", name: "Collection point", site_name: "Collection point", purok: "Purok 2" },
       geometry: { type: "Point", coordinates: [120.6, 16.4] },
     }],
   });
+});
+
+test("GeoJSON groups sites alphabetically by barangay without changing report order", () => {
+  const point = { latitude: 16.4, longitude: 120.6 };
+  const report = [
+    { barangay: { name: "Zeta", pins: [{ ...point, name: "Z site" }] } },
+    { barangay: { name: "Alpha", pins: [{ ...point, name: "A site" }, { ...point, name: "Second site" }] } },
+  ];
+  const before = JSON.stringify(report);
+  assert.deepEqual(confirmedGeoJson(report).features.map(({ properties }) => properties), [
+    { barangay: "Alpha", name: "A site", site_name: "A site", purok: "" },
+    { barangay: "Alpha", name: "Second site", site_name: "Second site", purok: "" },
+    { barangay: "Zeta", name: "Z site", site_name: "Z site", purok: "" },
+  ]);
+  assert.equal(JSON.stringify(report), before);
 });
 
 test("confirmed report sorts by latest update and reconciles counts with details", () => {

@@ -416,3 +416,9 @@ The Barangay Details panel shares the site review divider for drag and keyboard 
 
 ## Whole-hour schedule formatting (2026-11-16)
 The shared schedule serializer adds :00 to whole-hour start and end inputs when saving. Explicit minutes and AM/PM are preserved. The regression suite passed 10/10 and the local build passed with the existing chunk-size warning. Browser save flow remains unverified.
+
+## GeoJSON site names and barangay ordering — 2026-11-26
+
+Owner approved one GeoJSON file with collection-site names and sites together alphabetically by barangay. Export now includes `site_name` from the saved point name, alongside `barangay` and `purok`. Each site remains a separate Point in one FeatureCollection; site order within a barangay, report order, coordinates, eligibility, preview/download flow and stored data are preserved.
+
+Report tests passed 4/4, schedule tests passed 10/10 and production build passed with the existing >500 kB chunk advisory. Browser preview/download interaction remains unverified; check that flow next. Local only; no commit, push or deployment.

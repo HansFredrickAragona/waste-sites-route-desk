@@ -60,3 +60,5 @@ Current-location capture requires browser location permission and a secure page 
 The app reads the raw barangay site records directly from `../../data/jsons/barangays/barangay_sites_v2.json`. It groups records by barangay, retains each source schedule, status, remarks, and raw purok value, and starts each barangay unconfirmed. Per-site review data stores only the confirmation flag; legacy change-status and review-date fields in imported files are ignored. Seven source records currently have no coordinates; they stay available in the site list and can be mapped during review. Purok choices are prefilled only when the source has an explicit `Purok N` label.
 
 Review edits are saved to the browser's local storage. Export a JSON copy before switching browsers or clearing site data.
+
+GeoJSON exports include the saved collection-site name in site_name, alongside barangay and purok. Points are arranged alphabetically by barangay in one FeatureCollection, retaining individual sites and longitude/latitude coordinates.
