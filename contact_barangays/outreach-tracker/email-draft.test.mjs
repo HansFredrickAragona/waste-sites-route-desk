@@ -9,8 +9,8 @@ const node = () => ({
   append() {}, setAttribute() {}, addEventListener() {}
 });
 let requestedState = false;
-const { meetingDraft, recipientAddresses, recipientMobiles, meetingTexts, barangayTemplateTexts } = runInNewContext(
-  app + "\n({ meetingDraft, recipientAddresses, recipientMobiles, meetingTexts, barangayTemplateTexts });",
+const { meetingDraft, recipientAddresses, recipientMobiles, meetingTexts, barangayTemplateTexts, selectedRowsCsv } = runInNewContext(
+  app + "\n({ meetingDraft, recipientAddresses, recipientMobiles, meetingTexts, barangayTemplateTexts, selectedRowsCsv });",
   {
     document: { querySelector: node, createElement: node, documentElement: node(), body: node(), addEventListener() {} },
     setInterval() {},
@@ -171,3 +171,18 @@ assert.equal(templated.size, 2);
 assert.equal(templated.get(mobiles[0]), "Hello Alpha, Beta!\nAvailability for Alpha, Beta?");
 assert.equal(templated.get(mobiles[1]), "Hello Beta!\nAvailability for Beta?");
 assert.throws(() => barangayTemplateTexts(new Map(), "  "), /Enter a message template/);
+
+assert.equal(selectedRowsCsv("barangays", [{
+  "Barangay Name": 'Alpha, "Upper"', "Barangay Email Address": "",
+  "Official Barangay Landline or Barangay CP Number": "0741234567",
+  "Name of Punong Barangay": "Juan", "Official Contact Number of Punong Barangay": "09171234567",
+  "Email sent": "Yes"
+}]), '\ufeff"Barangay","Email address","Barangay phone","Punong Barangay","Punong Barangay phone"\r\n"Alpha, ""Upper""","","0741234567","Juan","09171234567"\r\n');
+const meetingCsv = selectedRowsCsv("meetings", [{ ...early, Remark: "First\nSecond" }]);
+assert.match(meetingCsv, /"Barangay","Meeting date","Day","Time","Status","Remark"/);
+assert.match(meetingCsv, /"Friday","9:00 AM","Scheduled","First\nSecond"/);
+assert.doesNotMatch(meetingCsv, /Action|Edit/);
+assert.throws(() => selectedRowsCsv("dashboard", []), /Choose Meetings or Barangay status/);
+assert.match(selectedRowsCsv("meetings", [{ Barangay: "Pending", "Meeting date": "" }]), /"Pending","","","","",""/);
+assert.doesNotMatch(html, /id="text-selection"/);
+assert.match(html, /id="export-as"/);

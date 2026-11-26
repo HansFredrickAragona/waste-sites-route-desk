@@ -442,12 +442,12 @@ function setMeetingSelection(mode) {
   selectionMode = mode;
   meetingSelection.clear();
   $("#email-selection").setAttribute("aria-pressed", String(mode === "email"));
-  $("#text-selection").setAttribute("aria-pressed", String(mode === "text"));
   $("#email-actions").hidden = !mode;
 }
 
 function updateMeetingSelection() {
-  $("#email-selection-status").textContent = `${meetingSelection.size} selected`;
+  const label = { email: "Email draft", text: "Text JSON", csv: "CSV for Sheets" }[selectionMode];
+  $("#email-selection-status").textContent = `${label} · ${meetingSelection.size} selected`;
   $("#email-confirm").disabled = !meetingSelection.size;
 }
 
@@ -466,7 +466,7 @@ function recipientChoice(row, name, recipients) {
   const nameLabel = element("span", name);
   const choice = element("label", "");
   choice.className = "meeting-email-choice";
-  if (recipients?.length) {
+  if (selectionMode === "csv" || recipients?.length) {
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
     checkbox.checked = meetingSelection.has(row);
@@ -487,6 +487,37 @@ function addSelectionMeetingRow(meeting, day, recipients) {
   const choice = recipientChoice(meeting, meeting.Barangay, recipients);
   const row = addRow([choice, date, day, meeting.Time || "Pending", meeting.Status, meeting.Remark ?? ""]);
   row.classList.add("meeting-row");
+}
+
+function selectedRowsCsv(tab, rows) {
+  if (!["meetings", "barangays"].includes(tab)) throw new Error("Choose Meetings or Barangay status.");
+  const roster = tab === "barangays";
+  const headers = roster
+    ? ["Barangay", "Email address", "Barangay phone", "Punong Barangay", "Punong Barangay phone"]
+    : ["Barangay", "Meeting date", "Day", "Time", "Status", "Remark"];
+  const keys = ["Barangay Name", "Barangay Email Address", "Official Barangay Landline or Barangay CP Number",
+    "Name of Punong Barangay", "Official Contact Number of Punong Barangay"];
+  const values = rows.map((row) => {
+    if (roster) return keys.map((key) => row[key]);
+    const date = Date.parse(row["Meeting date"]);
+    return [row.Barangay, row["Meeting date"], Number.isFinite(date) ? weekday.format(date) : "",
+      row.Time, row.Status, row.Remark];
+  });
+  return "\ufeff" + [headers, ...values].map((cells) =>
+    cells.map((value) => '"' + String(value ?? "").replaceAll('"', '""') + '"').join(",")
+  ).join("\r\n") + "\r\n";
+}
+
+function exportSelectedCsv() {
+  const file = new Blob([selectedRowsCsv(view, [...meetingSelection.keys()])], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(file);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `${view === "meetings" ? "meetings" : "barangay-contacts"}-${manilaDate.format(new Date())}.csv`;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 30000);
 }
 
 function renderOutreachChart() {
@@ -644,7 +675,6 @@ function render(flippedIndex) {
   const matches = (...values) => values.some((value) => value.toLowerCase().includes(query));
   const meetingView = view === "meetings";
   $("#email-selection").hidden = false;
-  $("#text-selection").hidden = false;
   $("table").classList.toggle("roster-table", !meetingView);
   $("table").classList.toggle("meeting-email-mode", meetingView && Boolean(selectionMode));
   const headers = meetingView ? ["Barangay", "Meeting date", "Day", "Time", "Status", "Remark"]
@@ -819,6 +849,9 @@ function switchView(next) {
     button.tabIndex = tab === view ? 0 : -1;
   }
   const dashboard = view === "dashboard";
+  $("#export-text").hidden = dashboard;
+  $("#export-csv").hidden = dashboard;
+  $("#export-as").open = false;
   $("#dashboard-panel").hidden = !dashboard;
   $("#outreach-panel").hidden = dashboard;
   $(".toolbar").hidden = dashboard;
@@ -858,8 +891,10 @@ $("#filter").onchange = applyFilters;
 $("#meeting-day").onchange = applyFilters;
 $("#meeting-date").oninput = applyFilters;
 $("#add").onclick = () => editMeeting();
-for (const mode of ["email", "text"]) {
-  $(`#${mode}-selection`).onclick = () => {
+for (const [mode, selector] of [["email", "#email-selection"], ["text", "#export-text"], ["csv", "#export-csv"]]) {
+  $(selector).onclick = () => {
+    if (view === "dashboard") return;
+    $("#export-as").open = false;
     setMeetingSelection(selectionMode === mode ? "" : mode);
     render();
   };
@@ -870,13 +905,17 @@ $("#email-select-all").onclick = () => {
   }
 };
 $("#email-cancel").onclick = () => {
-  const button = $(`#${selectionMode}-selection`);
+  const button = selectionMode === "email" ? $("#email-selection") : $("#export-as summary");
   setMeetingSelection("");
   render();
   button.focus();
 };
 $("#email-confirm").onclick = () => {
   if (!meetingSelection.size) return;
+  if (selectionMode === "csv") {
+    exportSelectedCsv();
+    return;
+  }
   if (selectionMode === "text") {
     openTextExport();
     return;
@@ -919,7 +958,8 @@ $("#import").onclick = () => {
   field("meetings", "Meetings CSV", "", null, "file");
 };
 $("#snapshot").onclick = () => {
-  openEditor("Confirm CSV export", async (values) => {
+  $("#export-as").open = false;
+  openEditor("Export all tracker data", async (values) => {
     const filenames = Object.fromEntries(Object.entries(values).map(([key, value]) => {
       const name = value.trim();
       if (!name) throw new Error("Enter a name for each CSV.");

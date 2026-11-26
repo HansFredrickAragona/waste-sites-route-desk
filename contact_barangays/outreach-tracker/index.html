@@ -10,7 +10,14 @@
     <h1>Barangay Outreach</h1>
   </header>
   <div class="csv-actions" role="group" aria-label="Tracker CSV actions">
-    <button id="snapshot" type="button">Export CSV</button>
+    <details id="export-as" class="export-menu">
+      <summary>Export as</summary>
+      <div class="export-options" role="group" aria-label="Export options">
+        <button id="snapshot" type="button">Export all</button>
+        <button id="export-text" type="button">Text JSON</button>
+        <button id="export-csv" type="button">CSV for Sheets</button>
+      </div>
+    </details>
     <button id="import" type="button">Import CSV</button>
     <span id="snapshot-message" role="status"></span>
   </div>
@@ -36,7 +43,6 @@
       </select>
       <label id="meeting-date-filter">Date <input id="meeting-date" type="date"></label>
       <button id="email-selection" type="button" aria-pressed="false" hidden>Email draft</button>
-      <button id="text-selection" type="button" aria-pressed="false" hidden>Export text JSON</button>
       <button id="add" class="primary" type="button">+ Add meeting</button>
     </div>
     <div id="outreach-panel" role="tabpanel" aria-labelledby="meetings">

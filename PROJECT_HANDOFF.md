@@ -1,5 +1,11 @@
 # PROJECT HANDOFF
 
+## Unified outreach exports — 2026-11-26
+
+Owner approved consolidating exports under Export as in the separate outreach tracker. Export all retains the full CSV-pair snapshot API and filename dialog. Text JSON and CSV for Sheets apply only to selected rows in the active Meetings/Barangay status tab and are hidden on Dashboard. Email draft stays separate; standalone Text JSON was removed. CSV selection reuses existing filters/check boxes/Select all shown and permits missing contacts. Meeting CSV contains Barangay, Meeting date, Day, Time, Status, Remark; roster CSV contains only Barangay and four contact columns. BOM, quoted fields and CRLF support spreadsheet import without changing stored values. Reporting CSVs are not tracker-import backups.
+
+Node regressions and syntax/whitespace checks passed. Browser verified selected CSV downloads in both tabs (parsed for correct row/column counts), filter reset, roster text editor access, Dashboard visibility and Export all dialog. No snapshot was saved during verification. Desktop menu checked; mobile, Sheets and iPhone import remain pending. Local only; nothing committed, pushed or deployed.
+
 ## Personalized roster text templates — 2026-11-26
 
 The owner requested editing one script for all personalized barangay texts using `<Barangay>`. Review barangay texts now supplies that template and Apply template to all in personalized mode. The initial script asks for availability for an online meeting to confirm collection sites/staging areas; it does not assert a scheduled meeting. Applying replaces each individual message; subsequent individual edits are exported as shown. A shared mobile receives one message with all selected barangay names. Template edits are not persisted beyond the dialog. Common-message mode remains literal, and Meetings templates are unchanged. Node regressions and syntax checks passed; real browser/mobile/download and iPhone verification remain pending. Local only.
