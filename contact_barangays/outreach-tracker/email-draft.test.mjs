@@ -9,8 +9,8 @@ const node = () => ({
   append() {}, setAttribute() {}, addEventListener() {}
 });
 let requestedState = false;
-const { meetingDraft, recipientAddresses, recipientMobiles, meetingTexts, barangayTemplateTexts, selectedRowsCsv } = runInNewContext(
-  app + "\n({ meetingDraft, recipientAddresses, recipientMobiles, meetingTexts, barangayTemplateTexts, selectedRowsCsv });",
+const { meetingDraft, recipientAddresses, recipientMobiles, meetingTexts, barangayTemplateTexts, selectedRowsCsv, meetingDashboard } = runInNewContext(
+  app + "\n({ meetingDraft, recipientAddresses, recipientMobiles, meetingTexts, barangayTemplateTexts, selectedRowsCsv, meetingDashboard });",
   {
     document: { querySelector: node, createElement: node, documentElement: node(), body: node(), addEventListener() {} },
     setInterval() {},
@@ -186,3 +186,83 @@ assert.throws(() => selectedRowsCsv("dashboard", []), /Choose Meetings or Barang
 assert.match(selectedRowsCsv("meetings", [{ Barangay: "Pending", "Meeting date": "" }]), /"Pending","","","","",""/);
 assert.doesNotMatch(html, /id="text-selection"/);
 assert.match(html, /id="export-as"/);
+
+const dashboard = meetingDashboard([
+  { Barangay: "Atok Trail", Status: "Complete", "Meeting date": date },
+  { Barangay: "Atok Trail", Status: "Complete", "Meeting date": "2026-11-21" },
+  { Barangay: "Atok Trail", Status: "Scheduled", "Meeting date": "2026-11-22" },
+  { Barangay: "Other", Status: "Not set", "Meeting date": "" }
+], ["Atok Trail", "Other", "No meeting"].map((name) => ({ "Barangay Name": name })));
+assert.equal(dashboard.meetingCounts.Complete, 2);
+assert.equal(dashboard.meetingCounts.Scheduled, 1);
+assert.equal(dashboard.barangayCounts.Complete, 1);
+assert.equal(dashboard.barangayCounts.Scheduled, 0);
+assert.equal(dashboard.barangayCounts["Not set"], 1);
+assert.equal(dashboard.barangayCounts["No meeting"], 1);
+assert.equal([...dashboard.dailyMeetings.values()].flat().length, 3);
+assert.equal(Object.values(dashboard.barangayCounts).reduce((sum, count) => sum + count, 0), 3);
+assert.equal(meetingDashboard([], []).barangayCounts["No meeting"], 0);
+
+const noAction = meetingDashboard([
+  { Barangay: "Meeting only", Status: "Not set", "Meeting date": "" },
+  { Barangay: "Completed", Status: "Complete", "Meeting date": date }
+], [
+  { "Barangay Name": "Meeting only" },
+  { "Barangay Name": "Completed" },
+  { "Barangay Name": "Email only", "Email sent": "Yes" },
+  { "Barangay Name": "Text only", isTextSent: "Yes" },
+  { "Barangay Name": "Reply only", isreplied: "Yes" },
+  { "Barangay Name": "Manual meeting", isMeeting: "Yes" },
+  { "Barangay Name": "Untouched" },
+  { "Barangay Name": "Explicit No", "Email sent": "No", isMeeting: "No" }
+]);
+assert.equal(noAction.barangayCounts.Complete, 1);
+assert.equal(noAction.noMovementCount, 6, "Outreach flags do not count as meeting movement; Not set meeting rows do.");
+
+const syncFields = new Map();
+const syncDocument = {
+  hidden: false, documentElement: node(), body: node(), createElement: node, addEventListener() {},
+  querySelector(selector) {
+    if (!syncFields.has(selector)) syncFields.set(selector, node());
+    return syncFields.get(selector);
+  }
+};
+await runInNewContext(app + `
+  (async () => {
+    view = "dashboard";
+    let renders = 0;
+    renderDashboard = () => { renders++; };
+    const fresh = { barangays: [], meetings: [] };
+    fetch = async () => ({ ok: true, json: async () => fresh });
+    await refreshDashboard();
+    assert.equal(state, fresh);
+    assert.equal(renders, 1);
+    assert.match(document.querySelector("#dashboard-sync").textContent, /Last checked/);
+    fetch = async () => { throw new Error("Offline"); };
+    await refreshDashboard();
+    assert.equal(state, fresh);
+    assert.match(document.querySelector("#dashboard-sync").textContent, /Refresh failed/);
+    fetch = async () => {
+      view = "meetings";
+      return { ok: true, json: async () => ({ meetings: ["stale"], barangays: [] }) };
+    };
+    await refreshDashboard();
+    assert.equal(state, fresh);
+    assert.equal(renders, 1);
+    view = "dashboard";
+    const newer = { meetings: ["newer save"], barangays: [] };
+    fetch = async () => {
+      state = newer;
+      return { ok: true, json: async () => fresh };
+    };
+    await refreshDashboard();
+    assert.equal(state, newer);
+    document.hidden = true;
+    fetch = () => { throw new Error("Hidden dashboard should not poll"); };
+    await refreshDashboard();
+    assert.equal(state, newer);
+  })();
+`, {
+  document: syncDocument, matchMedia: node, setInterval() {}, assert,
+  fetch: () => new Promise(() => {})
+});

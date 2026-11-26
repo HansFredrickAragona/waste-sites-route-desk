@@ -1,5 +1,17 @@
 # DEVELOPMENT CONTINUATION
 
+## No movement dashboard correction — 2026-11-26
+
+- Owner clarified that no action means the existing Has movement: No definition. Supersedes the broader outreach-flag rule below: renamed the card Barangays with no movement and count exactly the roster rows with no saved meeting row, including Not set. Email/text flags and manual meeting overrides are irrelevant. Current saved CSVs have 128 roster rows, 55 with meeting movement, and 73 without; the owner's estimate of around 66 is not supported by these saved rows. No data changed.
+- Node regression and JS syntax checks passed. Regression verifies outreach-only records count as no movement and Not set meeting records do not. Browser verification for this correction remains pending. Local only, no deployment.
+
+## Outreach dashboard metrics and freshness — 2026-11-26
+
+- Confirmed that 44 completed meetings and 43 completed barangays are both correct: Atok Trail has two completed meeting rows. Preserved source rows and the distinct-barangay pie.
+- Per the owner's correction, top cards now show Scheduled meetings, Completed meetings, Completed barangays and Barangays with no action, replacing Emailed/Texted/Replied by text cards. No action excludes every meeting row (including Not set) and any Yes outreach/meeting flag or Yes meeting override. Existing outreach chart stays. Four-column desktop/two-column phone grid; explanatory labels distinguish rows and barangays.
+- Shared dashboard calculation drives meeting cards, barangay pie and daily groups. Visible Dashboard refreshes CSV state on entry/every 10 seconds/visibility return, shows Last checked or refresh failure, skips open editors and protects newer state from stale responses.
+- Node regressions and JS syntax passed, covering repeat completed meetings, priority rules, no-action cases, refresh success/failure, navigation, hidden pages and stale-response protection. Desktop browser verified cards at 4/44/43/43 against saved CSV counts and advancing refresh timestamp; no CSV edits made for verification. Mobile appearance and external-edit refresh were not tested. Local only; no commit/push/deployment.
+
 ## Unified outreach exports — 2026-11-26
 
 - Replaced the top Export CSV control with Export as: Export all preserves the complete two-file snapshot; Text JSON and CSV for Sheets select rows from the active Meetings/Barangay status tab. Removed the standalone text-export button; Email draft remains separate. Dashboard exposes only Export all. CSV accepts missing contacts and exports six meeting columns or five roster contact columns; filters/tab changes clear selection.

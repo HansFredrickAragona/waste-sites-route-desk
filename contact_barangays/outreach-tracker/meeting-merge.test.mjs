@@ -5,7 +5,8 @@ import { runInNewContext } from "node:vm";
 const app = readFileSync(new URL("./app.js", import.meta.url), "utf8");
 const node = () => ({ append() {}, setAttribute() {}, addEventListener() {} });
 const targets = runInNewContext(app + "\nmeetingMergeTargets;", {
-  document: { querySelector: node, createElement: node, documentElement: node(), body: node() },
+  document: { querySelector: node, createElement: node, documentElement: node(), body: node(), addEventListener() {} },
+  setInterval() {},
   matchMedia: node,
   fetch: () => new Promise(() => {})
 });

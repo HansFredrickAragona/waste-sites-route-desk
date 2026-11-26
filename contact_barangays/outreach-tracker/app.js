@@ -524,10 +524,10 @@ function renderOutreachChart() {
   const selected = new Set([...document.querySelectorAll("#outreach-chart-filter input:checked")]
     .map((input) => input.value));
   const series = [
-    ["Email sent", "Emailed", "Not emailed", "#315d43"],
-    ["isTextSent", "Texted", "Not texted", "#7956a0"],
-    ["isreplied", "Replied by text", "No text reply", "#92702f"],
-    ["isMeeting", "Has meeting", "No meeting", "#356b86"]
+    ["Email sent", "Emailed", "Not marked emailed", "#315d43"],
+    ["isTextSent", "Texted", "Not marked texted", "#7956a0"],
+    ["isreplied", "Replied by text", "Not marked replied", "#92702f"],
+    ["isMeeting", "Has meeting", "Not marked as having a meeting", "#356b86"]
   ].filter(([key]) => selected.has(key));
   const rings = [];
   const legend = [];
@@ -553,30 +553,15 @@ function renderOutreachChart() {
 
 $("#outreach-chart-filter").onchange = renderOutreachChart;
 
-function renderDashboard() {
-  renderOutreachChart();
-  const dayCard = $("#day-card");
-  dayCard.hidePopover();
-  const { meetings, barangays } = state;
-  const summary = [
-    ["Scheduled", meetings.filter((row) => row.Status === "Scheduled").length],
-    ["Complete", meetings.filter((row) => row.Status === "Complete").length],
-    ["Emailed", barangays.filter((row) => row["Email sent"] === "Yes").length],
-    ["Texted", barangays.filter((row) => row.isTextSent === "Yes").length],
-    ["Replied by text", barangays.filter((row) => row.isreplied === "Yes").length]
-  ];
-  $("#summary").replaceChildren(...summary.map(([label, count]) => {
-    const card = element("div", "");
-    card.className = "metric";
-    card.append(element("strong", count), label);
-    return card;
-  }));
+function meetingDashboard(meetings, barangays) {
   const rosterNames = new Set(barangays.map((row) => row["Barangay Name"].trim()));
   const barangayStatuses = new Map();
   const priority = { "Not set": 1, Scheduled: 2, Complete: 3 };
   const dailyMeetings = new Map();
+  const meetingCounts = { Scheduled: 0, Complete: 0, "Not set": 0 };
   for (const meeting of meetings) {
     const status = meeting.Status;
+    if (Object.hasOwn(meetingCounts, status)) meetingCounts[status]++;
     const name = meeting.Barangay.trim();
     if (name && rosterNames.has(name) && priority[status] > (priority[barangayStatuses.get(name)] ?? 0)) {
       barangayStatuses.set(name, status);
@@ -587,21 +572,66 @@ function renderDashboard() {
       dailyMeetings.get(date).push(meeting);
     }
   }
+  const barangayCounts = { Complete: 0, Scheduled: 0, "Not set": 0, "No meeting": rosterNames.size - barangayStatuses.size };
+  for (const status of barangayStatuses.values()) barangayCounts[status]++;
+  const meetingNames = new Set(meetings.map((row) => row.Barangay));
+  const noMovementCount = barangays.filter((row) => !meetingNames.has(row["Barangay Name"])).length;
+  return { meetingCounts, barangayCounts, dailyMeetings, barangayTotal: rosterNames.size, noMovementCount };
+}
+
+let dashboardRefreshing = false;
+async function refreshDashboard() {
+  if (dashboardRefreshing || view !== "dashboard" || document.hidden || editor.open) return;
+  dashboardRefreshing = true;
+  const previous = state;
+  try {
+    const response = await fetch("/api/state", { cache: "no-store" });
+    if (!response.ok) throw new Error("Could not refresh");
+    const latest = await response.json();
+    // A save or navigation during the request takes precedence over this response.
+    if (view !== "dashboard" || state !== previous || editor.open) return;
+    state = latest;
+    renderDashboard();
+    $("#dashboard-sync").textContent = "Live · Last checked " + new Date().toLocaleTimeString("en-PH", { timeZone: "Asia/Manila" });
+  } catch {
+    if (view === "dashboard") $("#dashboard-sync").textContent = "Refresh failed — showing the last loaded data. Retrying automatically.";
+  } finally {
+    dashboardRefreshing = false;
+  }
+}
+setInterval(refreshDashboard, 10000);
+document.addEventListener("visibilitychange", refreshDashboard);
+
+function renderDashboard() {
+  renderOutreachChart();
+  const dayCard = $("#day-card");
+  dayCard.hidePopover();
+  const { meetings, barangays } = state;
+  const { meetingCounts, barangayCounts, dailyMeetings, barangayTotal, noMovementCount } = meetingDashboard(meetings, barangays);
+  const summary = [
+    ["Scheduled meetings", meetingCounts.Scheduled],
+    ["Completed meetings", meetingCounts.Complete],
+    ["Completed barangays", barangayCounts.Complete],
+    ["Barangays with no movement", noMovementCount]
+  ];
+  $("#summary").replaceChildren(...summary.map(([label, count]) => {
+    const card = element("div", "");
+    card.className = "metric";
+    card.append(element("strong", count), label);
+    return card;
+  }));
   const categories = [
     ["Complete", "#315d43"], ["Scheduled", "#7956a0"],
     ["Not set", "#858d58"], ["No meeting", "#d7c7a8"]
   ];
-  const statuses = [...barangayStatuses.values()];
   let end = 0;
   const slices = [];
   $("#status-legend").replaceChildren(...categories.map(([label, color]) => {
-    const count = label === "No meeting"
-      ? barangays.length - barangayStatuses.size
-      : statuses.filter((status) => status === label).length;
+    const count = barangayCounts[label];
     if (count) {
       const start = end;
       end += count;
-      slices.push(`${color} ${start / barangays.length * 100}% ${end / barangays.length * 100}%`);
+      slices.push(`${color} ${start / barangayTotal * 100}% ${end / barangayTotal * 100}%`);
     }
     const item = element("li", `${label}: ${count}`);
     item.style.setProperty("--swatch", color);
@@ -860,6 +890,7 @@ function switchView(next) {
     fillSelect($("#filter"), options[view].map((label, index) => [index ? label : "", label]));
   }
   render();
+  if (dashboard) refreshDashboard();
 }
 
 for (const tab of tabs) {

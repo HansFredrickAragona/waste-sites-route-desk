@@ -1,5 +1,15 @@
 # PROJECT HANDOFF
 
+## No action means no movement — 2026-11-26 (supersedes prior card definition)
+
+Owner corrected the dashboard definition: no action means Has movement: No. The card is now Barangays with no movement and exactly follows the roster filter: no saved meeting row at any status, including Not set. Outreach flags/manual overrides do not count as movement. This supersedes the previous broader exclusion of contacted barangays. Read-only inspection of current CSVs confirms 73 without meeting movement (128 roster rows minus 55 with movement), rather than the owner's approximate 66. No records changed. Node regression and syntax passed; browser verification pending. Local only.
+
+## Outreach dashboard card definitions — 2026-11-26
+
+The owner confirmed the 44-versus-43 difference was valid (completed meeting rows versus completed barangays) and requested clearer cards. Top metrics now show Scheduled meetings, Completed meetings, Completed barangays and Barangays with no action. This supersedes the Emailed/Texted/Replied by text top cards; their outreach chart remains. No action requires no saved meeting row at any status and no Yes meeting/outreach flag or manual meeting override. A completed barangay has at least one completed meeting. The pie retains Complete > Scheduled > Not set precedence, counting each roster name once.
+
+Dashboard state refreshes from local CSVs on opening and every 10 seconds while visible, plus visibility return. A Last checked/error status distinguishes freshness; polling skips open editors and discards responses after navigation/newer saves. No shared database/sync added. Regression/syntax checks passed and desktop browser verified 4 scheduled meetings, 44 completed meetings, 43 completed barangays and 43 with no action, matching saved CSVs; refresh timestamp advanced. No live data was edited. Mobile and external-edit integration remain unverified. Local only.
+
 ## Unified outreach exports — 2026-11-26
 
 Owner approved consolidating exports under Export as in the separate outreach tracker. Export all retains the full CSV-pair snapshot API and filename dialog. Text JSON and CSV for Sheets apply only to selected rows in the active Meetings/Barangay status tab and are hidden on Dashboard. Email draft stays separate; standalone Text JSON was removed. CSV selection reuses existing filters/check boxes/Select all shown and permits missing contacts. Meeting CSV contains Barangay, Meeting date, Day, Time, Status, Remark; roster CSV contains only Barangay and four contact columns. BOM, quoted fields and CRLF support spreadsheet import without changing stored values. Reporting CSVs are not tracker-import backups.

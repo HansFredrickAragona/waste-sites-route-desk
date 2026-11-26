@@ -50,7 +50,9 @@
       <div class="table-wrap" tabindex="0" aria-label="Records table"><table><thead></thead><tbody></tbody></table></div>
     </div>
     <div id="dashboard-panel" role="tabpanel" aria-labelledby="dashboard" hidden>
+      <p id="dashboard-sync" class="chart-note" role="status">Checking saved data…</p>
       <section id="summary" class="summary" aria-label="Outreach totals"></section>
+      <p class="chart-note">Completed barangays have at least one completed meeting. No movement matches Has movement: No in Barangay status: no saved meeting row, including Not set. Email/text flags do not affect movement.</p>
       <div class="dashboard-charts">
         <section class="outreach-chart">
           <h2>Barangay outreach status</h2>
@@ -67,11 +69,13 @@
         </section>
         <section class="daily-chart">
           <h2>Meetings per day</h2>
+          <p class="chart-note">Meeting rows, including follow-ups. Only dated Scheduled and Complete meetings are shown.</p>
           <p class="chart-note"><span style="color: #315d43">● Complete</span> · <span style="color: #7956a0">● Scheduled</span></p>
           <ul id="daily-meetings"></ul>
         </section>
         <section class="meeting-status-chart">
           <h2>Barangays by meeting status</h2>
+          <p class="chart-note">Each barangay is counted once. Complete takes priority over Scheduled, then Not set. Follow-up meetings count separately in the meeting totals above.</p>
           <div class="pie-layout">
             <div id="status-pie" aria-hidden="true"></div>
             <ul id="status-legend"></ul>
