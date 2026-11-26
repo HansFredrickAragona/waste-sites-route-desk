@@ -57,7 +57,7 @@ export function confirmedGeoJson(report) {
           !Number.isFinite(longitude) || Math.abs(longitude) > 180) continue;
       features.push({
         type: "Feature",
-        properties: { barangay: barangay.name, name: item.name ?? "", site_name: item.name ?? "", purok: purok ?? "" },
+        properties: { barangay: barangay.name, name: item.name ?? "", purok: purok ?? "" },
         geometry: { type: "Point", coordinates: [longitude, latitude] },
       });
     }

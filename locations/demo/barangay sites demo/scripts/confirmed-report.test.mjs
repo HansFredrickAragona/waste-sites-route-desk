@@ -15,7 +15,7 @@ test("GeoJSON includes mapped collection points and named connected lines from c
     type: "FeatureCollection",
     features: [{
       type: "Feature",
-      properties: { barangay: "Irisan", name: "Collection point", site_name: "Collection point", purok: "Purok 2" },
+      properties: { barangay: "Irisan", name: "Collection point", purok: "Purok 2" },
       geometry: { type: "Point", coordinates: [120.6, 16.4] },
     }, {
       type: "Feature",
@@ -33,9 +33,9 @@ test("GeoJSON groups sites alphabetically by barangay without changing report or
   ];
   const before = JSON.stringify(report);
   assert.deepEqual(confirmedGeoJson(report).features.map(({ properties }) => properties), [
-    { barangay: "Alpha", name: "A site", site_name: "A site", purok: "" },
-    { barangay: "Alpha", name: "Second site", site_name: "Second site", purok: "" },
-    { barangay: "Zeta", name: "Z site", site_name: "Z site", purok: "" },
+    { barangay: "Alpha", name: "A site", purok: "" },
+    { barangay: "Alpha", name: "Second site", purok: "" },
+    { barangay: "Zeta", name: "Z site", purok: "" },
   ]);
   assert.equal(JSON.stringify(report), before);
 });
