@@ -5,16 +5,21 @@ import MapColumnResizer from "./MapColumnResizer.jsx";
 import { formatNumber } from "../../../shared/utils/reviewFormatting.js";
 
 export default function BarangayReviewPage({ data, ui, actions, refs, helpers }) {
-  const { selectedBarangay, activeJson, mapFilteredPins, mapPurokOptions } = data;
-  const { page, pinDraft, lineDraft, mode, toolsPanelWidthRatio, mapPurokFilter } = ui;
-  const { openDetailsEditor, setConfirmed, openConfirmationContactEditor, exportSelectedBarangayCsv, setMapPurokFilter, setSelectedPinId, setSelectedLineId, setToolsPanelWidthRatio } = actions;
+  const { selectedBarangay } = data;
+  const { page, pinDraft, lineDraft, mode, toolsPanelWidthRatio } = ui;
+  const { openDetailsEditor, setConfirmed, openConfirmationContactEditor, exportSelectedBarangayCsv, setToolsPanelWidthRatio } = actions;
   return (
     <>
       {page === "map" && selectedBarangay && (
         <section className="map-view barangay-map-view" aria-labelledby="barangay-map-title">
           <div className="map-page-heading">
-            <div>
+            <div className="barangay-heading-summary">
               <h1 id="barangay-map-title">{selectedBarangay.name}</h1>
+              <div className="barangay-summary-strip">
+                <div><span className="summary-strip-icon summary-strip-icon--green">●</span><strong>{formatNumber(selectedBarangay.pins.length)}</strong><small>site records</small></div>
+                <div><span className="summary-strip-icon summary-strip-icon--violet">⌁</span><strong>{formatNumber(selectedBarangay.firingLines.length)}</strong><small>firing lines</small></div>
+                <div><span className="summary-strip-icon summary-strip-icon--orange">⌂</span><strong>{formatNumber(selectedBarangay.puroks.length)}</strong><small>puroks recorded</small></div>
+              </div>
             </div>
             <div className="barangay-review-actions">
               <button className="secondary-action" type="button" onClick={openDetailsEditor}><span aria-hidden="true">✎</span>Update barangay details</button>
@@ -40,18 +45,7 @@ export default function BarangayReviewPage({ data, ui, actions, refs, helpers })
             </div>
           </div>
 
-          <div className="barangay-summary-strip">
-            <div><span className="summary-strip-icon summary-strip-icon--green">●</span><strong>{formatNumber(selectedBarangay.pins.length)}</strong><small>site records</small></div>
-            <div><span className="summary-strip-icon summary-strip-icon--violet">⌁</span><strong>{formatNumber(selectedBarangay.firingLines.length)}</strong><small>firing lines</small></div>
-            <div><span className="summary-strip-icon summary-strip-icon--orange">⌂</span><strong>{formatNumber(selectedBarangay.puroks.length)}</strong><small>puroks recorded</small></div>
-            <div className="summary-source-note"><span className="source-dot" /><span>Collection records from {activeJson?.name ?? "No JSON loaded"}</span></div>
-          </div>
 
-          <section className="map-filters" aria-label="Map filters">
-            <div className="map-filter-title"><span className="filter-funnel" aria-hidden="true">▽</span><strong>Map filters</strong></div>
-            <label><span>Purok</span><select value={mapPurokFilter} aria-label="Filter map by purok" onChange={(event) => { setMapPurokFilter(event.target.value); if (!pinDraft) setSelectedPinId(null); if (!lineDraft) setSelectedLineId(null); }}><option value="all">All puroks</option>{mapPurokOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
-            <p aria-live="polite">{formatNumber(mapFilteredPins.length)} of {formatNumber(selectedBarangay.pins.length)} sites shown</p>
-          </section>
 
           <div
             className={`map-layout barangay-map-layout${pinDraft || lineDraft || mode === "draw-line" ? " barangay-map-layout--editing" : ""}${toolsPanelWidthRatio !== null ? " barangay-map-layout--resized" : ""}`}

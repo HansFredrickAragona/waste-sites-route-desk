@@ -755,3 +755,17 @@ Checks: targeted execution of the controller filter block covered all, multiple 
 ## Removed Barangay map Site status filter — 2026-11-27
 
 Removed the Site status dropdown and its controller/session filtering state. Previously saved status filters are ignored, so they cannot hide pins. The purok dropdown still filters pins and firing lines. Recorded site/source statuses, review data, and all confirmation controls remain unchanged. This supersedes earlier map-status-filter descriptions. Updated the demo README. Schedule regressions passed 10/10 and production build passed; output still includes JavaScript chunks over 500 kB. Diff whitespace check passed. Browser interaction remains unverified. Local only; no commit, push or deployment.
+
+## Compact Barangay review and map headers — 2026-11-27
+
+Moved site-record, firing-line and purok KPIs beside the barangay name, with the existing Update barangay details, information-confirmed toggle, contact and CSV controls sharing the heading row where space permits. Removed the Collection records from JSON label; dataset selection remains available in app navigation. The row wraps on smaller screens. Moved the purok map filter and shown/total counts into the map card header, replacing Collection map and removing the separate filter strip. Retained the mapped count, pin/line filtering and draft handling. Updated BarangayReviewPage.jsx, CollectionMapCard.jsx, global.css and the demo README.
+
+Production build and schedule regressions passed (10/10), with the existing >500 kB chunk advisory. Diff whitespace check passed. Browser visual verification was attempted but local URL connection timed out, so desktop/mobile layout remains unverified. Next: check heading alignment and wrapping, map-filter selection and retained action controls in the browser. Local only; no commit, push or deployment.
+
+## Removed map-header counts — 2026-11-27
+
+Removed the sites/firing-lines shown-versus-total text and mapped/shown badge from CollectionMapCard.jsx, keeping the Map filters label and purok dropdown. Barangay KPIs, filtering and map footer remain unchanged. Removed the unused inline count CSS and updated the demo README. Production build passed with the existing >500 kB chunk advisory. Browser appearance not rechecked; no new interaction logic. Local only; no commit, push or deployment. This supersedes the map-header count retention described above.
+
+## Removed empty pin-selection prompt — 2026-11-27
+
+Removed the Select a pin to review placeholder from PinManagerCard.jsx. With no selected pin or draft, the Pins panel proceeds directly from its heading to search and the site list. Selected-pin details, draft editors, Add pin/GPS controls and list empty messages are retained. Production build passed with the existing >500 kB chunk advisory; browser appearance not rechecked. Local only; no commit, push or deployment.

@@ -69,9 +69,7 @@ export default function PinManagerCard({ data, ui, actions, helpers }) {
                       <button className="danger-text-button" type="button" onClick={() => requestDelete("pin", selectedPin)}>Delete</button>
                     </div>
                   </div>
-                ) : (
-                  <div className="pin-selection-prompt"><span className="selection-target" aria-hidden="true">⌖</span><strong>Select a pin to review</strong><p>Choose a site below or on the map. Add a new pin by clicking <b>Add pin</b> and placing it on the map.</p></div>
-                )}
+                ) : null}
                 <label className="site-search"><span aria-hidden="true">⌕</span><input value={pinSearch} onChange={(event) => setPinSearch(event.target.value)} placeholder="Search sites or puroks" aria-label="Search collection sites" /></label>
                 <ul className="site-record-list" aria-label="Collection-site pins">
                   {visiblePins.map((pin, index) => (

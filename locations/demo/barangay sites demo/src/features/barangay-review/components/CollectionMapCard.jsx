@@ -2,13 +2,18 @@ import { BarangayMap, MapModeNotice } from "./MapView.jsx";
 import { formatNumber } from "../../../shared/utils/reviewFormatting.js";
 
 export default function CollectionMapCard({ data, ui, actions, refs }) {
-  const { selectedBarangay, mapFilteredPins, mapFilteredLines, mappedSiteCount, unlocatedSiteCount, removedSiteCount, selectedPinHasMapCoordinates, selectedPinForMap, mapPinPoints } = data;
+  const { selectedBarangay, mapFilteredPins, mapFilteredLines, mapPurokOptions, unlocatedSiteCount, removedSiteCount, selectedPinHasMapCoordinates, selectedPinForMap, mapPinPoints } = data;
   const { mode, linePoints, selectedLineNodeIndex, mapFocus, mapView, deviceLocation, selectedPinId, selectedLineId, pinDraft, lineDraft, isLocatingCurrentPosition, mapPurokFilter } = ui;
-  const { finishLineNodePlacement, cancelMapMode, finishLineDrawing, handleMapClick, selectPin, selectLine, selectLineNode, setUndoCount, recenterOnCurrentLocation, setMapFocus, setMapView, setPinDraft, updateLineNodePosition, deleteSelectedLineNode, disconnectFiringLine, requestDelete } = actions;
+  const { setMapPurokFilter, setSelectedPinId, setSelectedLineId, finishLineNodePlacement, cancelMapMode, finishLineDrawing, handleMapClick, selectPin, selectLine, selectLineNode, setUndoCount, recenterOnCurrentLocation, setMapFocus, setMapView, setPinDraft, updateLineNodePosition, deleteSelectedLineNode, disconnectFiringLine, requestDelete } = actions;
   const { pinDragStartRef, pinMoveUndoRef, reviewUndoRef, lineDraftUndoRef } = refs;
   return (
             <section className="map-card" aria-label={`${selectedBarangay.name} collection-site map`}>
-              <div className="map-card-heading"><div><h2>Collection map</h2></div><span className="map-count-card"><strong className="map-count-number">{formatNumber(mappedSiteCount)}</strong> mapped{mapPurokFilter !== "all" ? " shown" : ""}</span></div>
+              <div className="map-card-heading">
+                <section className="map-filters map-filters--inline" aria-label="Map filters">
+                  <div className="map-filter-title"><span className="filter-funnel" aria-hidden="true">▽</span><strong>Map filters</strong></div>
+                  <label><span>Purok</span><select value={mapPurokFilter} aria-label="Filter map by purok" onChange={(event) => { setMapPurokFilter(event.target.value); if (!pinDraft) setSelectedPinId(null); if (!lineDraft) setSelectedLineId(null); }}><option value="all">All puroks</option>{mapPurokOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
+                </section>
+              </div>
               <MapModeNotice
                 mode={mode}
                 linePointCount={linePoints.length}
