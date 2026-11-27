@@ -1,3 +1,4 @@
+import AnimatedSize from "../../../shared/ui/AnimatedSize.jsx";
 import GoogleStreetViewEditor from "./GoogleStreetViewEditor.jsx";
 import FiringLineEditor from "./FiringLineEditor.jsx";
 import { formatNumber } from "../../../shared/utils/reviewFormatting.js";
@@ -5,16 +6,21 @@ import { sourceScheduleRows } from "../utils/pinFormHelpers.js";
 
 export default function FiringLinesCard({ data, ui, actions }) {
   const { selectedBarangay, mapFilteredLines, selectedLine, selectedLineNode } = data;
-  const { mode, lineDraft, selectedLineId, selectedLineNodeIndex, showLineNodeStreetView, lineNodeLocationInput, lineNodeLocationError, lineNodeLocationMessage, isResolvingLineNodeLocation } = ui;
-  const { beginLineDrawing, saveLine, cancelMapMode, setLineDraft, finishLineNodePlacement, beginLineNodePlacement, deleteSelectedLineNode, setShowLineNodeStreetView, setLineNodeLocationInput, setLineNodeLocationError, setLineNodeLocationMessage, applyLineNodeLocation, handleLineNodeStreetViewPosition, beginEditLine, requestDelete, selectLine } = actions;
+  const { mode, pinDraft, lineManagerCollapsed, lineDraft, selectedLineId, selectedLineNodeIndex, showLineNodeStreetView, lineNodeLocationInput, lineNodeLocationError, lineNodeLocationMessage, isResolvingLineNodeLocation } = ui;
+  const { setLineManagerCollapsed, beginLineDrawing, saveLine, cancelMapMode, setLineDraft, finishLineNodePlacement, beginLineNodePlacement, deleteSelectedLineNode, setShowLineNodeStreetView, setLineNodeLocationInput, setLineNodeLocationError, setLineNodeLocationMessage, applyLineNodeLocation, handleLineNodeStreetViewPosition, beginEditLine, requestDelete, selectLine } = actions;
+  const panelCollapsed = lineDraft || mode === "draw-line" ? false : lineManagerCollapsed;
+  const editInProgress = Boolean(pinDraft || lineDraft || mode === "draw-line");
   return (
-              <section className="review-panel line-manager-panel">
+              <section className={`review-panel line-manager-panel${panelCollapsed ? " line-manager-panel--collapsed" : ""}`}>
                 <div className="tools-heading">
                   <div><p className="eyebrow">Route features</p><h2>Firing lines <span>{formatNumber(mapFilteredLines.length)}</span></h2></div>
                   <div className="line-manager-heading-actions">
-                    <button className={`small-action small-action--line${mode === "draw-line" ? " small-action--active" : ""}`} type="button" onClick={beginLineDrawing} aria-pressed={mode === "draw-line"}>{mode === "draw-line" ? "Cancel line" : "＋ Add line"}</button>
+                    {!panelCollapsed && <button className={`small-action small-action--line${mode === "draw-line" ? " small-action--active" : ""}`} type="button" onClick={beginLineDrawing} aria-pressed={mode === "draw-line"}>{mode === "draw-line" ? "Cancel line" : "＋ Add line"}</button>}
+                    <button className="small-action small-action--line" type="button" onClick={() => setLineManagerCollapsed((current) => !current)} disabled={editInProgress} aria-expanded={!panelCollapsed} aria-label={panelCollapsed ? "Show Firing lines panel" : "Minimize Firing lines panel"}>{panelCollapsed ? "Show" : "Minimize"}</button>
                   </div>
                 </div>
+                <AnimatedSize className="line-content-size-transition" collapsed={panelCollapsed}>
+                  <>
                 {lineDraft ? (
                   <FiringLineEditor
                     selectedBarangay={selectedBarangay}
@@ -120,6 +126,8 @@ export default function FiringLinesCard({ data, ui, actions }) {
                     </li>
                   ))}
                 </ul>
+                  </>
+                </AnimatedSize>
               </section>
   );
 }

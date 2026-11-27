@@ -1630,3 +1630,7 @@ body {
 .map-filters--inline { flex: 1 1 auto; flex-wrap: wrap; margin: 0; padding: 0; border: 0; border-radius: 0; background: transparent; }
 .map-filters--inline .map-filter-title { flex: 0 0 auto; min-width: 0; padding: 0 9px 0 0; border-right: 1px solid #e2e8e2; border-bottom: 0; }
 .map-filters--inline label { flex: 0 1 auto; grid-template-columns: auto minmax(105px, 1fr); }
+
+.line-manager-panel--collapsed { flex-grow: 0; padding-bottom: 12px; }
+.line-manager-panel--collapsed .tools-heading { margin-bottom: 0; }
+.barangay-map-layout--editing .line-content-size-transition:not(.card-size-transition--collapsed) { height: auto !important; overflow: visible; transition: opacity .2s ease; }

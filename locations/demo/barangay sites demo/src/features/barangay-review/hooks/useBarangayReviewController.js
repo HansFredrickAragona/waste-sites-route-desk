@@ -63,6 +63,7 @@ export function useBarangayReviewController(sourceUrl) {
   const [selectedPinId, setSelectedPinId] = useState(null);
   const [selectedLineId, setSelectedLineId] = useState(null);
   const [pinManagerCollapsed, setPinManagerCollapsed] = useState(false);
+  const [lineManagerCollapsed, setLineManagerCollapsed] = useState(false);
   const [toolsPanelWidthRatio, setToolsPanelWidthRatio] = useState(null);
   const [pinDraft, setPinDraft] = useState(null);
   const [pinEditorOpen, setPinEditorOpen] = useState(false);
@@ -104,6 +105,7 @@ export function useBarangayReviewController(sourceUrl) {
     pinDraft,
     pinEditorOpen,
     pinManagerCollapsed,
+    lineManagerCollapsed,
     toolsPanelWidthRatio,
     pinSearch,
     mapPurokFilter,
@@ -120,7 +122,7 @@ export function useBarangayReviewController(sourceUrl) {
     confirmationContactDraft,
   }), [
     page, selectedBarangayId, search, listFilter, mode, selectedPinId, selectedLineId,
-    pinDraft, pinEditorOpen, pinManagerCollapsed, toolsPanelWidthRatio, pinSearch, mapPurokFilter, pinLocationInput,
+    pinDraft, pinEditorOpen, pinManagerCollapsed, lineManagerCollapsed, toolsPanelWidthRatio, pinSearch, mapPurokFilter, pinLocationInput,
     lineDraft, linePoints, selectedLineNodeIndex, lineNodeLocationInput, mapView,
     showActivity, showBarangayDetails, barangayDetailsDraft, showConfirmationContact,
     confirmationContactDraft,
@@ -220,6 +222,7 @@ export function useBarangayReviewController(sourceUrl) {
         setPinDraft(restoredPinDraft);
         setPinEditorOpen(Boolean(restoredPinDraft && savedWorkspace?.pinEditorOpen));
         setPinManagerCollapsed(Boolean(restoredBarangay && savedWorkspace?.pinManagerCollapsed));
+        setLineManagerCollapsed(Boolean(restoredBarangay && savedWorkspace?.lineManagerCollapsed));
         setToolsPanelWidthRatio(savedWorkspace?.toolsPanelWidthRatio ?? null);
         setPinSearch(savedWorkspace?.pinSearch ?? "");
         setMapPurokFilter(savedWorkspace?.mapPurokFilter ?? "all");
@@ -492,6 +495,7 @@ export function useBarangayReviewController(sourceUrl) {
     setLinePoints([]);
     setMode("browse");
     setPinManagerCollapsed(false);
+    setLineManagerCollapsed(false);
   }
 
   function openBarangay(barangay) {
@@ -606,6 +610,7 @@ export function useBarangayReviewController(sourceUrl) {
     setPinDraft,
     setPinEditorOpen,
     setPinManagerCollapsed,
+    setLineManagerCollapsed,
     setSelectedLineId,
     setSelectedLineNodeIndex,
     setSelectedPinId,
@@ -711,7 +716,9 @@ export function useBarangayReviewController(sourceUrl) {
     selectedLineId,
     setSelectedLineId,
     pinManagerCollapsed,
+    lineManagerCollapsed,
     setPinManagerCollapsed,
+    setLineManagerCollapsed,
     toolsPanelWidthRatio,
     setToolsPanelWidthRatio,
     pinDraft,

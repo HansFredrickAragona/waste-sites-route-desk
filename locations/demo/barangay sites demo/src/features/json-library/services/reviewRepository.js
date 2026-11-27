@@ -321,6 +321,7 @@ export function loadWorkspaceSession(jsonId = BUNDLED_JSON_ID) {
       pinDraft: state.pinDraft && typeof state.pinDraft === "object" ? state.pinDraft : null,
       pinEditorOpen: state.pinEditorOpen === true,
       pinManagerCollapsed: state.pinManagerCollapsed === true,
+      lineManagerCollapsed: state.lineManagerCollapsed === true,
       toolsPanelWidthRatio: typeof state.toolsPanelWidthRatio === "number" && Number.isFinite(state.toolsPanelWidthRatio) && state.toolsPanelWidthRatio >= 0.24 && state.toolsPanelWidthRatio <= 0.78
         ? state.toolsPanelWidthRatio
         : null,

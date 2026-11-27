@@ -66,3 +66,5 @@ GeoJSON exports include the saved collection-site name in name, alongside barang
 GeoJSON also includes named firing lines as LineString features with ordered connected nodes, type firing_line and assigned puroks. Both Points and LineStrings expose only name for the saved name. Preview counts cover both geometry types. Lines with fewer than two valid nodes or any invalid coordinate are excluded as a whole.
 
 The site-review heading places the barangay name, three summary counts, and existing actions in one row when space allows, wrapping on smaller screens. The JSON source label is removed from this heading. Map filters now sit inside the map card header in place of Collection map. Shown/total counts and the mapped badge were subsequently removed at the owner’s request.
+
+The Firing lines card has a Minimize/Show button like Pins. Its collapsed state resumes with the browser field session. Drawing or editing a line keeps its content open; minimizing is disabled during an active pin/line edit.

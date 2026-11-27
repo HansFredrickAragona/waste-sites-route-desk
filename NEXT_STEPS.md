@@ -456,3 +456,10 @@ Removed the sites/firing-lines shown-versus-total text and mapped/shown badge fr
 ## Removed empty pin-selection prompt — 2026-11-27
 
 Removed the Select a pin to review placeholder from PinManagerCard.jsx. With no selected pin or draft, the Pins panel proceeds directly from its heading to search and the site list. Selected-pin details, draft editors, Add pin/GPS controls and list empty messages are retained. Production build passed with the existing >500 kB chunk advisory; browser appearance not rechecked. Local only; no commit, push or deployment.
+
+## Firing lines Minimize/Show — 2026-11-27
+
+Added a Minimize/Show button to FiringLinesCard.jsx using the existing AnimatedSize component. Collapsing keeps the heading/count and Show control, hides Add line and card content, and removes the panel’s flex growth. Drawing or editing a line forces content open; minimizing is disabled during an active pin/line edit, matching Pins. Controller/App wiring and workspace-session normalization remember the collapsed state in the existing browser session path and reset it on barangay opening. Updated demo README. Schedule regressions passed 10/10, production build passed with the existing >500 kB chunk advisory, and diff whitespace check passed. Browser click/animation/session-restore checks remain pending. Local only; no commit, push or deployment.
+
+## Firing-line toggle color — 2026-11-27
+Applied the existing small-action--line class to the Firing lines Minimize/Show button so it shares Add line’s purple normal/hover styling. Build passed with the existing chunk advisory. Browser appearance not rechecked. Local only, not deployed.
