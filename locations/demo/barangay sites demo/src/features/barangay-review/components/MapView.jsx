@@ -101,6 +101,7 @@ function MapResizeObserver() {
 export function BarangayMap({
   barangay,
   mapPins,
+  mapLines,
   focus,
   mapView,
   deviceLocation,
@@ -128,6 +129,8 @@ export function BarangayMap({
   const [nodeMenu, setNodeMenu] = useState(null);
   const pins = mapPins.map((pin) => pinDraft?.id === pin.id ? pinDraft : pin).filter(hasMapCoordinates);
   if (pinDraft && !mapPins.some((pin) => pin.id === pinDraft.id) && hasMapCoordinates(pinDraft)) pins.push(pinDraft);
+  const lines = mapLines.map((line) => lineDraft?.id === line.id ? lineDraft : line);
+  if (lineDraft && !lineDraft.isNew && !lines.some((line) => line.id === lineDraft.id)) lines.push(lineDraft);
   const canDisconnectAtMenuNode = Boolean(nodeMenu && lineDraft && nodeMenu.index >= 1 && nodeMenu.index < lineDraft.coordinates.length - 2);
   const canDeleteAtMenuNode = Boolean(lineDraft && lineDraft.coordinates.length > 2);
 
@@ -200,7 +203,7 @@ export function BarangayMap({
           </Marker>
         );
       })}
-      {barangay.firingLines.map((line) => {
+      {lines.map((line) => {
         const editing = lineDraft?.id === line.id;
         const coordinates = editing ? lineDraft.coordinates : line.coordinates;
         return (

@@ -4,13 +4,13 @@ import { formatNumber } from "../../../shared/utils/reviewFormatting.js";
 import { sourceScheduleRows } from "../utils/pinFormHelpers.js";
 
 export default function FiringLinesCard({ data, ui, actions }) {
-  const { selectedBarangay, selectedLine, selectedLineNode } = data;
+  const { selectedBarangay, mapFilteredLines, selectedLine, selectedLineNode } = data;
   const { mode, lineDraft, selectedLineId, selectedLineNodeIndex, showLineNodeStreetView, lineNodeLocationInput, lineNodeLocationError, lineNodeLocationMessage, isResolvingLineNodeLocation } = ui;
   const { beginLineDrawing, saveLine, cancelMapMode, setLineDraft, finishLineNodePlacement, beginLineNodePlacement, deleteSelectedLineNode, setShowLineNodeStreetView, setLineNodeLocationInput, setLineNodeLocationError, setLineNodeLocationMessage, applyLineNodeLocation, handleLineNodeStreetViewPosition, beginEditLine, requestDelete, selectLine } = actions;
   return (
               <section className="review-panel line-manager-panel">
                 <div className="tools-heading">
-                  <div><p className="eyebrow">Route features</p><h2>Firing lines <span>{formatNumber(selectedBarangay.firingLines.length)}</span></h2></div>
+                  <div><p className="eyebrow">Route features</p><h2>Firing lines <span>{formatNumber(mapFilteredLines.length)}</span></h2></div>
                   <div className="line-manager-heading-actions">
                     <button className={`small-action small-action--line${mode === "draw-line" ? " small-action--active" : ""}`} type="button" onClick={beginLineDrawing} aria-pressed={mode === "draw-line"}>{mode === "draw-line" ? "Cancel line" : "＋ Add line"}</button>
                   </div>
@@ -111,8 +111,9 @@ export default function FiringLinesCard({ data, ui, actions }) {
                 ) : selectedBarangay.firingLines.length === 0 ? (
                   <div className="line-empty-state"><span aria-hidden="true">⌁</span><strong>No firing lines yet</strong><p>Add a line, then click map locations to trace its path. Double-click or use Finish line to complete it.</p></div>
                 ) : null}
+                {selectedBarangay.firingLines.length > 0 && mapFilteredLines.length === 0 && <p className="site-list-empty">No firing lines match the purok filter.</p>}
                 <ul className="firing-line-list" aria-label="Firing lines">
-                  {selectedBarangay.firingLines.map((line) => (
+                  {mapFilteredLines.map((line) => (
                     <li key={line.id} className={selectedLineId === line.id ? "firing-line-row--active" : ""}>
                       <button className="firing-line-select" type="button" onClick={() => selectLine(line.id)}><span className="line-swatch" /><span><strong>{line.name}</strong><small>{line.coordinates.length} nodes{line.puroks?.length ? ` · ${line.puroks.join(", ")}` : ""}{line.sample ? " · demo example" : ""}</small></span></button>
                       <div className="firing-line-actions"><button type="button" className="line-edit-button" onClick={() => beginEditLine(line)}>Edit</button><button type="button" className="danger-text-button" onClick={() => requestDelete("line", line)}>Delete</button></div>

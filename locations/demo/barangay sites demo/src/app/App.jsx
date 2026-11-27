@@ -57,8 +57,8 @@ function App() {
     mapPinPoints,
     visiblePins,
     mapFilteredPins,
+    mapFilteredLines,
     mapPurokOptions,
-    mapSiteStatusOptions,
     mappedSiteCount,
     unlocatedSiteCount,
     removedSiteCount,
@@ -88,9 +88,8 @@ function App() {
     pinSearch,
     mapPurokFilter,
     setMapPurokFilter,
-    mapSiteStatusFilter,
-    setMapSiteStatusFilter,
     setSelectedPinId,
+    setSelectedLineId,
     openDetailsEditor,
     setConfirmed,
     openConfirmationContactEditor,
@@ -208,8 +207,8 @@ function App() {
     mapPinPoints,
     visiblePins,
     mapFilteredPins,
+    mapFilteredLines,
     mapPurokOptions,
-    mapSiteStatusOptions,
   };
   const ui = {
     page,
@@ -234,7 +233,6 @@ function App() {
     lineNodeLocationMessage,
     pinSearch,
     mapPurokFilter,
-    mapSiteStatusFilter,
   };
   const actions = {
     openDetailsEditor,
@@ -262,8 +260,8 @@ function App() {
     setPinLocationInput,
     setPinSearch,
     setMapPurokFilter,
-    setMapSiteStatusFilter,
     setSelectedPinId,
+    setSelectedLineId,
     beginEditPin,
     requestDelete,
     beginLineDrawing,

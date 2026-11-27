@@ -1,3 +1,4 @@
+import { normalizeAssignedPuroks } from "../../../shared/utils/purokAssignments.js";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { hasMapCoordinates } from "../../../shared/utils/reviewFormatting.js";
 import {
@@ -32,10 +33,6 @@ import {
 } from "../utils/pinFormHelpers.js";
 
 const EMPTY_ACTIVITY = [];
-
-function siteStatusForFilter(pin) {
-  return String(pin.statusType || pin.sourceStatusLabel || pin.status?.type || "").trim();
-}
 
 function emptyReviewData(activityLog = []) {
   return { schemaVersion: 1, source: null, jsonSource: null, barangays: [], activityLog };
@@ -84,7 +81,6 @@ export function useBarangayReviewController(sourceUrl) {
   const [pinLocationInput, setPinLocationInput] = useState("");
   const [pinSearch, setPinSearch] = useState("");
   const [mapPurokFilter, setMapPurokFilter] = useState("all");
-  const [mapSiteStatusFilter, setMapSiteStatusFilter] = useState("all");
   const [pendingDelete, setPendingDelete] = useState(null);
   const [showJsonDeleteConfirmation, setShowJsonDeleteConfirmation] = useState(false);
   const fileInputRef = useRef(null);
@@ -111,7 +107,6 @@ export function useBarangayReviewController(sourceUrl) {
     toolsPanelWidthRatio,
     pinSearch,
     mapPurokFilter,
-    mapSiteStatusFilter,
     pinLocationInput: pinDraft ? pinLocationInput : "",
     lineDraft,
     linePoints,
@@ -125,7 +120,7 @@ export function useBarangayReviewController(sourceUrl) {
     confirmationContactDraft,
   }), [
     page, selectedBarangayId, search, listFilter, mode, selectedPinId, selectedLineId,
-    pinDraft, pinEditorOpen, pinManagerCollapsed, toolsPanelWidthRatio, pinSearch, mapPurokFilter, mapSiteStatusFilter, pinLocationInput,
+    pinDraft, pinEditorOpen, pinManagerCollapsed, toolsPanelWidthRatio, pinSearch, mapPurokFilter, pinLocationInput,
     lineDraft, linePoints, selectedLineNodeIndex, lineNodeLocationInput, mapView,
     showActivity, showBarangayDetails, barangayDetailsDraft, showConfirmationContact,
     confirmationContactDraft,
@@ -228,7 +223,6 @@ export function useBarangayReviewController(sourceUrl) {
         setToolsPanelWidthRatio(savedWorkspace?.toolsPanelWidthRatio ?? null);
         setPinSearch(savedWorkspace?.pinSearch ?? "");
         setMapPurokFilter(savedWorkspace?.mapPurokFilter ?? "all");
-        setMapSiteStatusFilter(savedWorkspace?.mapSiteStatusFilter ?? "all");
         setPinLocationInput(restoredPinDraft ? savedWorkspace?.pinLocationInput ?? "" : "");
         setLineDraft(restoredLineDraft);
         setLinePoints(restoredMode === "draw-line" ? savedWorkspace?.linePoints ?? [] : []);
@@ -384,20 +378,25 @@ export function useBarangayReviewController(sourceUrl) {
   const selectedBarangay = barangays.find((barangay) => barangay.id === selectedBarangayId) ?? null;
   const selectedPin = selectedBarangay?.pins.find((pin) => pin.id === selectedPinId) ?? null;
   const selectedPinForMap = pinDraft?.id === selectedPinId ? pinDraft : selectedPin;
-  const mapPurokOptions = [...new Set((selectedBarangay?.pins ?? []).map((pin) => String(pin.purok ?? "").trim()))]
+  const mapPurokOptions = [...new Set([
+    ...(selectedBarangay?.pins ?? []).map((pin) => String(pin.purok ?? "").trim()),
+    ...(selectedBarangay?.firingLines ?? []).flatMap((line) => {
+      const puroks = normalizeAssignedPuroks(line.puroks ?? line.purok);
+      return puroks.length ? puroks : [""];
+    }),
+  ])]
     .sort((left, right) => left.localeCompare(right))
     .map((value) => ({ value, label: value || "Not assigned" }));
-  const mapSiteStatusOptions = [...new Set((selectedBarangay?.pins ?? []).map(siteStatusForFilter))]
-    .sort((left, right) => left.localeCompare(right))
-    .map((value) => ({ value, label: value || "No status" }));
   const activeMapPurokFilter = mapPurokFilter === "all" || mapPurokOptions.some((option) => option.value === mapPurokFilter)
     ? mapPurokFilter : "all";
-  const activeMapSiteStatusFilter = mapSiteStatusFilter === "all" || mapSiteStatusOptions.some((option) => option.value === mapSiteStatusFilter)
-    ? mapSiteStatusFilter : "all";
   const mapFilteredPins = (selectedBarangay?.pins ?? []).filter((pin) =>
-    (activeMapPurokFilter === "all" || String(pin.purok ?? "").trim() === activeMapPurokFilter) &&
-    (activeMapSiteStatusFilter === "all" || siteStatusForFilter(pin) === activeMapSiteStatusFilter)
+    activeMapPurokFilter === "all" || String(pin.purok ?? "").trim() === activeMapPurokFilter
   );
+  const mapFilteredLines = (selectedBarangay?.firingLines ?? []).filter((line) => {
+    const puroks = normalizeAssignedPuroks(line.puroks ?? line.purok);
+    return activeMapPurokFilter === "all" ||
+      (activeMapPurokFilter === "" ? puroks.length === 0 : puroks.includes(activeMapPurokFilter));
+  });
   const mapPinPoints = mapFilteredPins
     .map((pin) => pinDraft?.id === pin.id ? pinDraft : pin)
     .filter(hasMapCoordinates)
@@ -504,7 +503,6 @@ export function useBarangayReviewController(sourceUrl) {
     setSelectedLineId(null);
     setPinSearch("");
     setMapPurokFilter("all");
-    setMapSiteStatusFilter("all");
   }
 
   function returnToBarangayList() {
@@ -522,7 +520,6 @@ export function useBarangayReviewController(sourceUrl) {
     setToolsPanelWidthRatio(null);
     setPinSearch("");
     setMapPurokFilter("all");
-    setMapSiteStatusFilter("all");
     setPinLocationInput("");
     setLineNodeLocationInput("");
     setShowActivity(false);
@@ -751,8 +748,6 @@ export function useBarangayReviewController(sourceUrl) {
     setPinSearch,
     mapPurokFilter: activeMapPurokFilter,
     setMapPurokFilter,
-    mapSiteStatusFilter: activeMapSiteStatusFilter,
-    setMapSiteStatusFilter,
     pendingDelete,
     setPendingDelete,
     showJsonDeleteConfirmation,
@@ -833,8 +828,8 @@ export function useBarangayReviewController(sourceUrl) {
     exportSelectedBarangayCsv,
     visiblePins,
     mapFilteredPins,
+    mapFilteredLines,
     mapPurokOptions,
-    mapSiteStatusOptions,
     mappedSiteCount,
     unlocatedSiteCount,
     removedSiteCount,

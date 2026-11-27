@@ -745,3 +745,13 @@ Report tests passed 4/4 and schedule tests passed 10/10; build passed with the e
 ## GeoJSON name field correction — 2026-11-26
 
 Owner removed the redundant `site_name` export alias. Both collection Points and firing LineStrings now use only `name` for their saved names. This supersedes the alias descriptions above; source/review JSON fields are unchanged. Report regression tests passed 4/4 and diff whitespace check passed. Browser/download not rerun. Local only, not deployed.
+
+## Barangay map purok filter includes firing lines — 2026-11-27
+
+The purok dropdown now includes saved pin and firing-line assignments, including line-only puroks and Not assigned. Lines match any assigned purok and are filtered on the collection map and firing-line list; site status remains pin-only. Separate shown/total site and line counts are displayed. Existing line drafts remain visible during editing; changing purok clears the selected saved line when no line draft is open. Source/review records and persistence are unchanged.
+
+Checks: targeted execution of the controller filter block covered all, multiple assignments, line-only puroks, unassigned and legacy single-purok lines; schedule regressions passed 10/10; production build passed with existing >500 kB chunk advisory. Real browser/mobile interaction remains unverified and is the next check. Local only; no commit, push or deployment.
+
+## Removed Barangay map Site status filter — 2026-11-27
+
+Removed the Site status dropdown and its controller/session filtering state. Previously saved status filters are ignored, so they cannot hide pins. The purok dropdown still filters pins and firing lines. Recorded site/source statuses, review data, and all confirmation controls remain unchanged. This supersedes earlier map-status-filter descriptions. Updated the demo README. Schedule regressions passed 10/10 and production build passed; output still includes JavaScript chunks over 500 kB. Diff whitespace check passed. Browser interaction remains unverified. Local only; no commit, push or deployment.

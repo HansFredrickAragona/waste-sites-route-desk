@@ -326,7 +326,6 @@ export function loadWorkspaceSession(jsonId = BUNDLED_JSON_ID) {
         : null,
       pinSearch: typeof state.pinSearch === "string" ? state.pinSearch : "",
       mapPurokFilter: typeof state.mapPurokFilter === "string" ? state.mapPurokFilter : "all",
-      mapSiteStatusFilter: typeof state.mapSiteStatusFilter === "string" ? state.mapSiteStatusFilter : "all",
       pinLocationInput: typeof state.pinLocationInput === "string" ? state.pinLocationInput : "",
       lineDraft: state.lineDraft && typeof state.lineDraft === "object" ? state.lineDraft : null,
       linePoints: Array.isArray(state.linePoints) ? state.linePoints.filter(validPoint).map((point) => [Number(point[0]), Number(point[1])]) : [],

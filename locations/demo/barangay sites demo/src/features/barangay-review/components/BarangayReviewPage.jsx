@@ -5,9 +5,9 @@ import MapColumnResizer from "./MapColumnResizer.jsx";
 import { formatNumber } from "../../../shared/utils/reviewFormatting.js";
 
 export default function BarangayReviewPage({ data, ui, actions, refs, helpers }) {
-  const { selectedBarangay, activeJson, mapFilteredPins, mapPurokOptions, mapSiteStatusOptions } = data;
-  const { page, pinDraft, lineDraft, mode, toolsPanelWidthRatio, mapPurokFilter, mapSiteStatusFilter } = ui;
-  const { openDetailsEditor, setConfirmed, openConfirmationContactEditor, exportSelectedBarangayCsv, setMapPurokFilter, setMapSiteStatusFilter, setSelectedPinId, setToolsPanelWidthRatio } = actions;
+  const { selectedBarangay, activeJson, mapFilteredPins, mapPurokOptions } = data;
+  const { page, pinDraft, lineDraft, mode, toolsPanelWidthRatio, mapPurokFilter } = ui;
+  const { openDetailsEditor, setConfirmed, openConfirmationContactEditor, exportSelectedBarangayCsv, setMapPurokFilter, setSelectedPinId, setSelectedLineId, setToolsPanelWidthRatio } = actions;
   return (
     <>
       {page === "map" && selectedBarangay && (
@@ -49,8 +49,7 @@ export default function BarangayReviewPage({ data, ui, actions, refs, helpers })
 
           <section className="map-filters" aria-label="Map filters">
             <div className="map-filter-title"><span className="filter-funnel" aria-hidden="true">▽</span><strong>Map filters</strong></div>
-            <label><span>Purok</span><select value={mapPurokFilter} aria-label="Filter map by purok" onChange={(event) => { setMapPurokFilter(event.target.value); if (!pinDraft) setSelectedPinId(null); }}><option value="all">All puroks</option>{mapPurokOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
-            <label><span>Site status</span><select value={mapSiteStatusFilter} aria-label="Filter map by site status" onChange={(event) => { setMapSiteStatusFilter(event.target.value); if (!pinDraft) setSelectedPinId(null); }}><option value="all">All statuses</option>{mapSiteStatusOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
+            <label><span>Purok</span><select value={mapPurokFilter} aria-label="Filter map by purok" onChange={(event) => { setMapPurokFilter(event.target.value); if (!pinDraft) setSelectedPinId(null); if (!lineDraft) setSelectedLineId(null); }}><option value="all">All puroks</option>{mapPurokOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
             <p aria-live="polite">{formatNumber(mapFilteredPins.length)} of {formatNumber(selectedBarangay.pins.length)} sites shown</p>
           </section>
 
